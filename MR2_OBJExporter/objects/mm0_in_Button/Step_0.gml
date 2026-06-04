@@ -13,6 +13,7 @@ if (Import_MM0 == 1){
 	obj_out_success = 0;
 	
 	if (user_filepath_given == false){
+		filepath = "";
 		for (var a = 0; a < array_length(filename_array) - 1;a++){
 			filepath = string_insert(string(filename_array[a] + "\\"), filepath, string_length(filepath) + 1);
 		}
