@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"tmd_model_draw_testing",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"tmd_model_draw_testing",
+  "parent":{
+    "name":"Draw",
+    "path":"folders/Scripts/Draw.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

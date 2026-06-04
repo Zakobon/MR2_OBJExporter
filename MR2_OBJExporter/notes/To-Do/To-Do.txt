@@ -1,0 +1,5 @@
+-------------------[to-do]-------------------
+- Instruction panel for tips dealing with messed up normals in Blender with [Recalculate Normals]
+	- Step 1: Enter "Edit Mode"
+	- Step 2: Press [A] to select all
+	- Step 3: Press [Shift] + [N] to recalculate normals

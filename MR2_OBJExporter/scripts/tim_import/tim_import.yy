@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"tim_import",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"tim_import",
+  "parent":{
+    "name":"TEX",
+    "path":"folders/Scripts/TEX.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

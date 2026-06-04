@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"vram",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"vram",
+  "parent":{
+    "name":"Surface",
+    "path":"folders/Scripts/Draw/Surface.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

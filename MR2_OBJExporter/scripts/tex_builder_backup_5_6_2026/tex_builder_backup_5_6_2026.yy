@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"tex_builder_backup_5_6_2026",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"tex_builder_backup_5_6_2026",
+  "parent":{
+    "name":"Backup",
+    "path":"folders/Backup.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

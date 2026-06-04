@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"tim_delete",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"tim_delete",
+  "parent":{
+    "name":"TEX",
+    "path":"folders/Scripts/TEX.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

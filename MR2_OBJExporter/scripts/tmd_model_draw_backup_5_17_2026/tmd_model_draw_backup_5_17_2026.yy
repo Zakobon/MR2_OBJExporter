@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"tmd_model_draw_backup_5_17_2026",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"tmd_model_draw_backup_5_17_2026",
+  "parent":{
+    "name":"Draw",
+    "path":"folders/Scripts/Draw.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

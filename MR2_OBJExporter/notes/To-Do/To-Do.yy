@@ -1,0 +1,13 @@
+{
+  "$GMNotes":"v1",
+  "%Name":"To-Do",
+  "name":"To-Do",
+  "openedOnFirstLoad":true,
+  "parent":{
+    "name":"MR2_OBJExporter",
+    "path":"MR2_OBJExporter.yyp",
+  },
+  "resourceType":"GMNotes",
+  "resourceVersion":"2.0",
+  "shouldOpenOnLoad":true,
+}

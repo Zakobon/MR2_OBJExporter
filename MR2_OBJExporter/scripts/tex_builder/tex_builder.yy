@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"tex_builder",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"tex_builder",
+  "parent":{
+    "name":"TEX",
+    "path":"folders/Scripts/TEX.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"tim_create_backup",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"tim_create_backup",
+  "parent":{
+    "name":"Backup",
+    "path":"folders/Backup.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}
