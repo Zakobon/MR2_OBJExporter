@@ -390,7 +390,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -400,7 +400,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -411,7 +411,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -438,7 +438,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -448,7 +448,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -459,7 +459,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -486,7 +486,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -496,7 +496,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -507,7 +507,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -535,7 +535,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -545,7 +545,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -556,7 +556,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -584,7 +584,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -594,7 +594,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -605,7 +605,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -633,7 +633,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -643,7 +643,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -654,7 +654,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -681,7 +681,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -691,7 +691,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -702,7 +702,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -729,7 +729,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -739,7 +739,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -750,7 +750,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
