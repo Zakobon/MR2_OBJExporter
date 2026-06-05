@@ -189,21 +189,21 @@ function export_obj(){
 	array_push(obj_string_array, string("# {0} vertices", array_length(tmd_edit.vert)) + "\n");
 	array_push(obj_string_array, "\n");
 	
-	////normals section
-	//if(array_length(tmd_edit.norm) > 0){
-	//	for (var a = 0; a < array_length(tmd_edit.norm); a++){
-	//		array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(tmd_edit.norm[a].nx), str_obj_norm(-tmd_edit.norm[a].ny), str_obj_norm(tmd_edit.norm[a].nz)) + "\n");
-	//	}
-	//}
-	//else {array_push(obj_string_array, string("vn 0.000000 0.000000 0.000000") + "\n");}//default for no normals
-	////comment with normal count
-	//array_push(obj_string_array, string("# {0} normals", array_length(tmd_edit.norm)) + "\n");
-	//array_push(obj_string_array, "\n");
+	//normals section
+	if(array_length(tmd_edit.norm) > 0){ 
+		for (var a = 0; a < array_length(tmd_edit.norm); a++){
+			array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(tmd_edit.norm[a].nx), str_obj_norm(tmd_edit.norm[a].ny), str_obj_norm(tmd_edit.norm[a].nz)) + "\n");
+		}
+	}
+	else {array_push(obj_string_array, string("vn 0.000000 0.000000 0.000000") + "\n");}//default for no normals
+	//comment with normal count
+	array_push(obj_string_array, string("# {0} normals", array_length(tmd_edit.norm)) + "\n");
+	array_push(obj_string_array, "\n");
 	
-	//array_push(obj_string_array, string("vn 0.000000 0.000000 0.000000") + "\n");
-	////comment with normal count
-	//array_push(obj_string_array, string("# {0} normals", 1) + "\n");
-	//array_push(obj_string_array, "\n");
+	array_push(obj_string_array, string("vn 0.000000 0.000000 0.000000") + "\n");
+	//comment with normal count
+	array_push(obj_string_array, string("# {0} normals", 1) + "\n");
+	array_push(obj_string_array, "\n");
 	
 	
 	//vertex texture page coords
@@ -318,7 +318,8 @@ function export_obj(){
 
 		change = tmd_edit.objects[a].vert_off - tmd_edit.objects[0].vert_off;
 		vert_base = change / 8;
-
+		change = tmd_edit.objects[a].normal_off - tmd_edit.objects[0].normal_off;
+		norm_base = change / 8;
 		f28 = [[],[]];
 		f29 = [[],[]];
 		f30 = [[],[]];
@@ -328,7 +329,7 @@ function export_obj(){
 			primitive = tmd_edit.prim[b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num];
 			switch (primitive.page_x){
 				case 12:
-				switch ((current_prim.cmd >> 1) && 0b1){
+				switch ((primitive.cmd >> 1) && 0b1){
 					case 0:
 					array_push(f28[0], current_prim);
 					break;
@@ -389,7 +390,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -399,7 +400,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -410,7 +411,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -437,7 +438,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -447,7 +448,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -458,7 +459,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -485,7 +486,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -495,7 +496,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -506,7 +507,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -534,7 +535,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -544,7 +545,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -555,7 +556,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -583,7 +584,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -593,7 +594,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -604,7 +605,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -632,7 +633,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -642,7 +643,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -653,7 +654,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -680,7 +681,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -690,7 +691,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -701,7 +702,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -728,7 +729,7 @@ function export_obj(){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -738,7 +739,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -749,7 +750,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));
+						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base), string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
