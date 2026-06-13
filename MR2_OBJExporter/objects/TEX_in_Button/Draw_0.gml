@@ -6,7 +6,12 @@ switch (instance_exists(ImportTIM)){
 	switch (png_out_success){
 		case true:
 		draw_set_colour($FFAAFFAA);
-		draw_text_transformed(TEX_fname.left + 212, TEX_fname.top + 4,string("[PNGs] Exported Successfully"), .75, .75, 0);
+		if (png_duplicate > 1){
+			draw_text_transformed(TEX_fname.left + 212, TEX_fname.top + 4,string("[PNGs] Exported Successfully (x{0})", png_duplicate), .75, .75, 0);
+		}
+		else{
+			draw_text_transformed(TEX_fname.left + 212, TEX_fname.top + 4,string("[PNGs] Exported Successfully"), .75, .75, 0);
+		}
 		break;
 		
 		case false:

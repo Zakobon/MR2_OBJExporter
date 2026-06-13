@@ -10,7 +10,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"Data Display",
-    "path":"folders/Objects/Data Display.yy",
+    "path":"folders/Objects/Unused/Data Display.yy",
   },
   "parentObjectId":null,
   "persistent":false,

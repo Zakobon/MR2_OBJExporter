@@ -6,7 +6,7 @@ globalvar tmd_draw;
 tmd_draw = -1;
 
 globalvar draw_refresh; 
-draw_refresh = 1;
+draw_refresh = 0;
 
 globalvar draw_vram; //draw surface for all 32 VRAM pages
 draw_vram = -1;
@@ -22,26 +22,43 @@ UI = layer_get_flexpanel_node("UI");
 
 
 
-globalvar vrampages; //pages 28-31 as an entire surface(1024, 256)
-vrampages = -1;
+//Visibilty ui settings
+globalvar view_semitransparency; //true = alpha applied
+view_semitransparency = false;
+globalvar view_transparency; //true = Checkered, false = Black
+view_transparency = true;
+globalvar vramback; //Background layer so that transparency is recognizable (checkered pattern)
+vramback = -1;
 
-globalvar vram28; //vram page surfaces(256, 256) for png export, "cut" from vrampages
-vram28 = -1;
+//vram page surfaces(256, 256) for png export
+globalvar vram28; 
+vram28 = [-1, -1, -1, -1];
 globalvar vram29;
-vram29 = -1;
+vram29 = [-1, -1, -1, -1];
 globalvar vram30;
-vram30 = -1;
+vram30 = [-1, -1, -1, -1];
 globalvar vram31;
-vram31 = -1;
+vram31 = [-1, -1, -1, -1];
+
+
+//transparency_mode = [ 
+// Opaque,
+// Semi-Transparent_0 (Front(% 50) + Back(% 50)),
+// Semi-Transparent_1 (Front(%100) + Back(%100)), //Dunno how to do the following in OBJ/MTL yet...
+// Semi-Transparent_2 (Front(%100) - Back(%100)), 
+// Semi-Transparent_3 (Front(%100) + Back(% 25))
+//] 
+globalvar transparency_mode; //unused currently
+transparency_mode = [1, .75, 1, 1, .25];
 
 globalvar draw_check28; //for identifying what vram pages have been drawn to
-draw_check28 = false; 
+draw_check28 = [false, false, false, false, false]; 
 globalvar draw_check29;
-draw_check29 = false;
+draw_check29 = [false, false, false, false, false];
 globalvar draw_check30;
-draw_check30 = false;
+draw_check30 = [false, false, false, false, false];
 globalvar draw_check31;
-draw_check31 = false;
+draw_check31 = [false, false, false, false, false];
 
 globalvar Main_View; //Main drawing area. Large square(512x512) in center of window
 window = flexpanel_node_get_child(UI, "Main_View");

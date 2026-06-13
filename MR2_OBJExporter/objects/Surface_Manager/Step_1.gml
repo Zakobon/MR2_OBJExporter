@@ -1,87 +1,203 @@
-//Fill with surface builders on timers
 //if (draw_refresh == 0){
 //	exit;
 //}
-if (!surface_exists(draw_ui_grid)){
-	draw_ui_grid = surface_create(512, 512);
-	surface_set_target(draw_ui_grid);
-	draw_clear_alpha(c_white, true);
+//if (!surface_exists(draw_ui_grid)){
+//	draw_ui_grid = surface_create(512, 512);
+//	surface_set_target(draw_ui_grid);
+//	draw_clear_alpha(c_white, true);
 	
 	
-	surface_reset_target();
-	view_surface_id[0] = draw_ui_grid;
-	draw_set_alpha(1);
-}
+//	surface_reset_target();
+//	view_surface_id[0] = draw_ui_grid;
+//	draw_set_alpha(1);
+//}
 
 
 if (ds_list_size(tim_list) != 0){
-	if (!surface_exists(vram28)){
-		vram28 = surface_create(256, 256);
+	if (!surface_exists(vramback)){ //vram page background for transparency visibility
+		draw_set_alpha(1);
+		vramback = surface_create(256, 256); 
+			
+		surface_set_target(vramback);
+		draw_sprite(T_Grid, 0, 0, 0);
+		surface_reset_target();
+		view_surface_id[0] = vramback;
 	}
-	surface_set_target(vram28);
-	draw_clear_alpha(c_white, true);
-	for (var a = 0; a < ds_list_size(tim_list);a++){
-		px = tim_list[|a].pixel_x - 768;
-		if (px < 0 || px > 63){
-			continue;
+	for (var a = 0; a < 4; a++) { //run twice because we only have 2 transparency modes made
+		switch (a % 2){
+			case 0:
+			fill = true;
+			break;
+			case 1:
+			fill = false;
+			break;
 		}
-		tim_rgb_draw(- 768, -256, tim_list[|a], 1, 1, 1);
-		draw_check28 = true;
-	}
-	surface_reset_target();
-	view_surface_id[0] = vram28;
-	draw_set_alpha(1);
+		
+		if (!surface_exists(vram28[a]) || draw_refresh != 0){
+			vram28[a] = surface_create(256, 256);
+			
+			draw_set_alpha(1);
+			surface_set_target(vram28[a]);
+			draw_clear_alpha(c_white, true);
+			if (a < 2){
+				for (var b = 0; b < ds_list_size(tim_list); b++){
+					px = tim_list[|b].pixel_x - 768;
+					if (px < 0 || px > 63){
+						continue;
+					}
+					tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, fill);
+					draw_check28[a] = true;
+				}
+			}
+			else{
+				switch (view_transparency){
+					case false:
+					draw_clear_alpha(c_black, true);
+					break;
 	
-	if (!surface_exists(vram29)){
-		vram29 = surface_create(256, 256);
-	}
-	surface_set_target(vram29);
-	draw_clear_alpha(c_white, true);
-	for (var a = 0; a < ds_list_size(tim_list);a++){
-		px = tim_list[|a].pixel_x - 832;
-		if (px < 0 || px > 63){
-			continue;
+					case true:
+					draw_surface(vramback, 0, 0);
+					break;
+				}
+				draw_surface(vram28[a - 2], 0, 0);
+			}
+			surface_reset_target();
+			view_surface_id[0] = vram28[a];
+			
+			draw_set_alpha(1);
 		}
-		tim_rgb_draw(- 832, -256, tim_list[|a], 1, 1, 1);
-		draw_check29 = true;
-	}
-	surface_reset_target();
-	view_surface_id[0] = vram29;
-	draw_set_alpha(1);
+	} 
+	for (var a = 0; a < 4; a++) {
+		switch (a % 2){
+			case 0:
+			fill = true;
+			break;
+			case 1:
+			fill = false;
+			break;
+		}
+		if (!surface_exists(vram29[a]) || draw_refresh != 0){
+			vram29[a] = surface_create(256, 256);
+			
+			draw_set_alpha(1);
+			surface_set_target(vram29[a]);
+			draw_clear_alpha(c_white, true);
+			if (a < 2){
+				for (var b = 0; b < ds_list_size(tim_list); b++){
+					px = tim_list[|b].pixel_x - 832;
+					if (px < 0 || px > 63){
+						continue;
+					}
+					tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, fill);
+					draw_check29[a] = true;
+				}
+			}
+			else{
+				switch (view_transparency){
+					case false:
+					draw_clear_alpha(c_black, true);
+					break;
 	
-	if (!surface_exists(vram30)){
-		vram30 = surface_create(256, 256);
-	}
-	surface_set_target(vram30);
-	draw_clear_alpha(c_white, true);
-	for (var a = 0; a < ds_list_size(tim_list);a++){
-		px = tim_list[|a].pixel_x - 896;
-		if (px < 0 || px > 63){
-			continue;
+					case true:
+					draw_surface(vramback, 0, 0);
+					break;
+				}
+				draw_surface(vram29[a - 2], 0, 0);
+			}
+			surface_reset_target();
+			view_surface_id[0] = vram29[a];
+			
+			draw_set_alpha(1);
 		}
-		tim_rgb_draw(- 896, -256, tim_list[|a], 1, 1, 1);
-		draw_check30 = true;
 	}
-	surface_reset_target();
-	view_surface_id[0] = vram30;
-	draw_set_alpha(1);
+
+	for (var a = 0; a < 4; a++) {
+		switch (a % 2){
+			case 0:
+			fill = true;
+			break;
+			case 1:
+			fill = false;
+			break;
+		}
+		if (!surface_exists(vram30[a]) || draw_refresh != 0){
+			vram30[a] = surface_create(256, 256); 
+			
+			draw_set_alpha(1);
+			surface_set_target(vram30[a]);
+			draw_clear_alpha(c_white, true);
+			if (a < 2){
+				for (var b = 0; b < ds_list_size(tim_list); b++){
+					px = tim_list[|b].pixel_x - 896;
+					if (px < 0 || px > 63){
+						continue;
+					}
+					tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, fill);
+					draw_check30[a] = true;
+				}
+			}
+			else{
+				switch (view_transparency){
+					case false:
+					draw_clear_alpha(c_black, true);
+					break;
 	
-	if (!surface_exists(vram31)){
-		vram31 = surface_create(256, 256);
-	}
-	surface_set_target(vram31);
-	draw_clear_alpha(c_white, true);
-	for (var a = 0; a < ds_list_size(tim_list);a++){
-		px = tim_list[|a].pixel_x - 960;
-		if (px < 0 || px > 63){
-			continue;
+					case true:
+					draw_surface(vramback, 0, 0);
+					break;
+				}
+				draw_surface(vram30[a - 2], 0, 0);
+			}
+			surface_reset_target();
+			view_surface_id[0] = vram30[a];
+			
+			draw_set_alpha(1);
 		}
-		tim_rgb_draw(- 960, -256, tim_list[|a], 1, 1, 1);
-		draw_check31 = true;
 	}
-	surface_reset_target();
-	view_surface_id[0] = vram31;
-	draw_set_alpha(1);
+	for (var a = 0; a < 4; a++) {
+		switch (a % 2){
+			case 0:
+			fill = true;
+			break;
+			case 1:
+			fill = false;
+			break;
+		}
+		if (!surface_exists(vram31[a]) || draw_refresh != 0){
+			vram31[a] = surface_create(256, 256); 
+			
+			draw_set_alpha(1);
+			surface_set_target(vram31[a]);
+			draw_clear_alpha(c_white, true);
+			if (a < 2){
+				for (var b = 0; b < ds_list_size(tim_list); b++){
+					px = tim_list[|b].pixel_x - 960;
+					if (px < 0 || px > 63){
+						continue;
+					}
+					tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, fill);
+					draw_check31[a] = true;
+				}
+			}
+			else{
+				switch (view_transparency){
+					case false:
+					draw_clear_alpha(c_black, true);
+					break;
+	
+					case true:
+					draw_surface(vramback, 0, 0);
+					break;
+				}
+				draw_surface(vram31[a - 2], 0, 0);
+			}
+			surface_reset_target();
+			view_surface_id[0] = vram31[a];
+			
+			draw_set_alpha(1);
+		}
+	}
+	draw_refresh = 0;
 }
 	
 	

@@ -8,12 +8,8 @@ function dh_2_apply(_offset, _pad){
 		for (var b = 0; b < tmd_base.objects[a].vert_num; b++){ //vert
 			v_index = (tmd_base.objects[a].vert_off - tmd_base.objects[0].vert_off) / 8;
 			tmd_edit.vert[v_index + b].vx = tmd_base.vert[v_index + b].vx + tmd_edit.final[offset + byte];
-			//offset++;
 			tmd_edit.vert[v_index + b].vy = tmd_base.vert[v_index + b].vy + tmd_edit.final[offset + byte];
-			//offset++;
 			tmd_edit.vert[v_index + b].vz = tmd_base.vert[v_index + b].vz + tmd_edit.final[offset + byte];
-			//offset++;
-			
 		}
 		offset++
 		offset++

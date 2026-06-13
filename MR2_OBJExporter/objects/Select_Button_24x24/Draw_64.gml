@@ -18,7 +18,7 @@ draw_set_halign(fa_center);
 draw_set_valign(fa_center);
 
 
-if (active == 1 && toggle_set == 1){
+if (toggle == 1 && toggle_set == 1){
 	//draw_set_colour($FF8D5F50);
 	draw_set_colour(t_color_on0);
 	draw_text_transformed(x + text_x, y + 13 + y_off, string(display), .75, .75, 0);

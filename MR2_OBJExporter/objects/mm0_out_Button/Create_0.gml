@@ -3,6 +3,10 @@ image_index = 0;
 timer = 0;
 globalvar filename_array;
 filename_array = [];
+
+globalvar obj_duplicate; //tracks the number of duplicate exports to display, so you know it's still doing something
+obj_duplicate = 0;
+
 //export_status = ["Edit Target", "File not found", "File Found", "Exported"];
 export_status = ["File not found", "File Found", "Exported!"];
 

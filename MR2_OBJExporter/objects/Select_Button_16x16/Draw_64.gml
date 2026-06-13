@@ -18,29 +18,28 @@ draw_set_halign(fa_center);
 draw_set_valign(fa_center);
 
 
-if (active == 1 && toggle_set == 1){
-	//draw_set_colour($FF8D5F50);
-	draw_set_colour($FF99BBBB);
-	draw_text(x + text_x, y + 16, string(display));
-	draw_set_colour($FFDDCFA0);
-	draw_text(x + text_x, y + 15, string(display));
+if (toggle == 1 && toggle_set == 1){
+	draw_set_colour(t_color_on0);
+	draw_text_transformed(x + text_x, y + 10 + y_off, string(display), .5, .5, 0);
+	draw_set_colour(t_color_on1);
+	draw_text_transformed(x + text_x, y + 9 + y_off, string(display), .5, .5, 0);
 }
 else if (toggle_set == 1){
-	draw_set_colour($FF222222);
-	draw_text(x + text_x, y + 16, string(display));
-	draw_set_colour($FF999999);
-	draw_text(x + text_x, y + 15, string(display));
+	draw_set_colour(t_color_off0);
+	draw_text_transformed(x + text_x, y + 10 + y_off, string(display), .5, .5, 0);
+	draw_set_colour(t_color_off1);
+	draw_text_transformed(x + text_x, y + 9 + y_off, string(display), .5, .5, 0);
 }
 else {
 	switch (enable){
 		case 0:
-		draw_set_colour($FF999999);
-		draw_text(x + text_x, y + 15, string(display));
+		draw_set_colour($FF222222);
+		draw_text_transformed(x + text_x, y + 9 + y_off, string(display), .5, .5, 0);
 		break;
 		
 		case 1:
 		draw_set_colour($FFCCCCCC);
-		draw_text(x + text_x, y + 15, string(display));
+		draw_text_transformed(x + text_x, y + 9 + y_off, string(display), .5, .5, 0);
 		break;
 	}
 }

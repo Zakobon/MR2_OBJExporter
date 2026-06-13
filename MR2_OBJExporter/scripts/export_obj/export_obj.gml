@@ -156,6 +156,7 @@
 //	-Normals are acting buggy and produce unexpected results, disabled for now
 
 function export_obj(){
+	
 	objbuffer = buffer_create(0, buffer_grow, 1);
 	mtlbuffer = buffer_create(0, buffer_grow, 1);
 	mtllib_string = string_insert(fname_mm0, ".mtl", -1);
@@ -329,49 +330,49 @@ function export_obj(){
 			primitive = tmd_edit.prim[b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num];
 			switch (primitive.page_x){
 				case 12:
-				switch ((primitive.cmd >> 1) && 0b1){
+				switch ((primitive.cmd >> 1) & 0b1){
 					case 0:
 					array_push(f28[0], current_prim);
 					break;
 					case 1:
-					array_push(f28[0], current_prim);
-					//array_push(f28[1], current_prim); //Disabled: not behaving as expected
+					//array_push(f28[0], current_prim);
+					array_push(f28[1], current_prim); //Disabled: not behaving as expected
 					break;
 				}
 				break;
 				
 				case 13:
-				switch ((primitive.cmd >> 1) && 0b1){
+				switch ((primitive.cmd >> 1) & 0b1){
 					case 0:
 					array_push(f29[0], current_prim);
 					break;
 					case 1:
-					array_push(f29[0], current_prim);
-					//array_push(f29[1], current_prim);
+					//array_push(f29[0], current_prim);
+					array_push(f29[1], current_prim);
 					break;
 				}
 				break;
 				
 				case 14:
-				switch ((primitive.cmd >> 1) && 0b1){
+				switch ((primitive.cmd >> 1) & 0b1){
 					case 0:
 					array_push(f30[0], current_prim);
 					break;
 					case 1:
-					array_push(f30[0], current_prim);
-					//array_push(f30[1], current_prim);
+					//array_push(f30[0], current_prim);
+					array_push(f30[1], current_prim);
 					break;
 				}
 				break;
 				
 				case 15:
-				switch ((primitive.cmd >> 1) && 0b1){
+				switch ((primitive.cmd >> 1) & 0b1){
 					case 0:
 					array_push(f31[0], current_prim);
 					break;
 					case 1:
-					array_push(f31[0], current_prim);
-					//array_push(f31[1], current_prim);
+					//array_push(f31[0], current_prim);
+					array_push(f31[1], current_prim);
 					break;
 				}
 				break;
@@ -621,7 +622,7 @@ function export_obj(){
 		}
 		
 		if (array_length(f30[1]) != 0){
-			f30_check[0] = 1;
+			f30_check[1] = 1;
 			triangle_group = 0;
 			//group declaration + name
 			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #30 Semi-Transparent", a) + "\n");
@@ -672,7 +673,7 @@ function export_obj(){
 			f31_check[0] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object# {0}, VRAM page #31 Opaque", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #31 Opaque", a) + "\n");
 			//matlib declaraion
 			array_push(obj_string_array, string("usemtl VRAM page #31 Opaque") + "\n");
 			for (var b = 0; b < array_length(f31[0]); b++){
@@ -720,7 +721,7 @@ function export_obj(){
 			f31_check[1] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object# {0}, VRAM page #31 Semi-Transparent", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #31 Semi-Transparent", a) + "\n");
 			//matlib declaraion
 			array_push(obj_string_array, string("usemtl VRAM page #31 Semi-Transparent") + "\n");
 			for (var b = 0; b < array_length(f31[1]); b++){
@@ -782,6 +783,7 @@ function export_obj(){
 	else{
 		filename = string_delete(fname_mm0, string_length(fname_mm0) - 1, 2);
 	}
+	t_mode = ["opaque", "semi-transparent"];
 	if (f28_check[0] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM page #28 Opaque" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
@@ -789,37 +791,39 @@ function export_obj(){
 		array_push(mtl_string_array, string("illum 0" + "\n"));
 		array_push(mtl_string_array, string("map_Kd {0}_vram28.png", filename)); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram28.png", filename)); //alpha map
+		//array_push(mtl_string_array, string("map_d {0}_vram28.png", filename)); //alpha map
+		//array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
 	if (f28_check[1] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM page #28 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
-		array_push(mtl_string_array, string("d 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
 		array_push(mtl_string_array, string("map_Kd {0}_vram28.png", filename)); //texture map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, string("map_d {0}_vram28.png", filename)); //alpha map
 		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
 	}
 	if (f29_check[0] != 0){
-		array_push(mtl_string_array, string("newmtl VRAM page #29 Opaque" + "\n"));
+		array_push(mtl_string_array, string("newmtl VRAM page #55 Opaque" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
 		array_push(mtl_string_array, string("map_Kd {0}_vram29.png", filename));
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram29.png", filename));
+		//array_push(mtl_string_array, string("map_d {0}_vram29.png", filename)); //alpha map
+		//array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
 	if (f29_check[1] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM page #29 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
-		array_push(mtl_string_array, string("d 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
 		array_push(mtl_string_array, string("map_Kd {0}_vram29.png", filename)); //texture map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, string("map_d {0}_vram29.png", filename)); //alpha map
+		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
 	if (f30_check[0] != 0){
@@ -829,17 +833,18 @@ function export_obj(){
 		array_push(mtl_string_array, string("illum 0" + "\n"));
 		array_push(mtl_string_array, string("map_Kd {0}_vram30.png", filename));
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram30.png", filename));
+		//array_push(mtl_string_array, string("map_d {0}_vram30.png", filename)); //alpha map
+		//array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
 	if (f30_check[1] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM page #30 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
-		array_push(mtl_string_array, string("d 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
 		array_push(mtl_string_array, string("map_Kd {0}_vram30.png", filename)); //texture map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, string("map_d {0}_vram30.png", filename)); //alpha map
+		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
 	if (f31_check[0] != 0){
@@ -849,17 +854,18 @@ function export_obj(){
 		array_push(mtl_string_array, string("illum 0" + "\n"));
 		array_push(mtl_string_array, string("map_Kd {0}_vram31.png", filename));
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram31.png", filename));
+		//array_push(mtl_string_array, string("map_d {0}_vram31.png", filename)); //alpha map
+		//array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
 	if (f31_check[1] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM page #31 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
-		array_push(mtl_string_array, string("d 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
 		array_push(mtl_string_array, string("map_Kd {0}_vram31.png", filename)); //texture map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, string("map_d {0}_vram31.png", filename)); //alpha map
+		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
 	for (var a = 0; a < array_length(mtl_string_array); a++){

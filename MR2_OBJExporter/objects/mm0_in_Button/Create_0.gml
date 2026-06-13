@@ -11,10 +11,14 @@ globalvar fname_mm0;
 fname_mm0 = "";
 globalvar ui_name_mm0;
 ui_name_mm0 = "None";
-globalvar obj_out_success;
-obj_out_success = 0;
 globalvar filepath;
 filepath = "";
+
+
+globalvar obj_out_success; //tracks if export succeded
+obj_out_success = 0;
+
+
 
 
 import_mm0 = instance_create_layer(in_MM0.left, in_MM0.top, "UI_Draw", Select_Button_32x32);

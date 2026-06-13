@@ -1,1 +1,11 @@
 -------------------[to-do]-------------------
+
+- what is is happening to Ghost(mk_mk) export???
+	- TEX file has 8-bit tims aligned like they're 4-bit?
+	- face UV's are placed on top of two seperate TIMs?
+	- the hat's front facing primitives are fully transparent?
+
+[Complete]
+- 4bit works correctly
+- transparency implemented
+- view modes for transparency

@@ -1,5 +1,12 @@
 function tim_rgb_build(_tim){
-	
+	switch (_tim.bit){
+		case 0:
+		count = 16;
+		break;
+		case 1:
+		count = 256;
+		break;
+	}
 	dclut = [[],[]];
 	dstp = 0;
 	for (var b = 0; b < _tim.clut_w; b++){
@@ -17,20 +24,24 @@ function tim_rgb_build(_tim){
 		dred = cred * 8;
 		dgreen = cgreen * 8;
 		dblue = cblue * 8;
-
+		
 		dclut[b][0] = make_colour_rgb(dred, dgreen, dblue);
 
 		dclut[b][1] = dstp;
-	
-		tim_rgb_clut[_tim.clut_y - 505] = dclut;
-		tim_data_clut[_tim.clut_y - 505][b].red = _tim.clut_data[b].red;
-		tim_data_clut[_tim.clut_y - 505][b].green = _tim.clut_data[b].green;
-		tim_data_clut[_tim.clut_y - 505][b].blue = _tim.clut_data[b].blue;
-		tim_data_clut[_tim.clut_y - 505][b].stp = _tim.clut_data[b].stp;
+		
+		tim_data_clut[_tim.clut_y - 505][b + _tim.clut_x].red = _tim.clut_data[b].red;
+		tim_data_clut[_tim.clut_y - 505][b + _tim.clut_x].green = _tim.clut_data[b].green;
+		tim_data_clut[_tim.clut_y - 505][b + _tim.clut_x].blue = _tim.clut_data[b].blue;
+		tim_data_clut[_tim.clut_y - 505][b + _tim.clut_x].stp = _tim.clut_data[b].stp;
+	}
+	for (var c = 0; c < count; c++){
+		index = _tim.clut_x + c;
+		tim_rgb_clut[_tim.clut_y - 505][index][0] = dclut[c][0];
+		tim_rgb_clut[_tim.clut_y - 505][index][1] = dclut[c][1];
 	}
 	//updates clut surface with new values
 	if !(surface_exists(draw_ui_clut)){
-		draw_ui_clut = surface_create(2048, 1024);
+		draw_ui_clut = surface_create(1024, 16);
 	}
 	surface_set_target(draw_ui_clut);
 	draw_clear_alpha(c_black, 0);

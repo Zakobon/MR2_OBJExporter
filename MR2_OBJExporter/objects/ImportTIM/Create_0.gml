@@ -9,8 +9,7 @@ filename_input = "";
 
 
 tim_buffer_list = [];
-
-filename_input = get_open_filename_ext("MRDX TIM Files|*.tim;*.tex", "", "","Open MRDX TEX/TIM File");
+filename_input = get_open_filename_ext("MRDX TIM Files|*.tex", "", "","Open MRDX TEX/TIM File");
 filename_array = string_split(filename_input, "\\");
 ui_name_tex = filename_array[array_length(filename_array) - 1];
 
@@ -23,7 +22,7 @@ else{
 	instance_destroy();
 	exit;
 }
- 
+
 while (filename_input != "" && buffer_tell(tim_buffer) + 16 < buffer_get_size(tim_buffer)) {
 	tim = {
 		imported : 1,
@@ -43,8 +42,6 @@ while (filename_input != "" && buffer_tell(tim_buffer) + 16 < buffer_get_size(ti
 		clut_h : 0,
 		clut_data : [],
 	
-		
-
 		pixel_size : 0,
 		pixel_x : 0,
 		pixel_y : 0,
@@ -87,6 +84,21 @@ while (filename_input != "" && buffer_tell(tim_buffer) + 16 < buffer_get_size(ti
 	
 	tim.pixel_size = buffer_read(tim_buffer, buffer_u32);
 	tim.pixel_x = buffer_read(tim_buffer, buffer_u16);
+	if(tim.pixel_x < 768 || tim.pixel_x >= 1024){ //x start of page 28
+		show_message("[Error]: Imported File's X Coordinates Are Out of Bounds!!\n" + 
+		"    Did you import the correct .tex?\n\n" +
+		"[Example]: \"mx_mx|Monol/Monol\"\n\n" +
+		"    Valid Target:\n" +
+		"        mx_mx.tex -> (model textures)\n\n" +
+		"    Invalid Targets:\n" +
+		"        mx_mx_et.tex -> (sfx effects)\n" +
+		"        mx_mx_wt.tex -> (tech icons)\n" +
+		"        mx_mx_bt.tex -> (battle sfx effects & tech icons)" 
+		);
+		buffer_delete(tim_buffer);
+		instance_destroy();
+		exit;
+	}
 	tim.pixel_y = buffer_read(tim_buffer, buffer_u16);
 	tim.pixel_w = buffer_read(tim_buffer, buffer_u16);
 	tim.pixel_h = buffer_read(tim_buffer, buffer_u16);

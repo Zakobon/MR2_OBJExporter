@@ -7,6 +7,7 @@ if (mm0_base_buffer != -1){
 		export_obj();
 		variable_instance_set(export_mm0, "active", 0);
 		obj_out_success = 1;
+		obj_duplicate++;
 	}
 	//if (variable_instance_get(A_MM0, "enable") == 0){
 	//	variable_instance_set(A_MM0, "enable", 1);

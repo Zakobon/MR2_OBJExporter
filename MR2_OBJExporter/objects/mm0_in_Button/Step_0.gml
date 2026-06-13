@@ -11,6 +11,7 @@ if (Import_MM0 == 1){
 	variable_instance_set(import_mm0, "active", 0);
 	
 	obj_out_success = 0;
+	obj_duplicate = 0;
 	
 	if (user_filepath_given == false){
 		filepath = "";

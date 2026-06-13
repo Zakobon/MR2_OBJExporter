@@ -1,4 +1,4 @@
-function tim_rgb_draw(_x = 0, _y = 0, _tim, _alpha = 1, _scalew = 2, _scaleh = 2){
+function tim_rgb_draw(_x = 0, _y = 0, _tim, _alpha = 1, _scalew = 2, _scaleh = 2, _fill = false){
 
 	scale_w = _scalew;
 	scale_h = _scaleh;
@@ -38,13 +38,24 @@ function tim_rgb_draw(_x = 0, _y = 0, _tim, _alpha = 1, _scalew = 2, _scaleh = 2
 		for (var b = 0; b < scale_w; b++){
 			h = 0;
 			for (var i = 0; i < tim_ph * (tim_pw * mult); i++){
-				if (draw_clut[_tim.pixel_data[i]][1] == 2){
+				switch (draw_clut[_tim.pixel_data[i]][1]){
+					case 0:
+					draw_set_alpha(_alpha);
+					break;
+					
+					case 1:
+					if (_fill != true){
+						draw_set_alpha(_alpha * .75);
+					}
+					else{
+						draw_set_alpha(1);
+					}
+					break;
+					case 2:
 					draw_set_alpha(0);
+					break;
 				}
-				else{
-					draw_set_alpha(1);
-				}
-				draw_point_colour((tim_px * scale_w * mult) + (w) + b, (tim_py * scale_h) + (h) + a, draw_clut[_tim.pixel_data[i]][0]);
+				draw_point_colour((tim_px * scale_w * mult) + (w) + b, (tim_py * scale_h) + (h) + a, draw_clut[_tim.pixel_data[i] + _tim.clut_x][0]);
 				w++;
 				if (w >= tim_pw * mult){
 					h++;
@@ -53,4 +64,5 @@ function tim_rgb_draw(_x = 0, _y = 0, _tim, _alpha = 1, _scalew = 2, _scaleh = 2
 			}
 		}
 	}
+	draw_set_alpha(1);
 }
