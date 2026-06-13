@@ -18,6 +18,5 @@ It's a problem with how Blender auto assigns normals to imported objs. For now, 
 ### Future Plans
 
 - Find an in program fix for the issue with exported normals
-- More materials to represent polygons that are semi-transparent in-game
 - Implement converting the game's Rectangle primitives(different from usual polygons) which Phoenix uses for it's flame animations
 - While not used in-game outside of attack animations, should still create option to export Line primitives
