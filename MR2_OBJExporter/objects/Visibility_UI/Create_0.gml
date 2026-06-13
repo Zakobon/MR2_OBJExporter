@@ -9,3 +9,4 @@ variable_instance_set(transparency, "display", "View Transparency");
 variable_instance_set(transparency, "enable", 0);
 variable_instance_set(transparency, "image", 0);
 variable_instance_set(transparency, "toggle_set", 1);
+variable_instance_set(transparency, "toggle", 1);
