@@ -1,17 +1,6 @@
 //if (draw_refresh == 0){
 //	exit;
 //}
-//if (!surface_exists(draw_ui_grid)){
-//	draw_ui_grid = surface_create(512, 512);
-//	surface_set_target(draw_ui_grid);
-//	draw_clear_alpha(c_white, true);
-	
-	
-//	surface_reset_target();
-//	view_surface_id[0] = draw_ui_grid;
-//	draw_set_alpha(1);
-//}
-
 
 if (ds_list_size(tim_list) != 0){
 	if (!surface_exists(vramback)){ //vram page background for transparency visibility
@@ -23,329 +12,610 @@ if (ds_list_size(tim_list) != 0){
 		surface_reset_target();
 		view_surface_id[0] = vramback;
 	}
-	for (var a = 0; a < 4; a++) { //run twice because we only have 2 transparency modes made
-		switch (a % 2){
-			case 0:
-			fill = true;
-			break;
-			case 1:
-			fill = false;
-			break;
-		}
+	#region Draw 8-bit TIMs to VRAM pages
+			//run twice because we only have 2 transparency modes made
+			for (var a = 0; a < 4; a++) { 
+				switch (a % 2){
+					case 0:
+					fill = true;
+					break;
+					case 1:
+					fill = false;
+					break;
+				}
 		
-		if (!surface_exists(vram28[a]) || draw_refresh != 0){
-			vram28[a] = surface_create(256, 256);
+				if (!surface_exists(vram28_8bit[a]) || draw_refresh != 0){
+					vram28_8bit[a] = surface_create(256, 256);
 			
-			draw_set_alpha(1);
-			surface_set_target(vram28[a]);
-			draw_clear_alpha(c_white, true);
-			if (a < 2){
-				for (var b = 0; b < ds_list_size(tim_list); b++){
-					px = tim_list[|b].pixel_x - 768;
-					if (px < 0 || px > 63){
-						continue;
+					draw_set_alpha(1);
+					surface_set_target(vram28_8bit[a]);
+					draw_clear_alpha(c_white, true);
+					if (a < 2){
+						for (var b = 0; b < ds_list_size(tim_list); b++){
+							px = tim_list[|b].pixel_x - 768;
+							if (px < 0 || px > 63 || tim_list[|b].bit == 0){
+								continue;
+							}
+							tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, fill);
+							draw_check28_8bit[a] = true;
+						}
 					}
-					tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, fill);
-					draw_check28[a] = true;
-				}
-			}
-			else{
-				switch (view_transparency){
-					case false:
-					draw_clear_alpha(c_black, true);
-					break;
+					else{
+						switch (view_transparency){
+							case false:
+							draw_clear_alpha(c_black, true);
+							break;
 	
-					case true:
-					draw_surface(vramback, 0, 0);
-					break;
-				}
-				draw_surface(vram28[a - 2], 0, 0);
-			}
-			surface_reset_target();
-			view_surface_id[0] = vram28[a];
-			
-			draw_set_alpha(1);
-		}
-	} 
-	for (var a = 0; a < 4; a++) {
-		switch (a % 2){
-			case 0:
-			fill = true;
-			break;
-			case 1:
-			fill = false;
-			break;
-		}
-		if (!surface_exists(vram29[a]) || draw_refresh != 0){
-			vram29[a] = surface_create(256, 256);
-			
-			draw_set_alpha(1);
-			surface_set_target(vram29[a]);
-			draw_clear_alpha(c_white, true);
-			if (a < 2){
-				for (var b = 0; b < ds_list_size(tim_list); b++){
-					px = tim_list[|b].pixel_x - 832;
-					if (px < 0 || px > 63){
-						continue;
+							case true:
+							draw_surface(vramback, 0, 0);
+							break;
+						}
+						draw_surface(vram28_8bit[a - 2], 0, 0);
 					}
-					tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, fill);
-					draw_check29[a] = true;
-				}
-			}
-			else{
-				switch (view_transparency){
-					case false:
-					draw_clear_alpha(c_black, true);
-					break;
-	
-					case true:
-					draw_surface(vramback, 0, 0);
-					break;
-				}
-				draw_surface(vram29[a - 2], 0, 0);
-			}
-			surface_reset_target();
-			view_surface_id[0] = vram29[a];
+					surface_reset_target();
+					view_surface_id[0] = vram28_8bit[a];
 			
-			draw_set_alpha(1);
-		}
-	}
+					draw_set_alpha(1);
+				}
+			} 
+			for (var a = 0; a < 4; a++) {
+				switch (a % 2){
+					case 0:
+					fill = true;
+					break;
+					case 1:
+					fill = false;
+					break;
+				}
+				if (!surface_exists(vram29_8bit[a]) || draw_refresh != 0){
+					vram29_8bit[a] = surface_create(256, 256);
+			
+					draw_set_alpha(1);
+					surface_set_target(vram29_8bit[a]);
+					draw_clear_alpha(c_white, true);
+					if (a < 2){
+						for (var b = 0; b < ds_list_size(tim_list); b++){
+							px = tim_list[|b].pixel_x - 832;
+							if (px < 0 || px > 63 || tim_list[|b].bit == 0){
+								continue;
+							}
+							tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, fill);
+							draw_check29_8bit[a] = true;
+						}
+					}
+					else{
+						switch (view_transparency){
+							case false:
+							draw_clear_alpha(c_black, true);
+							break;
+	
+							case true:
+							draw_surface(vramback, 0, 0);
+							break;
+						}
+						draw_surface(vram29_8bit[a - 2], 0, 0);
+					}
+					surface_reset_target();
+					view_surface_id[0] = vram29_8bit[a];
+			
+					draw_set_alpha(1);
+				}
+			}
+			for (var a = 0; a < 4; a++) {
+				switch (a % 2){
+					case 0:
+					fill = true;
+					break;
+					case 1:
+					fill = false;
+					break;
+				}
+				if (!surface_exists(vram30_8bit[a]) || draw_refresh != 0){
+					vram30_8bit[a] = surface_create(256, 256); 
+			
+					draw_set_alpha(1);
+					surface_set_target(vram30_8bit[a]);
+					draw_clear_alpha(c_white, true);
+					if (a < 2){
+						for (var b = 0; b < ds_list_size(tim_list); b++){
+							px = tim_list[|b].pixel_x - 896;
+							if (px < 0 || px > 63 || tim_list[|b].bit == 0){
+								continue;
+							}
+							tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, fill);
+							draw_check30_8bit[a] = true;
+						}
+					}
+					else{
+						switch (view_transparency){
+							case false:
+							draw_clear_alpha(c_black, true);
+							break;
+	
+							case true:
+							draw_surface(vramback, 0, 0);
+							break;
+						}
+						draw_surface(vram30_8bit[a - 2], 0, 0);
+					}
+					surface_reset_target();
+					view_surface_id[0] = vram30_8bit[a];
+			
+					draw_set_alpha(1);
+				}
+			}
+			for (var a = 0; a < 4; a++) {
+				switch (a % 2){
+					case 0:
+					fill = true;
+					break;
+					case 1:
+					fill = false;
+					break;
+				}
+				if (!surface_exists(vram31_8bit[a]) || draw_refresh != 0){
+					vram31_8bit[a] = surface_create(256, 256); 
+			
+					draw_set_alpha(1);
+					surface_set_target(vram31_8bit[a]);
+					draw_clear_alpha(c_white, true);
+					if (a < 2){
+						for (var b = 0; b < ds_list_size(tim_list); b++){
+							px = tim_list[|b].pixel_x - 960;
+							if (px < 0 || px > 63 || tim_list[|b].bit == 0){
+								continue;
+							}
+							tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, fill);
+							draw_check31_8bit[a] = true;
+						}
+					}
+					else{
+						switch (view_transparency){
+							case false:
+							draw_clear_alpha(c_black, true);
+							break;
+	
+							case true:
+							draw_surface(vramback, 0, 0);
+							break;
+						}
+						draw_surface(vram31_8bit[a - 2], 0, 0);
+					}
+					surface_reset_target();
+					view_surface_id[0] = vram31_8bit[a];
+			
+					draw_set_alpha(1);
+				}
+			}
+			draw_refresh = 0;
 
-	for (var a = 0; a < 4; a++) {
-		switch (a % 2){
-			case 0:
-			fill = true;
-			break;
-			case 1:
-			fill = false;
-			break;
-		}
-		if (!surface_exists(vram30[a]) || draw_refresh != 0){
-			vram30[a] = surface_create(256, 256); 
+		//draw grid pages
+		if (!surface_exists(vram28_8bit[4]) || draw_refresh != 0){
+			vram28_8bit[4] = surface_create(256, 256);
 			
 			draw_set_alpha(1);
-			surface_set_target(vram30[a]);
-			draw_clear_alpha(c_white, true);
-			if (a < 2){
-				for (var b = 0; b < ds_list_size(tim_list); b++){
-					px = tim_list[|b].pixel_x - 896;
-					if (px < 0 || px > 63){
-						continue;
-					}
-					tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, fill);
-					draw_check30[a] = true;
+			surface_set_target(vram28_8bit[4]);
+			draw_clear_alpha(c_grey, true);
+			for (var b = 0; b < ds_list_size(tim_list); b++){
+				px = tim_list[|b].pixel_x - 768;
+				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
+					continue;
 				}
+				scale = 2;
+				//tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, false);
+				pos_x = (tim_list[|b].pixel_x - 768) * scale;
+				pos_y = tim_list[|b].pixel_y - 256;
+				draw_set_colour($FFE0D8);
+				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				draw_sprite(new_grid, 0, pos_x, pos_y);
+				tim_count++;
+				draw_check28_8bit[4] = true;
 			}
-			else{
-				switch (view_transparency){
-					case false:
-					draw_clear_alpha(c_black, true);
-					break;
 	
-					case true:
-					draw_surface(vramback, 0, 0);
-					break;
-				}
-				draw_surface(vram30[a - 2], 0, 0);
-			}
 			surface_reset_target();
-			view_surface_id[0] = vram30[a];
+			view_surface_id[0] = vram28_8bit[4];
 			
 			draw_set_alpha(1);
+			vram28_8bit[4] = alpha_subtract(vram28_8bit[1], vram28_8bit[4]);
 		}
-	}
-	for (var a = 0; a < 4; a++) {
-		switch (a % 2){
-			case 0:
-			fill = true;
-			break;
-			case 1:
-			fill = false;
-			break;
-		}
-		if (!surface_exists(vram31[a]) || draw_refresh != 0){
-			vram31[a] = surface_create(256, 256); 
+		if (!surface_exists(vram29_8bit[4]) || draw_refresh != 0){
+			vram29_8bit[4] = surface_create(256, 256);
 			
 			draw_set_alpha(1);
-			surface_set_target(vram31[a]);
-			draw_clear_alpha(c_white, true);
-			if (a < 2){
-				for (var b = 0; b < ds_list_size(tim_list); b++){
-					px = tim_list[|b].pixel_x - 960;
-					if (px < 0 || px > 63){
-						continue;
-					}
-					tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, fill);
-					draw_check31[a] = true;
+			surface_set_target(vram29_8bit[4]);
+			draw_clear_alpha(c_grey, true);
+			for (var b = 0; b < ds_list_size(tim_list); b++){
+				px = tim_list[|b].pixel_x - 832;
+				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
+					continue;
 				}
+				scale = 2;
+				//tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, false);
+				pos_x = (tim_list[|b].pixel_x - 832) * scale;
+				pos_y = tim_list[|b].pixel_y - 256;
+				draw_set_colour($FFE0D8);
+				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				draw_sprite(new_grid, 0, pos_x, pos_y);
+				tim_count++;
+				draw_check29_8bit[4] = true;
 			}
-			else{
-				switch (view_transparency){
-					case false:
-					draw_clear_alpha(c_black, true);
-					break;
 	
-					case true:
-					draw_surface(vramback, 0, 0);
-					break;
-				}
-				draw_surface(vram31[a - 2], 0, 0);
-			}
 			surface_reset_target();
-			view_surface_id[0] = vram31[a];
+			view_surface_id[0] = vram29_8bit[4];
 			
 			draw_set_alpha(1);
+			
+			vram29_8bit[4] = alpha_subtract(vram29_8bit[1], vram29_8bit[4]);
 		}
-	}
-	draw_refresh = 0;
+		if (!surface_exists(vram30_8bit[4]) || draw_refresh != 0){
+			vram30_8bit[4] = surface_create(256, 256);
+			
+			draw_set_alpha(1);
+			surface_set_target(vram30_8bit[4]);
+			draw_clear_alpha(c_grey, true);
+			for (var b = 0; b < ds_list_size(tim_list); b++){
+				px = tim_list[|b].pixel_x - 896;
+				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
+					continue;
+				}
+				scale = 2;
+				//tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, false);
+				pos_x = (tim_list[|b].pixel_x - 896) * scale;
+				pos_y = tim_list[|b].pixel_y - 256;
+				draw_set_colour($FFE0D8);
+				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				draw_sprite(new_grid, 0, pos_x, pos_y);
+				tim_count++;
+				draw_check30_8bit[4] = true;
+			}
+	
+			surface_reset_target();
+			view_surface_id[0] = vram30_8bit[4];
+			
+			draw_set_alpha(1);
+			
+			vram30_8bit[4] = alpha_subtract(vram30_8bit[1], vram30_8bit[4]);
+		}
+		if (!surface_exists(vram31_8bit[4]) || draw_refresh != 0){
+			vram31_8bit[4] = surface_create(256, 256);
+			
+			draw_set_alpha(1);
+			surface_set_target(vram31_8bit[4]);
+			draw_clear_alpha(c_grey, true);
+			for (var b = 0; b < ds_list_size(tim_list); b++){
+				px = tim_list[|b].pixel_x - 960;
+				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
+					continue;
+				}
+				scale = 2;
+				//tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, false);
+				pos_x = (tim_list[|b].pixel_x - 960) * scale;
+				pos_y = tim_list[|b].pixel_y - 256;
+				draw_set_colour($FFE0D8);
+				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				draw_sprite(new_grid, 0, pos_x, pos_y);
+				tim_count++;
+				draw_check31_8bit[4] = true;
+			}
+	
+			surface_reset_target();
+			view_surface_id[0] = vram31_8bit[4];
+			
+			draw_set_alpha(1);
+			
+			vram31_8bit[4] = alpha_subtract(vram31_8bit[1], vram31_8bit[4]);
+		}
+		tim_count = 0;
+	#endregion
+	#region Draw 4-bit TIMs to VRAM pages
+			//run twice because we only have 2 transparency modes made
+			for (var a = 0; a < 4; a++) {
+				switch (a % 2){
+					case 0:
+					fill = true;
+					break;
+					case 1:
+					fill = false;
+					break;
+				}
+		
+				if (!surface_exists(vram28_4bit[a]) || draw_refresh != 0){
+					vram28_4bit[a] = surface_create(256, 256);
+			
+					draw_set_alpha(1);
+					surface_set_target(vram28_4bit[a]);
+					draw_clear_alpha(c_white, true);
+					if (a < 2){
+						for (var b = 0; b < ds_list_size(tim_list); b++){
+							px = tim_list[|b].pixel_x - 768;
+							if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+								continue;
+							}
+							tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, fill);
+							draw_check28_4bit[a] = true;
+						}
+					}
+					else{
+						switch (view_transparency){
+							case false:
+							draw_clear_alpha(c_black, true);
+							break;
+	
+							case true:
+							draw_surface(vramback, 0, 0);
+							break;
+						}
+						draw_surface(vram28_4bit[a - 2], 0, 0);
+					}
+					surface_reset_target();
+					view_surface_id[0] = vram28_4bit[a];
+			
+					draw_set_alpha(1);
+				}
+			} 
+			for (var a = 0; a < 4; a++) {
+				switch (a % 2){
+					case 0:
+					fill = true;
+					break;
+					case 1:
+					fill = false;
+					break;
+				}
+				if (!surface_exists(vram29_4bit[a]) || draw_refresh != 0){
+					vram29_4bit[a] = surface_create(256, 256);
+			
+					draw_set_alpha(1);
+					surface_set_target(vram29_4bit[a]);
+					draw_clear_alpha(c_white, true);
+					if (a < 2){
+						for (var b = 0; b < ds_list_size(tim_list); b++){
+							px = tim_list[|b].pixel_x - 832;
+							if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+								continue;
+							}
+							tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, fill);
+							draw_check29_4bit[a] = true;
+						}
+					}
+					else{
+						switch (view_transparency){
+							case false:
+							draw_clear_alpha(c_black, true);
+							break;
+	
+							case true:
+							draw_surface(vramback, 0, 0);
+							break;
+						}
+						draw_surface(vram29_4bit[a - 2], 0, 0);
+					}
+					surface_reset_target();
+					view_surface_id[0] = vram29_4bit[a];
+			
+					draw_set_alpha(1);
+				}
+			}
+			for (var a = 0; a < 4; a++) {
+				switch (a % 2){
+					case 0:
+					fill = true;
+					break;
+					case 1:
+					fill = false;
+					break;
+				}
+				if (!surface_exists(vram30_4bit[a]) || draw_refresh != 0){
+					vram30_4bit[a] = surface_create(256, 256); 
+			
+					draw_set_alpha(1);
+					surface_set_target(vram30_4bit[a]);
+					draw_clear_alpha(c_white, true);
+					if (a < 2){
+						for (var b = 0; b < ds_list_size(tim_list); b++){
+							px = tim_list[|b].pixel_x - 896;
+							if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+								continue;
+							}
+							tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, fill);
+							draw_check30_4bit[a] = true;
+						}
+					}
+					else{
+						switch (view_transparency){
+							case false:
+							draw_clear_alpha(c_black, true);
+							break;
+	
+							case true:
+							draw_surface(vramback, 0, 0);
+							break;
+						}
+						draw_surface(vram30_4bit[a - 2], 0, 0);
+					}
+					surface_reset_target();
+					view_surface_id[0] = vram30_4bit[a];
+			
+					draw_set_alpha(1);
+				}
+			}
+			for (var a = 0; a < 4; a++) {
+				switch (a % 2){
+					case 0:
+					fill = true;
+					break;
+					case 1:
+					fill = false;
+					break;
+				}
+				if (!surface_exists(vram31_4bit[a]) || draw_refresh != 0){
+					vram31_4bit[a] = surface_create(256, 256); 
+			
+					draw_set_alpha(1);
+					surface_set_target(vram31_4bit[a]);
+					draw_clear_alpha(c_white, true);
+					if (a < 2){
+						for (var b = 0; b < ds_list_size(tim_list); b++){
+							px = tim_list[|b].pixel_x - 960;
+							if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+								continue;
+							}
+							tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, fill);
+							draw_check31_4bit[a] = true;
+						}
+					}
+					else{
+						switch (view_transparency){
+							case false:
+							draw_clear_alpha(c_black, true);
+							break;
+	
+							case true:
+							draw_surface(vramback, 0, 0);
+							break;
+						}
+						draw_surface(vram31_4bit[a - 2], 0, 0);
+					}
+					surface_reset_target();
+					view_surface_id[0] = vram31_4bit[a];
+			
+					draw_set_alpha(1);
+				}
+			}
+			draw_refresh = 0;
+		//draw grid pages
+		if (!surface_exists(vram28_4bit[4]) || draw_refresh != 0){
+			vram28_4bit[4] = surface_create(256, 256);
+			
+			draw_set_alpha(1);
+			surface_set_target(vram28_4bit[4]);
+			draw_clear_alpha(c_grey, true);
+			for (var b = 0; b < ds_list_size(tim_list); b++){
+				px = tim_list[|b].pixel_x - 768;
+				if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+					continue;
+				}
+				scale = 4;
+				//tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, false);
+				pos_x = (tim_list[|b].pixel_x - 768) * scale;
+				pos_y = tim_list[|b].pixel_y - 256;
+				draw_set_colour($303030);
+				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				draw_sprite(new_grid, 0, (tim_list[|b].pixel_x - 768) * scale, tim_list[|b].pixel_y - 256);
+				tim_count++;
+				draw_check28_4bit[4] = true;
+			}
+	
+			surface_reset_target();
+			view_surface_id[0] = vram28_4bit[4];
+			
+			draw_set_alpha(1);
+			vram28_4bit[4] = alpha_subtract(vram28_4bit[1], vram28_4bit[4]);
+			
+		}
+		if (!surface_exists(vram29_4bit[4]) || draw_refresh != 0){
+			vram29_4bit[4] = surface_create(256, 256);
+			
+			draw_set_alpha(1);
+			surface_set_target(vram29_4bit[4]);
+			draw_clear_alpha(c_grey, true);
+			for (var b = 0; b < ds_list_size(tim_list); b++){
+				px = tim_list[|b].pixel_x - 832;
+				if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+					continue;
+				}
+				scale = 4;
+				//tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, false);
+				pos_x = (tim_list[|b].pixel_x - 832) * scale;
+				pos_y = tim_list[|b].pixel_y - 256;
+				draw_set_colour($303030);
+				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				draw_sprite(new_grid, 0, pos_x, pos_y);
+				tim_count++;
+				draw_check29_4bit[4] = true;
+			}
+	
+			surface_reset_target();
+			view_surface_id[0] = vram29_4bit[4];
+			
+			draw_set_alpha(1);
+			vram29_4bit[4] = alpha_subtract(vram29_4bit[1], vram29_4bit[4]);
+		}
+		if (!surface_exists(vram30_4bit[4]) || draw_refresh != 0){
+			vram30_4bit[4] = surface_create(256, 256);
+			
+			draw_set_alpha(1);
+			surface_set_target(vram30_4bit[4]);
+			draw_clear_alpha(c_grey, true);
+			for (var b = 0; b < ds_list_size(tim_list); b++){
+				px = tim_list[|b].pixel_x - 896;
+				if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+					continue;
+				}
+				scale = 4;
+				//tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, false);
+				pos_x = (tim_list[|b].pixel_x - 896) * scale;
+				pos_y = tim_list[|b].pixel_y - 256;
+				draw_set_colour($303030);
+				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				draw_sprite(new_grid, 0, pos_x, pos_y);
+				tim_count++;
+				draw_check30_4bit[4] = true;
+			}
+	
+			surface_reset_target();
+			view_surface_id[0] = vram30_4bit[4];
+			
+			draw_set_alpha(1);
+			vram30_4bit[4] = alpha_subtract(vram30_4bit[1], vram30_4bit[4]);
+		}
+		if (!surface_exists(vram31_4bit[4]) || draw_refresh != 0){
+			vram31_4bit[4] = surface_create(256, 256);
+			
+			draw_set_alpha(1);
+			surface_set_target(vram31_4bit[4]);
+			draw_clear_alpha(c_grey, true);
+			for (var b = 0; b < ds_list_size(tim_list); b++){
+				px = tim_list[|b].pixel_x - 960;
+				if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+					continue;
+				}
+				scale = 4;
+				//tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, false);
+				pos_x = (tim_list[|b].pixel_x - 960) * scale;
+				pos_y = tim_list[|b].pixel_y - 256;
+				draw_set_colour($303030);
+				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				draw_sprite(new_grid, 0, pos_x, pos_y);
+				tim_count++;
+				draw_check31_4bit[4] = true;
+			}
+	
+			surface_reset_target();
+			view_surface_id[0] = vram31_4bit[4];
+			
+			draw_set_alpha(1);
+			vram31_4bit[4] = alpha_subtract(vram31_4bit[1], vram31_4bit[4]);
+		}
+		tim_count = 0;
+	#endregion
 }
-	
-	
-//	if (((draw_refresh >> 1) & 0b1) == 1 || array_length(draw_ui_tim) == 0){
-//		//tx = grid_x + tim_list[|ui_tim].pixel_x - ((ui_page-16)*64);
-//		//ty = grid_y + tim_list[|ui_tim].pixel_y - 256;
-//		alpha = 1;
-//		switch (ui_tim_draw_layer){
-//			case 0:
-//			alpha = 1;
-//			break;
-//			case 1:
-//			alpha = .7;
-//			break;
-//		}
-//		for (var a = 0; a < ds_list_size(tim_list); a++){
-//			if (array_length(draw_ui_tim) < a + 1){
-//				draw_ui_tim[a] = 0;
-//			}
-//			bit_mode = tim_list[|a].bit;
-//			switch (bit_mode){
-//				case 0:
-//				mult = 4;
-//				break;
-//				case 1:
-//				mult = 2;
-//				break;
-//			}
-//			if (!surface_exists(draw_ui_tim[a])){
-//				draw_ui_tim[a] = surface_create(tim_list[|a].pixel_w * mult * 2, tim_list[|a].pixel_h * mult);
-//			}
-//			surface_set_target(draw_ui_tim[a]);
-//			draw_clear_alpha(c_white, true);
-//			tim_rgb_draw(0, 0, tim_list[|a], alpha);
-//			surface_reset_target();
-//			view_surface_id[0] = draw_ui_tim[a];
-//			draw_set_alpha(1);
-//		}
-//		draw_refresh = draw_refresh & ~2;
-//	}
-//}
-
-//if (ds_list_size(tim_list) != 0){
-//	if (timer % 5 || !surface_exists(draw_vram)){
-//		vram(0,0,1,1);
-//		surface_set_target(draw_ui_grid);
-//		draw_clear_alpha(c_white, true);
-//		draw_surface(draw_vram, -((ui_page - 16) * 64 * 4), -512)
-	
-//		surface_reset_target();
-//		view_surface_id[0] = draw_ui_grid;
-//		draw_set_alpha(1);
-//	}
-//}
-
-//if (timer % 5){
-	
-
-//	if ((draw_refresh & 0b1) == 1 || !surface_exists(draw_ui_tmd)){
-		
-//		tmd_view_zoom = tmd_view_scale * draw_tmd_zoom;
-
-//		draw_ui_tmd = surface_create(tmd_window.width - 8, tmd_window.height - 8);
-		
-//		surface_set_target(draw_ui_tmd);
-//		draw_clear_alpha(c_black, 0);
-		
-
-		
-//		if (mm0_base_buffer != -1){
-			
-			
-//			if (array_length(box_select) != 0 || array_length(prim_select) != 0){
-//				tmd_transparency = .5
-//			}
-//			else{
-//				tmd_transparency = 1;
-//			}
-//			switch(draw_tmd_view){
-//				case 0:
-//				view_depth = tmd_draw_z;
-//				break;
-//				case 1:
-//				view_depth = tmd_draw_x;
-//				break;
-//				case 2:
-//				view_depth = tmd_draw_z2;
-//				break;
-//				case 3:
-//				view_depth = tmd_draw_x2;
-//				break;
-//			}
-			
-//			p_list = variable_clone(tmd_edit.prim); //sorted prims that'll fill x_list and y_list
-		
-//			//switch (draw_tmd_view){ //Sorting based on view tmd_window angle
-//			//	case 0: //Front
-//			//	array_sort(p_list, z_sort);
-//			//	break;
-				
-//			//	case 1: //Side1
-//			//	array_sort(p_list, x_sort);
-//			//	break;
-				
-//			//	case 2: //Back
-//			//	array_sort(p_list, z2_sort); 
-//			//	break;
-				
-//			//	case 3: //Side2
-//			//	array_sort(p_list, x2_sort);
-//			//	break;
-//			//}
-//			prim_base = tmd_edit.objects[ui_obj].prim_index - tmd_edit.objects[ui_obj].prim_num;
-			
-//			for (var a = 0; a < array_length(tmd_edit.objects); a++){
-//				obj_base = tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num;
-//				tmd_model_draw(tmd_draw.prim, a, tmd_window.width / 2, tmd_window.height, draw_tmd_view, 0, obj_base, tmd_edit.objects[a].prim_num, c_black, c_white, 0, tmd_view_zoom / 2, tmd_transparency * .5);
-//			}
-//			tmd_model_draw(tmd_draw.prim, ui_obj, tmd_window.width / 2, tmd_window.height, draw_tmd_view, 0, prim_base, tmd_edit.objects[ui_obj].prim_num, c_black, c_white, 0, tmd_view_zoom / 2, tmd_transparency);
-			
-	
-//			//tmd_model_draw(prim_select, tmd_window.width / 2, tmd_window.height, draw_tmd_view, draw_tmd_view_2, 0, array_length(prim_select), $FF6DFCED, $FFFFC7D4, 0, tmd_view_zoom / 2, 1);
-//			tmd_model_draw(prim_select, ui_obj, tmd_window.width / 2, tmd_window.height, draw_tmd_view, 0, 0, array_length(prim_select), $FFC9B759, $FFFFC7D4, 0, tmd_view_zoom / 2, 1.5);
-//			if (array_length(box_select) != 0){
-//				box_highlight = coord_bounds(
-//					prim_draw, 
-//					((box_select[0])), 
-//					((box_select[1])), 
-//					(mouse_x), 
-//					(mouse_y)
-//				);
-//				if (array_length(box_highlight) != 0){ 
-//					tmd_model_draw(box_highlight, ui_obj, tmd_window.width / 2, tmd_window.height, draw_tmd_view, 0, 0, array_length(box_highlight), $FF66B759, $FFFFC7D4, c_red, tmd_view_zoom / 2, 1.5);
-//				}
-//			}
-//			if (ui_prim_highlight != 0){
-//				tmd_model_draw(tmd_draw.prim[ui_prim], ui_obj, tmd_window.width / 2, tmd_window.height, draw_tmd_view, 0, 0, 1, $FF6DFCED, $FFFFC7D4, c_red, tmd_view_zoom / 2, 1.5);
-//			}
-//		}
-//		surface_reset_target();
-//		view_surface_id[0] = draw_ui_tmd;
-//		draw_set_alpha(1);
-//		draw_refresh = draw_refresh & ~0b1;
-//	}
-//}
-
-
-
 timer++;
 if (timer > 30){
 	timer = 0;

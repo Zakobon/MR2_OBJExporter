@@ -13,7 +13,7 @@ draw_ui_tim = [];
 globalvar png_out_success;
 png_out_success = false;
 //image_xscale = 4.2;
-
+huh = ["", " ?", " ???", " why?", " you're just saving the same file over itself..."]
 //ARAGON16 PALETTE
 //Created by Space-AgeWrangler
 //https://lospec.com/palette-list/aragon16
@@ -60,6 +60,7 @@ tim_rgb_clut = [[], [], [], [], [], []]; //clut_y[clut_x] x = 0 for 8-bit
 
 globalvar tim_data_clut;
 tim_data_clut = [];
+
 image_index = 0;
 
 clut_page_color = [
@@ -71,7 +72,7 @@ clut_page_color = [
 	$ff506962,
 	$ff354641
 ];
-//instance_create_layer(in_TIM.left + 144, in_TIM.top, "TIM_Draw", TEX_out_Button);
+//instance_create_layer(in_TEX.left + 144, in_TEX.top, "TIM_Draw", TEX_out_Button);
 
 
 
@@ -112,7 +113,7 @@ for (var a = 0; a < 8; a++){ //clut_y
 }
 
 
-import_tex = instance_create_layer(in_TIM.left, in_TIM.top, "UI_Draw", Select_Button_32x32);
+import_tex = instance_create_layer(in_TEX.left, in_TEX.top, "UI_Draw", Select_Button_32x32);
 variable_instance_set(import_tex, "image_index", 0);
 variable_instance_set(import_tex, "display", "Import TEX");
 variable_instance_set(import_tex, "image", 0);

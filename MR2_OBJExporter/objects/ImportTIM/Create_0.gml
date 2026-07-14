@@ -1,17 +1,12 @@
-globalvar ui_name_tex;
-ui_name_tex = "";
+
 
 globalvar tim_buffer;
 tim_buffer = -1;
 
 filename_input = "";
-
-
-
 tim_buffer_list = [];
+
 filename_input = get_open_filename_ext("MRDX TIM Files|*.tex", "", "","Open MRDX TEX/TIM File");
-filename_array = string_split(filename_input, "\\");
-ui_name_tex = filename_array[array_length(filename_array) - 1];
 
 if (filename_input != "") {
     tim_buffer = buffer_load(filename_input);
@@ -22,6 +17,12 @@ else{
 	instance_destroy();
 	exit;
 }
+
+globalvar ui_name_tex;
+ui_name_tex = "None";
+
+filename_array = string_split(filename_input, "\\");
+ui_name_tex = filename_array[array_length(filename_array) - 1];
 
 while (filename_input != "" && buffer_tell(tim_buffer) + 16 < buffer_get_size(tim_buffer)) {
 	tim = {

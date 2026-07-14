@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"alpha_subtract",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"alpha_subtract",
+  "parent":{
+    "name":"TEX",
+    "path":"folders/Scripts/TEX.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

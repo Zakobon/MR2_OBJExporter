@@ -267,6 +267,47 @@ else{
 				primitive.t_mode = (page >> 5) & 0b11;
 				primitive.c_mode = (page >> 7) & 0b11;
 				primitive.t_disable = (page >> 11) & 0b1;
+				switch (primitive.page_x + 16){
+					case 28:
+					PageModePrim.vram28 = 1;
+					if (primitive.c_mode == 0){
+						prim_check28_4bit = true;
+					}
+					else {
+						prim_check28_8bit = true;
+					}
+					break;
+					
+					case 29:
+					PageModePrim.vram29 = 1;
+					if (primitive.c_mode == 0){
+						prim_check29_4bit = true;
+					}
+					else {
+						prim_check29_8bit = true;
+					}
+					break;
+					
+					case 30:
+					PageModePrim.vram30 = 1;
+					if (primitive.c_mode == 0){
+						prim_check30_4bit = true;
+					}
+					else {
+						prim_check30_8bit = true;
+					}
+					break;
+					
+					case 31:
+					PageModePrim.vram31 = 1;
+					if (primitive.c_mode == 0){
+						prim_check31_4bit = true;
+					}
+					else {
+						prim_check31_8bit = true;
+					}
+					break;
+				}
 				array_push(primitive.tex_x, buffer_read(mm0_base_buffer, buffer_u8));
 				array_push(primitive.tex_y, buffer_read(mm0_base_buffer, buffer_u8));
 				if (p_tex_mode == 1){ //raw texture blending

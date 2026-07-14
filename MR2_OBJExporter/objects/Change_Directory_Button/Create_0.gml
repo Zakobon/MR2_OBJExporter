@@ -12,7 +12,7 @@ globalvar Path_Window;
 exportpath = flexpanel_node_get_child(File_Window, "Export_Path");
 Path_Window = flexpanel_node_layout_get_position(exportpath, 0);
 
-changepath = instance_create_layer(Path_Window.left + 6, Path_Window.top - 2, "UI_Draw", Select_Button_24x24);
+changepath = instance_create_layer(Path_Window.left + 0, Path_Window.top - 0, "UI_Draw", Select_Button_24x24);
 variable_instance_set(changepath, "image_index", 0);
 variable_instance_set(changepath, "display", "Choose Export Directory");
 variable_instance_set(changepath, "image", 0);

@@ -1,11 +1,57 @@
 -------------------[to-do]-------------------
++ [Done] New Icon for program
++ [Done] Primitive Display built and working for 4bit & 8bit modes
+- Program Icon is missing Text
 
-- what is is happening to Ghost(mk_mk) export???
-	- TEX file has 8-bit tims aligned like they're 4-bit?
-	- face UV's are placed on top of two seperate TIMs?
+[Bug]
++ [Fixed] MMJ Export faces are messed up due to 4bit changes not including object offsets
++ [Fixed] Need to fix grid issues when importing over an existing import
++ [Fixed] Export status covered by new button placement
++ [Fixed] 4bit not working for TEX anymore
++ [Fixed] Program name was improperly displaying as MF2_UVEdit instead of MF2_OBJExporter
+
+
+[Features]
+
++ [Done] Implement exporting colored grids for each TIM
+	+ [Done] Make white grid with transparent lines
+	+ [Done]Carry over 4-bit/8-bit fix from MF2_UVEdit
+		+ [Done] Make seperate vram pages for 4/8bit modes
+		+ [Done] Make buttons for 8-bit/4-bit/Grid visibility (Use this to control export?)
+			+ [Done] Make variables in Visibility_UI that can be read by surface manager
+		+ [Done] Implement separate export materials/PNGs for the bitmodes & grids
+		
+	+ [Done] Make script that draws the grid in place of TIMs
+		+ [Done] Decide on background draw if not transparent
+			+ [Done] Consider changing white blankspace to something darker to improve grid visibility in PNG
+		+ [Done] Maybe include a way to carry over fully transparent pixels from TIMs
+	
+	+/- Export option for TEX
+		+ [Done] Grid Code built in Testing Button
+			+ [Done] Transfer to script
+				- create another script for "dragon scale" pattern
+			+ [Done] Build 4bit and 8bit TIM cluts for grid
+				= 4bit: 16 colors
+				= 8bit: 26 colors
+			- Need Script to overwrite CLUT values of original TIMs
+				- Grid cluts to only overwrite the TIMs cluts at the original x/y location
+			- Build button
+			- Test both 8bit and 4bit exports
+	
+- Possibly implement an export option for drawing primitives on each page
+	= Should be separate from and with different names than the PNGs listed in the MTL file
+
+- Implement correct Normals
+	- Most of the problem originate from flipped face direction
+		= Face vertex order determines if a polygon(tri) is front or back facing
+			= Counter-Clockwise: Front Facing
+			= Clockwise: Back Facing
+
+
+
+===[Problems]===
+
+- Import/Export buttons are too similar and visually confusing
+	
+- Ghost(mk_mk)
 	- the hat's front facing primitives are fully transparent?
-
-[Complete]
-- 4bit works correctly
-- transparency implemented
-- view modes for transparency

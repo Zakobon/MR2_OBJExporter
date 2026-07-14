@@ -27,21 +27,21 @@ globalvar MM0_fname;
 mm0_window = flexpanel_node_get_child(IO, "MM0_fname");
 MM0_fname = flexpanel_node_layout_get_position(mm0_window, 0);
 
-globalvar in_TIM;
-in_window = flexpanel_node_get_child(IO, "in_TIM");
-in_TIM = flexpanel_node_layout_get_position(in_window, 0);
+globalvar in_TEX;
+in_window = flexpanel_node_get_child(IO, "in_TEX");
+in_TEX = flexpanel_node_layout_get_position(in_window, 0);
 
-globalvar out_TIM;
+globalvar out_PNG;
 out_window = flexpanel_node_get_child(IO, "out_PNG");
-out_TIM = flexpanel_node_layout_get_position(out_window, 0);
+out_PNG = flexpanel_node_layout_get_position(out_window, 0);
 
 globalvar in_MM0;
 in_window = flexpanel_node_get_child(IO, "in_MM0");
 in_MM0 = flexpanel_node_layout_get_position(in_window, 0);
 
-globalvar out_MM0;
+globalvar out_OBJ;
 out_window = flexpanel_node_get_child(IO, "out_OBJ");
-out_MM0 = flexpanel_node_layout_get_position(out_window, 0);
+out_OBJ = flexpanel_node_layout_get_position(out_window, 0);
 
 globalvar Instr_Window;
 window = flexpanel_node_get_child(IO, "Instructions");

@@ -1,3 +1,4 @@
+#region Wavefront OBJ File Wikipedia Description
 //https://en.wikipedia.org/wiki/Wavefront_.obj_file
  
  
@@ -150,23 +151,66 @@
 //However, not all software supports the latter approach, and conversely some software 
 //inherently writes only the latter form (due to the convenience of appending elements 
 //without needing to recalculate vertex offsets, etc.), leading to occasional incompatibilities.
-
+#endregion
+#region My OBJ Template
+// |# Wavefront OBJ exported by OBJExporter
+	
+// |mtllib xx_xx_x.mtl                       //external .mtl file name
+// |
+// |
+// |
+// |v [x y z]
+// |v [x y z]
+// |v [x y z]
+// |# [num] vertices                         //comment line
+// |
+// |vt [u v]                                 // coord divided by 256
+// |vt [u v]
+// |vt [u v]
+// |# [num] texture coordinates
+// |
+// |vn [x y z] // vn 0.000000 0.000000 0.000000
+// |# [num] normals
+// |                                         //--- Face defining + mtl/texture tag
+// |o TMD object #{0}, VRAM page #{1}        //creating object{0} and group{1}
+// |usemtl VRAM page #{1}
+// |
+// |f 1/1 2/2 3/3                            //linking vert and text indices
+// |f 4/4 5/5 6/6 7/7                        //list 4 if a quad
+// |
+// |o TMD object #{0}, VRAM page #{1}        //repeat for remaining objects, split for seperate mtl/VRAM pages
+// |usemtl VRAM page #{1}
+// |
+// |f 1/1 2/2 3/3                            
+// |f 4/4 5/5 6/6       
+#endregion
 //To-Do//
 //Need Normals to fix auto shading issue in Blender
 //	-Normals are acting buggy and produce unexpected results, disabled for now
+//  -Caused by flipped faces
 
+/// @desc Takes imported MM file and exports an OBJ with MTL file. 
+/// TEX File must also be imported to properly link the PNGs in the MTL file. 
 function export_obj(){
-	
+	bit_string = ["_4Bit","_8Bit"];
+	grid_string = ["","G"];
 	objbuffer = buffer_create(0, buffer_grow, 1);
 	mtlbuffer = buffer_create(0, buffer_grow, 1);
 	mtllib_string = string_insert(fname_mm0, ".mtl", -1);
 	mtllib = [mtllib_string];
 	obj_string_array = [];
 	mtl_string_array = [];
-	f28_check[0] = 0;
-	f29_check[0] = 0;
-	f30_check[0] = 0;
-	f31_check[0] = 0;
+	
+	f28_check_4bit[0] = 0;
+	f29_check_4bit[0] = 0;
+	f30_check_4bit[0] = 0;
+	f31_check_4bit[0] = 0;
+	
+	f28_check_8bit[0] = 0;
+	f29_check_8bit[0] = 0;
+	f30_check_8bit[0] = 0;
+	f31_check_8bit[0] = 0;
+	#region OBJ File Header
 	//title
 	array_push(obj_string_array, "# Wavefront OBJ exported by TMD Converter" + "\n");
 	array_push(obj_string_array, "\n");
@@ -177,7 +221,8 @@ function export_obj(){
 		}
 	}
 	array_push(obj_string_array, "\n");
-	//vertex section
+	#endregion
+	#region Vertec Coordinate Section
 	if(array_length(tmd_edit.vert) > 0){
 		for (var a = 0; a < array_length(tmd_edit.vert); a++){
 			//array_push(obj_string_array, string("v {0}.000000 {1}.000000 {2}.000000", tmd_edit.vert[a].vx, ~tmd_edit.vert[a].vy + 1, tmd_edit.vert[a].vz) + "\n");
@@ -189,120 +234,200 @@ function export_obj(){
 	//comment with vert count
 	array_push(obj_string_array, string("# {0} vertices", array_length(tmd_edit.vert)) + "\n");
 	array_push(obj_string_array, "\n");
+	#endregion
+	#region Vertex Normals Section
 	
-	//normals section
 	if(array_length(tmd_edit.norm) > 0){ 
 		for (var a = 0; a < array_length(tmd_edit.norm); a++){
+			//testing//
 			array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(tmd_edit.norm[a].nx), str_obj_norm(tmd_edit.norm[a].ny), str_obj_norm(tmd_edit.norm[a].nz)) + "\n");
+			//array_push(obj_string_array, string("vn {0} {1} {2}", string(tmd_edit.norm[a].nx), string(tmd_edit.norm[a].ny), string(tmd_edit.norm[a].nz)) + "\n");
 		}
 	}
 	else {array_push(obj_string_array, string("vn 0.000000 0.000000 0.000000") + "\n");}//default for no normals
-	//comment with normal count
-	array_push(obj_string_array, string("# {0} normals", array_length(tmd_edit.norm)) + "\n");
-	array_push(obj_string_array, "\n");
-	
-	array_push(obj_string_array, string("vn 0.000000 0.000000 0.000000") + "\n");
-	//comment with normal count
-	array_push(obj_string_array, string("# {0} normals", 1) + "\n");
-	array_push(obj_string_array, "\n");
-	
-	
+	#endregion
+	#region Texture Coordinate Section
 	//vertex texture page coords
 	//need to keep in mind the prim duplication when doing the primitive section
-	vt_count = 0;
+	vt_count4bit = 0;
+	vt_count8bit = 0;
 	quad_count = 0;
 	if(array_length(tmd_edit.prim) > 0){
 		for(var a = 0; a < tmd_edit.obj_num; a++){
-			f28 = [];
-			f29 = [];
-			f30 = [];
-			f31 = [];
-			for (var b = 0; b < tmd_edit.objects[a].prim_num; b++){ //Texture Coords
-				current_prim = b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num;
-				switch (tmd_edit.prim[b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num].page_x){
-					case 12:
-					array_push(f28, current_prim);
+			f28_4bit = [];
+			f29_4bit = [];
+			f30_4bit = [];
+			f31_4bit = [];
+			
+			f28_8bit = [];
+			f29_8bit = [];
+			f30_8bit = [];
+			f31_8bit = [];
+			for (var b = 0; b < tmd_edit.objects[a].prim_num; b++){ //Texture Coords sorting
+				current_prim = tmd_edit.prim[b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num];
+				switch (current_prim.c_mode){
+					case 0:
+					switch (current_prim.page_x){
+						case 12:
+						array_push(f28_4bit, current_prim);
+						break;
+						case 13:
+						array_push(f29_4bit, current_prim);
+						break;
+						case 14:
+						array_push(f30_4bit, current_prim);
+						break;
+						case 15:
+						array_push(f31_4bit, current_prim);
+						break;
+					}
 					break;
-					case 13:
-					array_push(f29, current_prim);
-					break;
-					case 14:
-					array_push(f30, current_prim);
-					break;
-					case 15:
-					array_push(f31, current_prim);
+					
+					case 1:
+					switch (current_prim.page_x){
+						case 12:
+						array_push(f28_8bit, current_prim);
+						break;
+						case 13:
+						array_push(f29_8bit, current_prim);
+						break;
+						case 14:
+						array_push(f30_8bit, current_prim);
+						break;
+						case 15:
+						array_push(f31_8bit, current_prim);
+						break;
+					}
 					break;
 				}
 			}
-			if (array_length(f28) != 0){
-				for(var b = 0; b < array_length(f28); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28[b]].tex_x[0]), convert_xy_uv(tmd_edit.prim[f28[b]].tex_y[0], 1)) + "\n");
-					vt_count++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28[b]].tex_x[1]), convert_xy_uv(tmd_edit.prim[f28[b]].tex_y[1], 1)) + "\n");
-					vt_count++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28[b]].tex_x[2]), convert_xy_uv(tmd_edit.prim[f28[b]].tex_y[2], 1)) + "\n");
-					vt_count++;
-					if(tmd_edit.prim[f28[b]].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28[b]].tex_x[3]), convert_xy_uv(tmd_edit.prim[f28[b]].tex_y[3], 1)) + "\n");
-						vt_count++;
+			if (array_length(f28_4bit) != 0){
+				for(var b = 0; b < array_length(f28_4bit); b++){
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_y[0], 1)) + "\n");
+					vt_count4bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_y[1], 1)) + "\n");
+					vt_count4bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_y[2], 1)) + "\n");
+					vt_count4bit++;
+					if(tmd_edit.prim[f28_4bit[b].p_index].cmd & 0b1000 == 8){
+						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_y[3], 1)) + "\n");
+						vt_count4bit++;
 					}
 				}
 			}
-			if (array_length(f29) != 0){
-				for(var b = 0; b < array_length(f29); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29[b]].tex_x[0]), convert_xy_uv(tmd_edit.prim[f29[b]].tex_y[0], 1)) + "\n");
-					vt_count++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29[b]].tex_x[1]), convert_xy_uv(tmd_edit.prim[f29[b]].tex_y[1], 1)) + "\n");
-					vt_count++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29[b]].tex_x[2]), convert_xy_uv(tmd_edit.prim[f29[b]].tex_y[2], 1)) + "\n");
-					vt_count++;
-					if(tmd_edit.prim[f29[b]].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29[b]].tex_x[3]), convert_xy_uv(tmd_edit.prim[f29[b]].tex_y[3], 1)) + "\n");
-						vt_count++;
+			if (array_length(f29_4bit) != 0){
+				for(var b = 0; b < array_length(f29_4bit); b++){
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_y[0], 1)) + "\n");
+					vt_count4bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_y[1], 1)) + "\n");
+					vt_count4bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_y[2], 1)) + "\n");
+					vt_count4bit++;
+					if(tmd_edit.prim[f29_4bit[b].p_index].cmd & 0b1000 == 8){
+						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_y[3], 1)) + "\n");
+						vt_count4bit++;
 					}
 				}
 			}
-			if (array_length(f30) != 0){
-				for(var b = 0; b < array_length(f30); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30[b]].tex_x[0]), convert_xy_uv(tmd_edit.prim[f30[b]].tex_y[0], 1)) + "\n");
-					vt_count++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30[b]].tex_x[1]), convert_xy_uv(tmd_edit.prim[f30[b]].tex_y[1], 1)) + "\n");
-					vt_count++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30[b]].tex_x[2]), convert_xy_uv(tmd_edit.prim[f30[b]].tex_y[2], 1)) + "\n");
-					vt_count++;
-					if(tmd_edit.prim[f30[b]].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30[b]].tex_x[3]), convert_xy_uv(tmd_edit.prim[f30[b]].tex_y[3], 1)) + "\n");
-						vt_count++;
+			if (array_length(f30_4bit) != 0){
+				for(var b = 0; b < array_length(f30_4bit); b++){
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_y[0], 1)) + "\n");
+					vt_count4bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_y[1], 1)) + "\n");
+					vt_count4bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_y[2], 1)) + "\n");
+					vt_count4bit++;
+					if(tmd_edit.prim[f30_4bit[b].p_index].cmd & 0b1000 == 8){
+						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_y[3], 1)) + "\n");
+						vt_count4bit++;
 					}
 				}
 			}
-			if (array_length(f31) != 0){
-				for(var b = 0; b < array_length(f31); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31[b]].tex_x[0]), convert_xy_uv(tmd_edit.prim[f31[b]].tex_y[0], 1)) + "\n");
-					vt_count++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31[b]].tex_x[1]), convert_xy_uv(tmd_edit.prim[f31[b]].tex_y[1], 1)) + "\n");
-					vt_count++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31[b]].tex_x[2]), convert_xy_uv(tmd_edit.prim[f31[b]].tex_y[2], 1)) + "\n");
-					vt_count++;
-					if(tmd_edit.prim[f31[b]].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31[b]].tex_x[3]), convert_xy_uv(tmd_edit.prim[f31[b]].tex_y[3], 1)) + "\n");
-						vt_count++;
+			if (array_length(f31_4bit) != 0){
+				for(var b = 0; b < array_length(f31_4bit); b++){
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_y[0], 1)) + "\n");
+					vt_count4bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_y[1], 1)) + "\n");
+					vt_count4bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_y[2], 1)) + "\n");
+					vt_count4bit++;
+					if(tmd_edit.prim[f31_4bit[b].p_index].cmd & 0b1000 == 8){
+						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_y[3], 1)) + "\n");
+						vt_count4bit++;
 					}
 				}
 			}
+			
+		
+			if (array_length(f28_8bit) != 0){
+				for(var b = 0; b < array_length(f28_8bit); b++){
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_y[0], 1)) + "\n");
+					vt_count8bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_y[1], 1)) + "\n");
+					vt_count8bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_y[2], 1)) + "\n");
+					vt_count8bit++;
+					if(tmd_edit.prim[f28_8bit[b].p_index].cmd & 0b1000 == 8){
+						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_y[3], 1)) + "\n");
+						vt_count8bit++;
+					}
+				}
+			}
+			if (array_length(f29_8bit) != 0){
+				for(var b = 0; b < array_length(f29_8bit); b++){
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_y[0], 1)) + "\n");
+					vt_count8bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_y[1], 1)) + "\n");
+					vt_count8bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_y[2], 1)) + "\n");
+					vt_count8bit++;
+					if(tmd_edit.prim[f29_8bit[b].p_index].cmd & 0b1000 == 8){
+						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_y[3], 1)) + "\n");
+						vt_count8bit++;
+					}
+				}
+			}
+			if (array_length(f30_8bit) != 0){
+				for(var b = 0; b < array_length(f30_8bit); b++){
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_y[0], 1)) + "\n");
+					vt_count8bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_y[1], 1)) + "\n");
+					vt_count8bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_y[2], 1)) + "\n");
+					vt_count8bit++;
+					if(tmd_edit.prim[f30_8bit[b].p_index].cmd & 0b1000 == 8){
+						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_y[3], 1)) + "\n");
+						vt_count8bit++;
+					}
+				}
+			}
+			if (array_length(f31_8bit) != 0){
+				for(var b = 0; b < array_length(f31_8bit); b++){
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_y[0], 1)) + "\n");
+					vt_count8bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_y[1], 1)) + "\n");
+					vt_count8bit++;
+					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_y[2], 1)) + "\n");
+					vt_count8bit++;
+					if(tmd_edit.prim[f31_8bit[b].p_index].cmd & 0b1000 == 8){
+						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_y[3], 1)) + "\n");
+						vt_count8bit++;
+					}
+				}
+			}
+			
 		}
 	}
 	else {//default for no texture coords
 		array_push(obj_string_array, string("vt 0.000000 0.000000"));
 	}
-	//comment with vert coord count
-	array_push(obj_string_array, string("# {0} texture coordinates", vt_count) + "\n");
-	array_push(obj_string_array, "\n");
-	//default for no vertex normals
-	array_push(obj_string_array, string("vn 0.000000 0.000000 0.000000") + "\n");
-	array_push(obj_string_array, string("# {0} normals", 1) + "\n");
-	array_push(obj_string_array, "\n");
 	
+	
+	//comment with vert coord count
+	array_push(obj_string_array, string("# {0} texture coordinates", vt_count4bit + vt_count8bit) + "\n");
+	array_push(obj_string_array, "\n");
+	#endregion
+	#region Object Grouping/Face Section
 	// grouping part of primitive section
 	current_obj = 0;
 	vert_base = 0;
@@ -310,10 +435,15 @@ function export_obj(){
 	tex_count = 0;
 	triangle_total = 0;
 	//flags for [page drawn to, opaque found, semi-transparency found]
-	f28_check = [0, 0];
-	f29_check = [0, 0];
-	f30_check = [0, 0];
-	f31_check = [0, 0];
+	f28_check_4bit = [0, 0];
+	f29_check_4bit = [0, 0];
+	f30_check_4bit = [0, 0];
+	f31_check_4bit = [0, 0];
+	
+	f28_check_8bit = [0, 0];
+	f29_check_8bit = [0, 0];
+	f30_check_8bit = [0, 0];
+	f31_check_8bit = [0, 0];
 	for(var a = 0; a < tmd_edit.obj_num; a++){
 		//g TMD object #0, VRAM page #30 
 
@@ -321,77 +451,82 @@ function export_obj(){
 		vert_base = change / 8;
 		change = tmd_edit.objects[a].normal_off - tmd_edit.objects[0].normal_off;
 		norm_base = change / 8;
-		f28 = [[],[]];
-		f29 = [[],[]];
-		f30 = [[],[]];
-		f31 = [[],[]];
+		f28_4bit = [[],[]];
+		f29_4bit = [[],[]];
+		f30_4bit = [[],[]];
+		f31_4bit = [[],[]];
+		f28_8bit = [[],[]];
+		f29_8bit = [[],[]];
+		f30_8bit = [[],[]];
+		f31_8bit = [[],[]];
+		#region Page Sorting
 		for (var b = 0; b < tmd_edit.objects[a].prim_num; b++){
 			current_prim = b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num;
 			primitive = tmd_edit.prim[b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num];
+			prim_transparency = (primitive.cmd >> 1) & 0b1;
+			
 			switch (primitive.page_x){
 				case 12:
-				switch ((primitive.cmd >> 1) & 0b1){
+				switch (primitive.c_mode){
 					case 0:
-					array_push(f28[0], current_prim);
+					array_push(f28_4bit[prim_transparency], current_prim);
 					break;
 					case 1:
-					//array_push(f28[0], current_prim);
-					array_push(f28[1], current_prim); //Disabled: not behaving as expected
+					array_push(f28_8bit[prim_transparency], current_prim);
 					break;
 				}
 				break;
 				
 				case 13:
-				switch ((primitive.cmd >> 1) & 0b1){
+				switch (primitive.c_mode){
 					case 0:
-					array_push(f29[0], current_prim);
+					array_push(f29_4bit[prim_transparency], current_prim);
 					break;
 					case 1:
-					//array_push(f29[0], current_prim);
-					array_push(f29[1], current_prim);
+					array_push(f29_8bit[prim_transparency], current_prim);
 					break;
 				}
 				break;
 				
 				case 14:
-				switch ((primitive.cmd >> 1) & 0b1){
+				switch (primitive.c_mode){
 					case 0:
-					array_push(f30[0], current_prim);
+					array_push(f30_4bit[prim_transparency], current_prim);
 					break;
 					case 1:
-					//array_push(f30[0], current_prim);
-					array_push(f30[1], current_prim);
+					array_push(f30_8bit[prim_transparency], current_prim);
 					break;
 				}
 				break;
 				
 				case 15:
-				switch ((primitive.cmd >> 1) & 0b1){
+				switch (primitive.c_mode){
 					case 0:
-					array_push(f31[0], current_prim);
+					array_push(f31_4bit[prim_transparency], current_prim);
 					break;
 					case 1:
-					//array_push(f31[0], current_prim);
-					array_push(f31[1], current_prim);
+					array_push(f31_8bit[prim_transparency], current_prim);
 					break;
 				}
 				break;
 			}
 		}
-		if (array_length(f28[0]) != 0){
-			f28_check[0] = 1;
+		#endregion
+		#region Group Writing 4bit
+		if (array_length(f28_4bit[0]) != 0){
+			f28_check_4bit[0] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #28 Opaque", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #28 Opaque", a) + "\n");
 			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM page #28 Opaque") + "\n");
-			for (var b = 0; b < array_length(f28[0]); b++){
-				f_vert = tmd_edit.prim[f28[0][b]];
+			array_push(obj_string_array, string("usemtl VRAM 4bit page #28 Opaque") + "\n");
+			for (var b = 0; b < array_length(f28_4bit[0]); b++){
+				f_vert = tmd_edit.prim[f28_4bit[0][b]];
 				switch (array_length(f_vert.vert)){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -401,7 +536,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -412,7 +547,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -421,25 +556,25 @@ function export_obj(){
 					break;
 				}
 			}
-			//triangle_total = triangle_total + array_length(f28);
+			//triangle_total = triangle_total + array_length(f28_4bit);
 			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
 			array_push(obj_string_array, "\n");
 		}
 		
-		if (array_length(f28[1]) != 0){
-			f28_check[1] = 1;
+		if (array_length(f28_4bit[1]) != 0){
+			f28_check_4bit[1] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #28 Semi_Transparent", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #28 Semi_Transparent", a) + "\n");
 			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM page #28 Semi-Transparent") + "\n");
-			for (var b = 0; b < array_length(f28[1]); b++){
-				f_vert = tmd_edit.prim[f28[1][b]];
+			array_push(obj_string_array, string("usemtl VRAM 4bit page #28 Semi-Transparent") + "\n");
+			for (var b = 0; b < array_length(f28_4bit[1]); b++){
+				f_vert = tmd_edit.prim[f28_4bit[1][b]];
 				switch (array_length(f_vert.vert)){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -449,7 +584,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -460,7 +595,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -469,25 +604,25 @@ function export_obj(){
 					break;
 				}
 			}
-			//triangle_total = triangle_total + array_length(f28);
+			//triangle_total = triangle_total + array_length(f28_4bit);
 			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
 			array_push(obj_string_array, "\n");
 		}
 		
-		if (array_length(f29[0]) != 0){
-			f29_check[0] = 1;
+		if (array_length(f29_4bit[0]) != 0){
+			f29_check_4bit[0] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #29 Opaque", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #29 Opaque", a) + "\n");
 			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM page #29 Opaque") + "\n");
-			for (var b = 0; b < array_length(f29[0]); b++){
-				f_vert = tmd_edit.prim[f29[0][b]];
+			array_push(obj_string_array, string("usemtl VRAM 4bit page #29 Opaque") + "\n");
+			for (var b = 0; b < array_length(f29_4bit[0]); b++){
+				f_vert = tmd_edit.prim[f29_4bit[0][b]];
 				switch (array_length(f_vert.vert)){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -497,7 +632,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -508,7 +643,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -517,26 +652,26 @@ function export_obj(){
 					break;
 				}
 			}
-			//triangle_total = triangle_total + array_length(f29);
+			//triangle_total = triangle_total + array_length(f29_4bit);
 			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
 			array_push(obj_string_array, "\n");
 
 		}
 		
-		if (array_length(f29[1]) != 0){
-			f29_check[1] = 1;
+		if (array_length(f29_4bit[1]) != 0){
+			f29_check_4bit[1] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #29 Semi-Transparent", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #29 Semi-Transparent", a) + "\n");
 			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM page #29 Semi-Transparent") + "\n");
-			for (var b = 0; b < array_length(f29[1]); b++){
-				f_vert = tmd_edit.prim[f29[1][b]];
+			array_push(obj_string_array, string("usemtl VRAM 4bit page #29 Semi-Transparent") + "\n");
+			for (var b = 0; b < array_length(f29_4bit[1]); b++){
+				f_vert = tmd_edit.prim[f29_4bit[1][b]];
 				switch (array_length(f_vert.vert)){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -546,7 +681,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -557,7 +692,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -566,26 +701,26 @@ function export_obj(){
 					break;
 				}
 			}
-			//triangle_total = triangle_total + array_length(f29);
+			//triangle_total = triangle_total + array_length(f29_4bit);
 			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
 			array_push(obj_string_array, "\n");
 
 		}
 		
-		if (array_length(f30[0]) != 0){
-			f30_check[0] = 1;
+		if (array_length(f30_4bit[0]) != 0){
+			f30_check_4bit[0] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #30 Opaque", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #30 Opaque", a) + "\n");
 			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM page #30 Opaque") + "\n");
-			for (var b = 0; b < array_length(f30[0]); b++){
-				f_vert = tmd_edit.prim[f30[0][b]];
+			array_push(obj_string_array, string("usemtl VRAM 4bit page #30 Opaque") + "\n");
+			for (var b = 0; b < array_length(f30_4bit[0]); b++){
+				f_vert = tmd_edit.prim[f30_4bit[0][b]];
 				switch (array_length(f_vert.vert)){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -595,7 +730,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -606,7 +741,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -615,26 +750,26 @@ function export_obj(){
 					break;
 				}
 			}
-			//triangle_total = triangle_total + array_length(f30);
+			//triangle_total = triangle_total + array_length(f30_4bit);
 			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
 			array_push(obj_string_array, "\n");
 
 		}
 		
-		if (array_length(f30[1]) != 0){
-			f30_check[1] = 1;
+		if (array_length(f30_4bit[1]) != 0){
+			f30_check_4bit[1] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #30 Semi-Transparent", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #30 Semi-Transparent", a) + "\n");
 			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM page #30 Semi-Transparent") + "\n");
-			for (var b = 0; b < array_length(f30[1]); b++){
-				f_vert = tmd_edit.prim[f30[1][b]];
+			array_push(obj_string_array, string("usemtl VRAM 4bit page #30 Semi-Transparent") + "\n");
+			for (var b = 0; b < array_length(f30_4bit[1]); b++){
+				f_vert = tmd_edit.prim[f30_4bit[1][b]];
 				switch (array_length(f_vert.vert)){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -644,7 +779,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -655,7 +790,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -664,25 +799,25 @@ function export_obj(){
 					break;
 				}
 			}
-			//triangle_total = triangle_total + array_length(f30);
+			//triangle_total = triangle_total + array_length(f30_4bit);
 			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
 			array_push(obj_string_array, "\n");
 		}
 		
-		if (array_length(f31[0]) != 0){
-			f31_check[0] = 1;
+		if (array_length(f31_4bit[0]) != 0){
+			f31_check_4bit[0] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #31 Opaque", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #31 Opaque", a) + "\n");
 			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM page #31 Opaque") + "\n");
-			for (var b = 0; b < array_length(f31[0]); b++){
-				f_vert = tmd_edit.prim[f31[0][b]];
+			array_push(obj_string_array, string("usemtl VRAM 4bit page #31 Opaque") + "\n");
+			for (var b = 0; b < array_length(f31_4bit[0]); b++){
+				f_vert = tmd_edit.prim[f31_4bit[0][b]];
 				switch (array_length(f_vert.vert)){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -692,7 +827,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -703,7 +838,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -712,25 +847,25 @@ function export_obj(){
 					break;
 				}
 			}
-			//triangle_total = triangle_total + array_length(f31);
+			//triangle_total = triangle_total + array_length(f31_4bit);
 			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
 			array_push(obj_string_array, "\n");
 		}
 		
-	if (array_length(f31[1]) != 0){
-			f31_check[1] = 1;
+		if (array_length(f31_4bit[1]) != 0){
+			f31_check_4bit[1] = 1;
 			triangle_group = 0;
 			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM page #31 Semi-Transparent", a) + "\n");
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #31 Semi-Transparent", a) + "\n");
 			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM page #31 Semi-Transparent") + "\n");
-			for (var b = 0; b < array_length(f31[1]); b++){
-				f_vert = tmd_edit.prim[f31[1][b]];
+			array_push(obj_string_array, string("usemtl VRAM 4bit page #31 Semi-Transparent") + "\n");
+			for (var b = 0; b < array_length(f31_4bit[1]); b++){
+				f_vert = tmd_edit.prim[f31_4bit[1][b]];
 				switch (array_length(f_vert.vert)){
 					case 4:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -740,7 +875,7 @@ function export_obj(){
 					array_push(obj_string_array, string("f "));
 					tex_base = tex_base - 2;
 					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					}
 					array_push(obj_string_array, "\n");
@@ -751,7 +886,7 @@ function export_obj(){
 					case 3:
 					array_push(obj_string_array, string("f "));
 					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1}/{2} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//));//, string(norm_base + f_vert.norm[c] + 1)));
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
 						tex_base++;
 					} 
 					array_push(obj_string_array, "\n");
@@ -760,148 +895,601 @@ function export_obj(){
 					break;
 				}
 			}
-			//triangle_total = triangle_total + array_length(f31);
+			//triangle_total = triangle_total + array_length(f31_4bit);
 			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
 			array_push(obj_string_array, "\n");
 		}
+		#endregion
+		#region Group Writing 8bit
+		if (array_length(f28_8bit[0]) != 0){
+			f28_check_8bit[0] = 1;
+			triangle_group = 0;
+			//group declaration + name
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #28 Opaque", a) + "\n");
+			//matlib declaraion
+			array_push(obj_string_array, string("usemtl VRAM 8bit page #28 Opaque") + "\n");
+			for (var b = 0; b < array_length(f28_8bit[0]); b++){
+				f_vert = tmd_edit.prim[f28_8bit[0][b]];
+				switch (array_length(f_vert.vert)){
+					case 4:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					
+					array_push(obj_string_array, string("f "));
+					tex_base = tex_base - 2;
+					for (var c = 1; c < 4; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					}
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+					
+					case 3:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+				}
+			}
+			//triangle_total = triangle_total + array_length(f28_8bit);
+			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
+			array_push(obj_string_array, "\n");
+		}
+		
+		if (array_length(f28_8bit[1]) != 0){
+			f28_check_8bit[1] = 1;
+			triangle_group = 0;
+			//group declaration + name
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #28 Semi_Transparent", a) + "\n");
+			//matlib declaraion
+			array_push(obj_string_array, string("usemtl VRAM 8bit page #28 Semi-Transparent") + "\n");
+			for (var b = 0; b < array_length(f28_8bit[1]); b++){
+				f_vert = tmd_edit.prim[f28_8bit[1][b]];
+				switch (array_length(f_vert.vert)){
+					case 4:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					
+					array_push(obj_string_array, string("f "));
+					tex_base = tex_base - 2;
+					for (var c = 1; c < 4; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					}
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+					
+					case 3:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+				}
+			}
+			//triangle_total = triangle_total + array_length(f28_8bit);
+			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
+			array_push(obj_string_array, "\n");
+		}
+		
+		if (array_length(f29_8bit[0]) != 0){
+			f29_check_8bit[0] = 1;
+			triangle_group = 0;
+			//group declaration + name
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #29 Opaque", a) + "\n");
+			//matlib declaraion
+			array_push(obj_string_array, string("usemtl VRAM 8bit page #29 Opaque") + "\n");
+			for (var b = 0; b < array_length(f29_8bit[0]); b++){
+				f_vert = tmd_edit.prim[f29_8bit[0][b]];
+				switch (array_length(f_vert.vert)){
+					case 4:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					
+					array_push(obj_string_array, string("f "));
+					tex_base = tex_base - 2;
+					for (var c = 1; c < 4; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					}
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+					
+					case 3:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+				}
+			}
+			//triangle_total = triangle_total + array_length(f29_8bit);
+			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
+			array_push(obj_string_array, "\n");
+
+		}
+		
+		if (array_length(f29_8bit[1]) != 0){
+			f29_check_8bit[1] = 1;
+			triangle_group = 0;
+			//group declaration + name
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #29 Semi-Transparent", a) + "\n");
+			//matlib declaraion
+			array_push(obj_string_array, string("usemtl VRAM 8bit page #29 Semi-Transparent") + "\n");
+			for (var b = 0; b < array_length(f29_8bit[1]); b++){
+				f_vert = tmd_edit.prim[f29_8bit[1][b]];
+				switch (array_length(f_vert.vert)){
+					case 4:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					
+					array_push(obj_string_array, string("f "));
+					tex_base = tex_base - 2;
+					for (var c = 1; c < 4; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					}
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+					
+					case 3:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+				}
+			}
+			//triangle_total = triangle_total + array_length(f29_8bit);
+			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
+			array_push(obj_string_array, "\n");
+
+		}
+		
+		if (array_length(f30_8bit[0]) != 0){
+			f30_check_8bit[0] = 1;
+			triangle_group = 0;
+			//group declaration + name
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #30 Opaque", a) + "\n");
+			//matlib declaraion
+			array_push(obj_string_array, string("usemtl VRAM 8bit page #30 Opaque") + "\n");
+			for (var b = 0; b < array_length(f30_8bit[0]); b++){
+				f_vert = tmd_edit.prim[f30_8bit[0][b]];
+				switch (array_length(f_vert.vert)){
+					case 4:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					
+					array_push(obj_string_array, string("f "));
+					tex_base = tex_base - 2;
+					for (var c = 1; c < 4; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					}
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+					
+					case 3:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+				}
+			}
+			//triangle_total = triangle_total + array_length(f30_8bit);
+			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
+			array_push(obj_string_array, "\n");
+
+		}
+		
+		if (array_length(f30_8bit[1]) != 0){
+			f30_check_8bit[1] = 1;
+			triangle_group = 0;
+			//group declaration + name
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #30 Semi-Transparent", a) + "\n");
+			//matlib declaraion
+			array_push(obj_string_array, string("usemtl VRAM 8bit page #30 Semi-Transparent") + "\n");
+			for (var b = 0; b < array_length(f30_8bit[1]); b++){
+				f_vert = tmd_edit.prim[f30_8bit[1][b]];
+				switch (array_length(f_vert.vert)){
+					case 4:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					
+					array_push(obj_string_array, string("f "));
+					tex_base = tex_base - 2;
+					for (var c = 1; c < 4; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					}
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+					
+					case 3:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+				}
+			}
+			//triangle_total = triangle_total + array_length(f30_8bit);
+			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
+			array_push(obj_string_array, "\n");
+		}
+		
+		if (array_length(f31_8bit[0]) != 0){
+			f31_check_8bit[0] = 1;
+			triangle_group = 0;
+			//group declaration + name
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #31 Opaque", a) + "\n");
+			//matlib declaraion
+			array_push(obj_string_array, string("usemtl VRAM 8bit page #31 Opaque") + "\n");
+			for (var b = 0; b < array_length(f31_8bit[0]); b++){
+				f_vert = tmd_edit.prim[f31_8bit[0][b]];
+				switch (array_length(f_vert.vert)){
+					case 4:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					
+					array_push(obj_string_array, string("f "));
+					tex_base = tex_base - 2;
+					for (var c = 1; c < 4; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					}
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+					
+					case 3:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+				}
+			}
+			//triangle_total = triangle_total + array_length(f31_8bit);
+			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
+			array_push(obj_string_array, "\n");
+		}
+		
+		if (array_length(f31_8bit[1]) != 0){
+			f31_check_8bit[1] = 1;
+			triangle_group = 0;
+			//group declaration + name
+			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #31 Semi-Transparent", a) + "\n");
+			//matlib declaraion
+			array_push(obj_string_array, string("usemtl VRAM 8bit page #31 Semi-Transparent") + "\n");
+			for (var b = 0; b < array_length(f31_8bit[1]); b++){
+				f_vert = tmd_edit.prim[f31_8bit[1][b]];
+				switch (array_length(f_vert.vert)){
+					case 4:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					
+					array_push(obj_string_array, string("f "));
+					tex_base = tex_base - 2;
+					for (var c = 1; c < 4; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					}
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+					
+					case 3:
+					array_push(obj_string_array, string("f "));
+					for (var c = 0; c < 3; c++){
+						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
+						tex_base++;
+					} 
+					array_push(obj_string_array, "\n");
+					triangle_total++;
+					triangle_group++;
+					break;
+				}
+			}
+			//triangle_total = triangle_total + array_length(f31_8bit);
+			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
+			array_push(obj_string_array, "\n");
+		}
+		#endregion
 	}
 	//quad_string = string("{0} quads", quad_count);	
 	array_push(obj_string_array, string("# {0} triangles total", triangle_total));	
-	
+	#endregion
 	//export_path = get_save_filename_ext("Wavefront OBJ|*.obj", fname_mm0, "","Save OBJ File");
 	//export_path = variable_clone(user_filepath);
+	#region OBJ File Export
 	for (var a = 0; a < array_length(obj_string_array); a++){
 		buffer_write(objbuffer, buffer_text, obj_string_array[a]);
 	}
-	//PNG_29 = string("{0}{1}_vram29.png", user_filepath, filename);
 	export_path_obj = string("{0}{1}.obj", user_filepath, fname_mm0);
 	export_path_mtl = string("{0}{1}.mtl", user_filepath, fname_mm0);
 	buffer_save(objbuffer, export_path_obj);
+	#endregion
+	#region MTL File Creation
 	if (ui_name_tex != "None"){
 		filename = string_delete(ui_name_tex, string_length(ui_name_tex) - 3, 4);
 	}
 	else{
 		filename = string_delete(fname_mm0, string_length(fname_mm0) - 1, 2);
 	}
+	
 	t_mode = ["opaque", "semi-transparent"];
-	if (f28_check[0] != 0){
-		array_push(mtl_string_array, string("newmtl VRAM page #28 Opaque" + "\n"));
+	#region MTL List 4bit
+	if (f28_check_4bit[0] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 4bit page #28 Opaque" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram28.png", filename)); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
 		array_push(mtl_string_array, "\n");
-		//array_push(mtl_string_array, string("map_d {0}_vram28.png", filename)); //alpha map
-		//array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f28_check[1] != 0){
-		array_push(mtl_string_array, string("newmtl VRAM page #28 Semi-Transparent" + "\n"));
+	if (f28_check_4bit[1] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 4bit page #28 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram28.png", filename)); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram28.png", filename)); //alpha map
-		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, "\n");
-	}
-	if (f29_check[0] != 0){
-		array_push(mtl_string_array, string("newmtl VRAM page #55 Opaque" + "\n"));
-		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
-		array_push(mtl_string_array, string("d 1.00000" + "\n"));
-		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram29.png", filename));
-		array_push(mtl_string_array, "\n");
-		//array_push(mtl_string_array, string("map_d {0}_vram29.png", filename)); //alpha map
-		//array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, "\n");
-	}
-	if (f29_check[1] != 0){
-		array_push(mtl_string_array, string("newmtl VRAM page #29 Semi-Transparent" + "\n"));
-		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
-		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram29.png", filename)); //texture map
-		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram29.png", filename)); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f30_check[0] != 0){
-		array_push(mtl_string_array, string("newmtl VRAM page #30 Opaque" + "\n"));
+	if (f29_check_4bit[0] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 4bit page #29 Opaque" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram30.png", filename));
+		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode]));
 		array_push(mtl_string_array, "\n");
-		//array_push(mtl_string_array, string("map_d {0}_vram30.png", filename)); //alpha map
-		//array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f30_check[1] != 0){
-		array_push(mtl_string_array, string("newmtl VRAM page #30 Semi-Transparent" + "\n"));
+	if (f29_check_4bit[1] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 4bit page #29 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram30.png", filename)); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram30.png", filename)); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f31_check[0] != 0){
-		array_push(mtl_string_array, string("newmtl VRAM page #31 Opaque" + "\n"));
+	if (f30_check_4bit[0] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 4bit page #30 Opaque" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram31.png", filename));
+		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode]));
 		array_push(mtl_string_array, "\n");
-		//array_push(mtl_string_array, string("map_d {0}_vram31.png", filename)); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	if (f30_check_4bit[1] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 4bit page #30 Semi-Transparent" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	if (f31_check_4bit[0] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 4bit page #31 Opaque" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("d 1.00000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode]));
+		array_push(mtl_string_array, "\n");
+		//array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
 		//array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f31_check[1] != 0){
-		array_push(mtl_string_array, string("newmtl VRAM page #31 Semi-Transparent" + "\n"));
+	if (f31_check_4bit[1] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 4bit page #31 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram31.png", filename)); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram31.png", filename)); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
+	#endregion
+	#region MTL List 8bit
+	if (f28_check_8bit[0] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 8bit page #28 Opaque" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("d 1.00000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	if (f28_check_8bit[1] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 8bit page #28 Semi-Transparent" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	if (f29_check_8bit[0] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 8bit page #29 Opaque" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("d 1.00000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode]));
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	if (f29_check_8bit[1] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 8bit page #29 Semi-Transparent" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	if (f30_check_8bit[0] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 8bit page #30 Opaque" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("d 1.00000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode]));
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	if (f30_check_8bit[1] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 8bit page #30 Semi-Transparent" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	if (f31_check_8bit[0] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 8bit page #31 Opaque" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("d 1.00000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode]));
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	if (f31_check_8bit[1] != 0){
+		array_push(mtl_string_array, string("newmtl VRAM 8bit page #31 Semi-Transparent" + "\n"));
+		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
+		array_push(mtl_string_array, string("illum 0" + "\n"));
+		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, "\n");
+	}
+	#endregion
+	#region MTL File Export
 	for (var a = 0; a < array_length(mtl_string_array); a++){
 		buffer_write(mtlbuffer, buffer_text, mtl_string_array[a]);
 	}
 	//export_path = string_delete(export_path, string_length(export_path) - 2, 3);
 	//export_path = string_insert("mtl", export_path, string_length(export_path) + 1);
 	buffer_save(mtlbuffer, export_path_mtl);
-	// |# Wavefront OBJ exported by me ;)
-	
-	// |mtllib xx_xx_x.mtl                       //external .mtl file name
-	// |
-	// |
-	// |
-	// |v [x y z]
-	// |v [x y z]
-	// |v [x y z]
-	// |# [num] vertices                         //comment line
-	// |
-	// |vt [u v]                                 // coord divided by 256
-	// |vt [u v]
-	// |vt [u v]
-	// |# [num] texture coordinates
-	// |
-	// |vn [x y z] // vn 0.000000 0.000000 0.000000
-	// |# [num] normals
-	// |                                         //--- Face defining + mtl/texture tag
-	// |o TMD object #{0}, VRAM page #{1}        //creating object{0} and group{1}
-	// |usemtl VRAM page #{1}
-	// |
-	// |f 1/1 2/2 3/3                            //linking vert and text indices
-	// |f 4/4 5/5 6/6 7/7                        //list 4 if a quad
-	// |
-	// |o TMD object #{0}, VRAM page #{1}        //repeat for remaining objects, split for seperate mtl/VRAM pages
-	// |usemtl VRAM page #{1}
-	// |
-	// |f 1/1 2/2 3/3                            
-	// |f 4/4 5/5 6/6                    
+	#endregion
+	#endregion
 }

@@ -19,25 +19,119 @@ if (Export_TEX == 1){
 	//	buffer_save(tex_buffer, export_path);
 	//}
 	filename = string_delete(ui_name_tex, string_length(ui_name_tex) - 3, 4);
-	
+
 	t_mode = ["opaque", "semi-transparent"];
-	for (var a = 0; a < 2; a++){
-		if (draw_check28[a] == true){
-			PNG_28 = string("{0}{1}_vram28.png", user_filepath, filename);
-			surface_save(vram28[a], PNG_28);
+	bit_string = ["_4Bit","_8Bit"];
+	grid_string = ["","G"];
+	for (var a = 1; a < 2; a++){ //unused, was meant to go once for each transparency mode
+		#region PNG 8Bit Export
+		if (draw_check28_4bit[a] == true){
+			switch (grid_mode){
+				case 0:
+				PNG_28 = string("{0}{1}_vram28_4bit.png", user_filepath, filename);
+				surface_save(vram28_4bit[a], PNG_28);
+				break;
+				
+				case 1:
+				PNG_28 = string("{0}{1}_vram28_4bitG.png", user_filepath, filename);
+				surface_save(vram28_4bit[4], PNG_28);
+				break;
+			}
 		}
-		if (draw_check29[a] == true){
-			PNG_29 = string("{0}{1}_vram29.png", user_filepath, filename);
-			surface_save(vram29[a], PNG_29);
+		if (draw_check29_4bit[a] == true){
+			switch (grid_mode){
+				case 0:
+				PNG_29 = string("{0}{1}_vram29_4bit.png", user_filepath, filename);
+				surface_save(vram29_4bit[a], PNG_29);
+				break;
+				
+				case 1:
+				PNG_29 = string("{0}{1}_vram29_4bitG.png", user_filepath, filename);
+				surface_save(vram29_4bit[4], PNG_29);
+				break;
+			}
 		}
-		if (draw_check30[a] == true){
-			PNG_30 = string("{0}{1}_vram30.png", user_filepath, filename);
-			surface_save(vram30[a], PNG_30);
+		if (draw_check30_4bit[a] == true){
+			switch (grid_mode){
+				case 0:
+				PNG_30 = string("{0}{1}_vram30_4bit.png", user_filepath, filename);
+				surface_save(vram30_4bit[a], PNG_30);
+				break;
+				
+				case 1:
+				PNG_30 = string("{0}{1}_vram30_4bitG.png", user_filepath, filename);
+				surface_save(vram30_4bit[4], PNG_30);
+				break;
+			}
 		}
-		if (draw_check31[a] == true){
-			PNG_31 = string("{0}{1}_vram31.png", user_filepath, filename);
-			surface_save(vram31[a], PNG_31);
+		if (draw_check31_4bit[a] == true){
+			switch (grid_mode){
+				case 0:
+				PNG_31 = string("{0}{1}_vram31_4bit.png", user_filepath, filename);
+				surface_save(vram31_4bit[a], PNG_31);
+				break;
+				
+				case 1:
+				PNG_31 = string("{0}{1}_vram31_4bitG.png", user_filepath, filename);
+				surface_save(vram31_4bit[4], PNG_31);
+				break;
+			}
 		}
+		#endregion
+		#region PNG 8Bit Export
+		if (draw_check28_8bit[a] == true){
+			switch (grid_mode){
+				case 0:
+				PNG_28 = string("{0}{1}_vram28_8Bit.png", user_filepath, filename);
+				surface_save(vram28_8bit[a], PNG_28);
+				break;
+				
+				case 1:
+				PNG_28 = string("{0}{1}_vram28_8BitG.png", user_filepath, filename);
+				surface_save(vram28_8bit[4], PNG_28);
+				break;
+			}
+		}
+		if (draw_check29_8bit[a] == true){
+			switch (grid_mode){
+				case 0:
+				PNG_29 = string("{0}{1}_vram29_8Bit.png", user_filepath, filename);
+				surface_save(vram29_8bit[a], PNG_29);
+				break;
+				
+				case 1:
+				PNG_29 = string("{0}{1}_vram29_8BitG.png", user_filepath, filename);
+				surface_save(vram29_8bit[4], PNG_29);
+				break;
+			}
+		}
+		if (draw_check30_8bit[a] == true){
+			switch (grid_mode){
+				case 0:
+				PNG_30 = string("{0}{1}_vram30_8Bit.png", user_filepath, filename);
+				surface_save(vram30_8bit[a], PNG_30);
+				break;
+				
+				case 1:
+				PNG_30 = string("{0}{1}_vram30_8BitG.png", user_filepath, filename);
+				surface_save(vram30_8bit[4], PNG_30);
+				break;
+			}
+		}
+		if (draw_check31_8bit[a] == true){
+			switch (grid_mode){
+				case 0:
+				PNG_31 = string("{0}{1}_vram31_8Bit.png", user_filepath, filename);
+				surface_save(vram31_8bit[a], PNG_31);
+				break;
+				
+				case 1:
+				PNG_31 = string("{0}{1}_vram31_8BitG.png", user_filepath, filename);
+				surface_save(vram31_8bit[4], PNG_31);
+				break;
+			}
+		}
+		#endregion
 	}
 	variable_instance_set(export_tex, "active",0);
 	png_out_success = true;

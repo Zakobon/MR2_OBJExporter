@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"grid_rgb_build",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"grid_rgb_build",
+  "parent":{
+    "name":"TEX",
+    "path":"folders/Scripts/TEX.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

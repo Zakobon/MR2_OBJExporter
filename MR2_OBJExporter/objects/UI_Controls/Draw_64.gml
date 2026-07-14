@@ -6,8 +6,8 @@ instr = "Step 0: Import OBJ into Blender\n" +
 		"Step 3: Press [Shift] + [N] to recalculate normals";
 		
 draw_set_colour($666666);
-draw_text_transformed(Instr_Window.left, Instr_Window.top + 8, instr_title, .75, .75, 0);
-draw_text_transformed(Instr_Window.left, Instr_Window.top + 32, instr, .7, .7, 0);
+draw_text_transformed(Instr_Window.left + 180, Instr_Window.top + 8, instr_title, .75, .75, 0);
+draw_text_transformed(Instr_Window.left + 180, Instr_Window.top + 32, instr, .7, .7, 0);
 draw_set_colour($FFFFFF);
 // TX = 900;
 // TY = 10;

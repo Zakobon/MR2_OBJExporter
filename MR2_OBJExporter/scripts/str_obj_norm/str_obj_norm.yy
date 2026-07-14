@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"str_obj_norm",
   "parent":{
-    "name":"Misc Scripts",
-    "path":"folders/Scripts/Misc Scripts.yy",
+    "name":"OBJ",
+    "path":"folders/Scripts/OBJ.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

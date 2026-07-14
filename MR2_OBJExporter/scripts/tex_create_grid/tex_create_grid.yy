@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"tex_create_grid",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"tex_create_grid",
+  "parent":{
+    "name":"TEX",
+    "path":"folders/Scripts/TEX.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

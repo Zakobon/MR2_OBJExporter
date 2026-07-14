@@ -18,13 +18,13 @@ draw_set_halign(fa_center);
 draw_set_valign(fa_center);
 
 
-if (toggle == 1 && toggle_set == 1){
+if (toggle == 1 && toggle_set != 0){
 	draw_set_colour(t_color_on0);
 	draw_text_transformed(x + text_x, y + 10 + y_off, string(display), .5, .5, 0);
 	draw_set_colour(t_color_on1);
 	draw_text_transformed(x + text_x, y + 9 + y_off, string(display), .5, .5, 0);
 }
-else if (toggle_set == 1){
+else if (toggle_set != 0){
 	draw_set_colour(t_color_off0);
 	draw_text_transformed(x + text_x, y + 10 + y_off, string(display), .5, .5, 0);
 	draw_set_colour(t_color_off1);
