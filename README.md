@@ -6,6 +6,8 @@ Works for the PSX version as well, but only if you can find a way of extracting 
 
 Will link materials automatically if you load BOTH a mmj/mmx and a tex file together.
 
+Grid mode available for exported PNGs _and_ TEX files to assist in understanding where a texture is placed on a model.
+
 ### Current Issues
 If you import the obj into Blender and some of the polygons look weird, it's the file's Normals.
 It's a problem with how Blender auto assigns normals to imported objs. For now, you'll have to follow these steps to fix it:
@@ -17,6 +19,6 @@ It's a problem with how Blender auto assigns normals to imported objs. For now, 
 
 ### Future Plans
 
-- Find an in program fix for the issue with exported normals
+- Find an in program fix for the issue with exported polygon face direction
 - Implement converting the game's Rectangle primitives(different from usual polygons) which Phoenix uses for it's flame animations
 - While not used in-game outside of attack animations, should still create option to export Line primitives
