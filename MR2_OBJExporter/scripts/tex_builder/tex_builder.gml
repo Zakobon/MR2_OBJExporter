@@ -18,6 +18,7 @@ function tex_builder(){
 		clut_flag = (tim_list[|a].has_clut & 0b1) << 3;
 		clut_array = tim_data_clut[clut_y - 505]; //example: tim_data_clut[y - 505][clut_index].red
 		
+		tim_list[|a]= tex_grid_builder(tim_list[|a], a);
 		
 		
 		//switch (bit_mode){

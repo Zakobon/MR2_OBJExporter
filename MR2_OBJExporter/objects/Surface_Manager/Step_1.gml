@@ -208,7 +208,7 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($FFE0D8);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
 				draw_check28_8bit[4] = true;
@@ -238,7 +238,7 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($FFE0D8);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
 				draw_check29_8bit[4] = true;
@@ -269,7 +269,7 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($FFE0D8);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
 				draw_check30_8bit[4] = true;
@@ -300,7 +300,7 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($FFE0D8);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
 				draw_check31_8bit[4] = true;
@@ -313,7 +313,7 @@ if (ds_list_size(tim_list) != 0){
 			
 			vram31_8bit[4] = alpha_subtract(vram31_8bit[1], vram31_8bit[4]);
 		}
-		tim_count = 0;
+		//tim_count = 0;
 	#endregion
 	#region Draw 4-bit TIMs to VRAM pages
 			//run twice because we only have 2 transparency modes made
@@ -510,7 +510,7 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($303030);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
 				draw_sprite(new_grid, 0, (tim_list[|b].pixel_x - 768) * scale, tim_list[|b].pixel_y - 256);
 				tim_count++;
 				draw_check28_4bit[4] = true;
@@ -541,7 +541,7 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($303030);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
 				draw_check29_4bit[4] = true;
@@ -571,7 +571,7 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($303030);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
 				draw_check30_4bit[4] = true;
@@ -601,7 +601,7 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($303030);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_colors[tim_count], 1, 0);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
 				draw_check31_4bit[4] = true;

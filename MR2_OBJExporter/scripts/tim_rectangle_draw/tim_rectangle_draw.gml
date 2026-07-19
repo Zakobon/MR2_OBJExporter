@@ -1,9 +1,9 @@
 function tim_rectangle_draw(_alpha = 1){
 	if (ui_tim_bit_mode != 0){
-			draw_set_alpha(.25);
+			draw_set_alpha(.8);
 		}
 		else{
-			draw_set_alpha(.1);
+			draw_set_alpha(.5);
 		}
 	if (ui_page == 28){
 		offset = .55;

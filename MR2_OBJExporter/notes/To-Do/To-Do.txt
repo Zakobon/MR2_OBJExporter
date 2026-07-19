@@ -26,20 +26,26 @@
 			+ [Done] Consider changing white blankspace to something darker to improve grid visibility in PNG
 		+ [Done] Maybe include a way to carry over fully transparent pixels from TIMs
 	
+	- Controls to modify transparency levels for OBJ export?
+		= currently alpha(.8) for textures and alpha(.95) for grids
+		= would need a better way to preview alpha level changes
+	
 	+/- Export option for TEX
 		+ [Done] Grid Code built in Testing Button
 			+ [Done] Transfer to script
-				- create another script for "dragon scale" pattern
 			+ [Done] Build 4bit and 8bit TIM cluts for grid
 				= 4bit: 16 colors
 				= 8bit: 26 colors
+				
 			- Need Script to overwrite CLUT values of original TIMs
 				- Grid cluts to only overwrite the TIMs cluts at the original x/y location
+			- pattern change button
 			- Build button
 			- Test both 8bit and 4bit exports
 	
 - Possibly implement an export option for drawing primitives on each page
 	= Should be separate from and with different names than the PNGs listed in the MTL file
+	= Include drawing the TIM borders beneath if .TEX is loaded
 
 - Implement correct Normals
 	- Most of the problem originate from flipped face direction
@@ -54,4 +60,4 @@
 - Import/Export buttons are too similar and visually confusing
 	
 - Ghost(mk_mk)
-	- the hat's front facing primitives are fully transparent?
+	= Hat's front facing primitives are fully transparent?

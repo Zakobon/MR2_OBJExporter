@@ -16,7 +16,7 @@ if (display == ""){
 
 draw_set_halign(fa_center);
 draw_set_valign(fa_center);
-
+draw_set_colour($FFCCCCCC);
 
 if (toggle == 1 && toggle_set == 1){
 	//draw_set_colour($FF8D5F50);
@@ -34,7 +34,7 @@ else if (toggle_set == 1){
 else {
 	switch (enable){
 		case 0:
-		draw_set_colour($FF222222);
+		draw_set_colour(t_color_off1);
 		draw_text_transformed(x + text_x, y + 12 + y_off, string(display), .75, .75, 0);
 		break;
 		

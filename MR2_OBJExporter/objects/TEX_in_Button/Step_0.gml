@@ -69,6 +69,8 @@ if (Import_TEX == 1) {
 		
 		png_out_success = false;
 		png_duplicate = 0;
+		tex_out_success = false;
+		tex_duplicate = 0;
 		obj_out_success = 0;
 		obj_duplicate = 0;
 	}

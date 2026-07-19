@@ -32,7 +32,7 @@ function tex_create_grid(_tim, _grid_size, _grid_color, _line_color){
 			break;
 				
 			case 1:
-			draw_set_alpha(.5);
+			draw_set_alpha(.75);
 			break;
 				
 			case 0:

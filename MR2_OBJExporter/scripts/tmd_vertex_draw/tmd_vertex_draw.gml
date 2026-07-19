@@ -49,7 +49,7 @@ function tmd_vertex_draw(_prim_array, _offset, _count, _fill, _line, _edit = 0, 
 			}
 		}
 		if ((prim_array[i + _offset].cmd & 0b0010) == 2){
-			draw_set_alpha(_transparency * .3);
+			draw_set_alpha(_transparency * .8);
 		}
 		else{
 			draw_set_alpha(_transparency);

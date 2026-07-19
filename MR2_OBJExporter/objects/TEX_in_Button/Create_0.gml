@@ -13,7 +13,7 @@ draw_ui_tim = [];
 globalvar png_out_success;
 png_out_success = false;
 //image_xscale = 4.2;
-huh = ["", " ?", " ???", " why?", " you're just saving the same file over itself..."]
+huh = ["", " ...you're just saving the same file over itself...", " ?", " ???", " why?"]
 //ARAGON16 PALETTE
 //Created by Space-AgeWrangler
 //https://lospec.com/palette-list/aragon16

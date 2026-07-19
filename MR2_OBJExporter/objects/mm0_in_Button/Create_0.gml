@@ -37,7 +37,7 @@ prim_check31_8bit = false;
 globalvar obj_out_success; //tracks if export succeded
 obj_out_success = 0;
 
-huh = ["", " ?", " ???", " why?", " you're just saving the same file over itself..."]
+huh = ["", " ...you're just saving the same file over itself...", " ?", " ???", " why?"]
 
 
 import_mm0 = instance_create_layer(in_MM0.left, in_MM0.top, "UI_Draw", Select_Button_32x32);

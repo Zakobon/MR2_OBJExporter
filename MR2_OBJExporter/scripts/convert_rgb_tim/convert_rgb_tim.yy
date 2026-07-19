@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"convert_rgb_tim",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"convert_rgb_tim",
+  "parent":{
+    "name":"TEX",
+    "path":"folders/Scripts/TEX.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

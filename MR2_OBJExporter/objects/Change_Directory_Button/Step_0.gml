@@ -10,5 +10,7 @@ if (ChangePath == 1){
 		obj_duplicate = 0;
 		png_out_success = false;
 		png_duplicate = 0;
+		tex_out_success = false;
+		tex_duplicate = 0;
 	}
 }

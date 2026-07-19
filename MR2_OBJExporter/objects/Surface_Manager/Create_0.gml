@@ -25,7 +25,6 @@ globalvar UI;
 UI = layer_get_flexpanel_node("UI");
 
 
-
 //Visibilty ui settings
 globalvar view_semitransparency; //true = alpha applied
 view_semitransparency = false;

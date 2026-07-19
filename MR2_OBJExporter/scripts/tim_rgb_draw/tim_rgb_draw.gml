@@ -45,7 +45,12 @@ function tim_rgb_draw(_x = 0, _y = 0, _tim, _alpha = 1, _scalew = 2, _scaleh = 2
 					
 					case 1:
 					if (_fill != true){
-						draw_set_alpha(_alpha * .75);
+						if (grid_mode != 1){
+							draw_set_alpha(_alpha * .95);
+						}
+						else{
+							draw_set_alpha(_alpha * .80);
+						}
 					}
 					else{
 						draw_set_alpha(1);
