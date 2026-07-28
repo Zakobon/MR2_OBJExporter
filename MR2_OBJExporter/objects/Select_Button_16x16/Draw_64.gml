@@ -50,8 +50,8 @@ if (enable == 0){
 	image_index = image + 1;
 	exit;
 }
-timer--;
-if ((timer < 0) && !mouse_check_button(mb_left)){
+//timer--;
+else if (/*(timer < 0) && */!mouse_check_button(mb_left)){
 	image_index = image;
-	timer = 15;
+	//timer = 15;
 }

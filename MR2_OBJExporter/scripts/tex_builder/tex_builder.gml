@@ -2,6 +2,12 @@ function tex_builder(){
 	tex_buffer = buffer_create(4, buffer_grow, 1);
 	buffer_seek(tex_buffer, buffer_seek_start, 0);
 	
+	//Variables to keep count of color index per pattern
+	index_blended = 0;
+	index_zigzag = 0;
+	index_weave = 0;
+	index_tile = 0;
+	
 	for (var a = 0; a < ds_list_size(tim_list); a++){
 		import_flag = tim_list[|a].imported;
 		image_w = tim_list[|a].pixel_w;
@@ -17,10 +23,102 @@ function tex_builder(){
 		bit_old = tim_list[|a].bit_old & 0b111;
 		clut_flag = (tim_list[|a].has_clut & 0b1) << 3;
 		clut_array = tim_data_clut[clut_y - 505]; //example: tim_data_clut[y - 505][clut_index].red
-		
-		tim_list[|a]= tex_grid_builder(tim_list[|a], a);
-		
-		
+		#region Track index of patterns [Disabled]
+		switch(tim_list[|a].pixel_x div 64){
+			case 12:
+			if (grid_mode28[0] == 1){
+				switch (grid_mode28[1]){
+					case 0:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_blended);
+					index_blended++;
+					break;
+					case 1:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_zigzag);
+					index_zigzag++;
+					break;
+					case 2:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_weave);
+					index_weave++;
+					break;
+					case 3:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_tile);
+					index_tile++;
+					break;
+				}
+				
+			}
+			break;
+			case 13:
+			if (grid_mode29[0] == 1){
+				switch (grid_mode29[1]){
+					case 0:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_blended);
+					index_blended++;
+					break;
+					case 1:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_zigzag);
+					index_zigzag++;
+					break;
+					case 2:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_weave);
+					index_weave++;
+					break;
+					case 3:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_tile);
+					index_tile++;
+					break;
+				}
+			}
+			break;
+			case 14:
+			if (grid_mode30[0] == 1){
+				switch (grid_mode30[1]){
+					case 0:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_blended);
+					index_blended++;
+					break;
+					case 1:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_zigzag);
+					index_zigzag++;
+					break;
+					case 2:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_weave);
+					index_weave++;
+					break;
+					case 3:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_tile);
+					index_tile++;
+					break;
+				}
+			}
+			break;
+			case 15:
+			if (grid_mode31[0] == 1){
+				switch (grid_mode31[1]){
+					case 0:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_blended);
+					index_blended++;
+					break;
+					case 1:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_zigzag);
+					index_zigzag++;
+					break;
+					case 2:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_weave);
+					index_weave++;
+					break;
+					case 3:
+					tim_list[|a]= tex_grid_builder(tim_list[|a], index_tile);
+					index_tile++;
+					break;
+				}
+			}
+			break;
+		}
+		#endregion
+		if (grid_mode28[0] | grid_mode29[0] | grid_mode30[0] | grid_mode31[0] == 1){
+			tim_list[|a]= tex_grid_builder(tim_list[|a], a);
+		}
 		//switch (bit_mode){
 		//	case 0:
 		//	clut_w = 16;

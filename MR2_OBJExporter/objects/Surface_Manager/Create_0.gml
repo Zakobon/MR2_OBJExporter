@@ -27,7 +27,7 @@ UI = layer_get_flexpanel_node("UI");
 
 //Visibilty ui settings
 globalvar view_semitransparency; //true = alpha applied
-view_semitransparency = false;
+view_semitransparency = true;
 globalvar view_transparency; //true = Checkered, false = Black
 view_transparency = true;
 globalvar vramback; //Background layer so that transparency is recognizable (checkered pattern)
@@ -80,7 +80,7 @@ draw_check29_8bit = [];
 draw_check30_8bit = [];
 draw_check31_8bit = [];
 	
-repeat (5){
+repeat (8){
 	array_push(vram28_4bit, -1);
 	array_push(vram29_4bit, -1);
 	array_push(vram30_4bit, -1);

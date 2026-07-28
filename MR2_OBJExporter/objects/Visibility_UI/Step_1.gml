@@ -25,15 +25,6 @@ var vram29_8bit_button_toggle = variable_instance_get(vram29_8bit_button, "toggl
 var vram30_8bit_button_toggle = variable_instance_get(vram30_8bit_button, "toggle");
 var vram31_8bit_button_toggle = variable_instance_get(vram31_8bit_button, "toggle");
 
-var vram28_grid_button_active = variable_instance_get(vram28_grid_button, "active");
-var vram29_grid_button_active = variable_instance_get(vram29_grid_button, "active");
-var vram30_grid_button_active = variable_instance_get(vram30_grid_button, "active");
-var vram31_grid_button_active = variable_instance_get(vram31_grid_button, "active");
-
-var vram28_grid_button_toggle = variable_instance_get(vram28_grid_button, "toggle");
-var vram29_grid_button_toggle = variable_instance_get(vram29_grid_button, "toggle");
-var vram30_grid_button_toggle = variable_instance_get(vram30_grid_button, "toggle");
-var vram31_grid_button_toggle = variable_instance_get(vram31_grid_button, "toggle");
 #endregion
 
 #region Check for Button Enable/Disable
@@ -186,64 +177,7 @@ if (update == true){
 //	draw_refresh = 1;
 //}
 #endregion
-#region View Grid Controls
-if (vram28_grid_button_active == 1){
-	variable_instance_set(vram28_grid_button, "active", 0);
-	switch (PageModeTIM.vram28 & 0b01){
-		case 0:
-		//variable_instance_set(vram28_grid_button, "toggle", 1);
-		PageModeTIM.vram28 = PageModeTIM.vram28 | 0b01;
-		break;
-		
-		case 1:
-		PageModeTIM.vram28 = PageModeTIM.vram28 & ~0b01;
-		break;
-	}
-}
-if (vram29_grid_button_active == 1){
-	variable_instance_set(vram29_grid_button, "active", 0);
-	switch (PageModeTIM.vram29 & 0b01){
-		case 1:
-		//variable_instance_set(vram29_grid_button, "toggle", 1);
-		PageModeTIM.vram29 = PageModeTIM.vram29 & ~0b01;
-		break;
-		
-		case 0:
-		PageModeTIM.vram29 = PageModeTIM.vram29 | 0b01;
-		break;
-	}
-}
-if (vram30_grid_button_active == 1){
-	variable_instance_set(vram30_grid_button, "active", 0);
-	switch (PageModeTIM.vram30 & 0b01){
-		case 1:
-		//variable_instance_set(vram30_8bit_button, "toggle", 0);
-		PageModeTIM.vram30 = PageModeTIM.vram30 & ~0b01;
-		break;
-		
-		case 0:
-		PageModeTIM.vram30 = PageModeTIM.vram30 | 0b01;
-		break;
-	}
-}
 
-if (vram31_grid_button_active == 1){
-	variable_instance_set(vram31_grid_button, "active", 0);
-	switch (PageModeTIM.vram31 & 0b01){
-		case 1:
-		//variable_instance_set(vram31_8bit_button, "toggle", 0);
-		PageModeTIM.vram31 = PageModeTIM.vram31 & ~0b01;
-		break;
-		
-		case 0:
-		PageModeTIM.vram31 = PageModeTIM.vram31 | 0b01;
-		break;
-	}
-}
-
-
-
-#endregion
 
 #region View Bit Controls
 if (vram28_4bit_button_active == 1 || vram28_8bit_button_active == 1){

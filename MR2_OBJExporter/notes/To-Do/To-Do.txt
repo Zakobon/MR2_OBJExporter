@@ -1,16 +1,34 @@
 -------------------[to-do]-------------------
+||Currently Doing||
++ [Done] fix import file not replacing file when the name is the same
++ [Done] test TEX export ingame on ghost
+
+||===============||
 + [Done] New Icon for program
 + [Done] Primitive Display built and working for 4bit & 8bit modes
-- Program Icon is missing Text
++ [Done] Program Icon is missing Text
 
 [Bug]
+- Grid colors cycle through duplicate every so often
+	- Also, should look into changing palette anyway.
+		- If need be, can use full 256 palette per CLUT to fix the issue
+		- Maybe just implement better patterns? Ones that use the color:bg1 more
+			= Weave is the best pattern so far
+			= Tile is a distant 2nd
+			= ZigZag is third
+			= Blend is the weakest
+
 + [Fixed] MMJ Export faces are messed up due to 4bit changes not including object offsets
 + [Fixed] Need to fix grid issues when importing over an existing import
 + [Fixed] Export status covered by new button placement
 + [Fixed] 4bit not working for TEX anymore
 + [Fixed] Program name was improperly displaying as MF2_UVEdit instead of MF2_OBJExporter
++ [Fixed] User can easily use TEX Export to delete orginal TEX file
+	+ Swapped to prompting user for new filename
++ [Fixed] Grid patterns keep using index 0, maybe reverse clut index order for easier control
 
-
++ [Fixed] Swapping from a tex file to another one leaves the t_grid pattern still drawn in empty pages
++ [Fixed] Swapping from a tex file to another one doesn't update any grid pages except for the first
 [Features]
 
 + [Done] Implement exporting colored grids for each TIM
@@ -30,18 +48,40 @@
 		= currently alpha(.8) for textures and alpha(.95) for grids
 		= would need a better way to preview alpha level changes
 	
-	+/- Export option for TEX
+	+ Export Option for TEX
 		+ [Done] Grid Code built in Testing Button
 			+ [Done] Transfer to script
 			+ [Done] Build 4bit and 8bit TIM cluts for grid
 				= 4bit: 16 colors
 				= 8bit: 26 colors
+			+ [Done] Need Script to overwrite CLUT values of original TIMs
+			+ [Done] Build button
+			+ [Done] Test both 8bit and 4bit exports
+
+
++ Pattern Change Buttons
+	+ [Done] Buttons made
 				
-			- Need Script to overwrite CLUT values of original TIMs
-				- Grid cluts to only overwrite the TIMs cluts at the original x/y location
-			- pattern change button
-			- Build button
-			- Test both 8bit and 4bit exports
+	+ [Done] Update tex_grid_builder with the pattern changes from grid_rgb_draw 
+	+ [Done] Update TEX Export with changes to globalvar: grid_mode & grid_mode{28-31}[real, real]
+				
+	+ [Done] Need to draw each pattern to their own surface/sprite
+		+ [Done] Destroy surfaces after sprite creation
+	+ [Done] Cycle through displayed surfaces based on grid pattern
+	+ [Done] Update PNG Export
+
+
+	+ [Done] Remove unused "Enable Grid Export" Button
+	- Fix 4-bit & 8-bit view buttons, new pattern buttons cause visual confusion
+	- Fix Export Buttons that include the tag:[Norm]
+	+ [Done] alpha_subtract broken with full transparency pixels
+	+ [Done] Have to go back to having one gridmode button togging all pages
+		= Impossible to mix grid and non grid textures due to CLUT tables being overwritten
+			= Easiest workaround would be to compress original images to 2-3 colors
+		+ [Done] Maybe only apply grid all to TEX export. Works fine and is useful with OBJ
+			- Prompt user on TEX export if one of the page grid_mode{28-31}[0] doesn't match the others
+		 	
+
 	
 - Possibly implement an export option for drawing primitives on each page
 	= Should be separate from and with different names than the PNGs listed in the MTL file

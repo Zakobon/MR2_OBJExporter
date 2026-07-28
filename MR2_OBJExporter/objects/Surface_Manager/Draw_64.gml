@@ -26,7 +26,7 @@ if (PageModeTIM.vram28 & 0b01 == 0){
 	}
 }
 else{
-	view28 = 4;
+	view28 = grid_mode28[1] + 4;
 }
 
 if (PageModeTIM.vram29 & 0b01 == 0){
@@ -41,7 +41,7 @@ if (PageModeTIM.vram29 & 0b01 == 0){
 	}
 }
 else{
-	view29 = 4;
+	view29 = grid_mode29[1] + 4;
 }
 
 if (PageModeTIM.vram30 & 0b01 == 0){
@@ -56,7 +56,7 @@ if (PageModeTIM.vram30 & 0b01 == 0){
 	}
 }
 else{
-	view30 = 4;
+	view30 = grid_mode30[1] + 4;
 }
 
 if (PageModeTIM.vram31 & 0b01 == 0){
@@ -71,7 +71,7 @@ if (PageModeTIM.vram31 & 0b01 == 0){
 	}
 }
 else{
-	view31 = 4;
+	view31 = grid_mode31[1] + 4;
 }
 #endregion
 

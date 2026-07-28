@@ -2,6 +2,12 @@
 //	exit;
 //}
 
+//Variables to keep count of color index per pattern
+index_blended = 0;
+index_zigzag = 0;
+index_weave = 0;
+index_tile = 0;
+
 if (ds_list_size(tim_list) != 0){
 	if (!surface_exists(vramback)){ //vram page background for transparency visibility
 		draw_set_alpha(1);
@@ -23,10 +29,11 @@ if (ds_list_size(tim_list) != 0){
 					fill = false;
 					break;
 				}
-		
+				
 				if (!surface_exists(vram28_8bit[a]) || draw_refresh != 0){
-					vram28_8bit[a] = surface_create(256, 256);
-			
+					if (!surface_exists(vram28_8bit[a])){
+						vram28_8bit[a] = surface_create(256, 256);
+					}
 					draw_set_alpha(1);
 					surface_set_target(vram28_8bit[a]);
 					draw_clear_alpha(c_white, true);
@@ -68,7 +75,9 @@ if (ds_list_size(tim_list) != 0){
 					break;
 				}
 				if (!surface_exists(vram29_8bit[a]) || draw_refresh != 0){
-					vram29_8bit[a] = surface_create(256, 256);
+					if (!surface_exists(vram29_8bit[a])){
+						vram29_8bit[a] = surface_create(256, 256);
+					}
 			
 					draw_set_alpha(1);
 					surface_set_target(vram29_8bit[a]);
@@ -111,7 +120,9 @@ if (ds_list_size(tim_list) != 0){
 					break;
 				}
 				if (!surface_exists(vram30_8bit[a]) || draw_refresh != 0){
-					vram30_8bit[a] = surface_create(256, 256); 
+					if (!surface_exists(vram30_8bit[a])){
+						vram30_8bit[a] = surface_create(256, 256);
+					}
 			
 					draw_set_alpha(1);
 					surface_set_target(vram30_8bit[a]);
@@ -154,7 +165,9 @@ if (ds_list_size(tim_list) != 0){
 					break;
 				}
 				if (!surface_exists(vram31_8bit[a]) || draw_refresh != 0){
-					vram31_8bit[a] = surface_create(256, 256); 
+					if (!surface_exists(vram31_8bit[a])){
+						vram31_8bit[a] = surface_create(256, 256);
+					}
 			
 					draw_set_alpha(1);
 					surface_set_target(vram31_8bit[a]);
@@ -187,20 +200,49 @@ if (ds_list_size(tim_list) != 0){
 					draw_set_alpha(1);
 				}
 			}
-			draw_refresh = 0;
 
 		//draw grid pages
-		if (!surface_exists(vram28_8bit[4]) || draw_refresh != 0){
-			vram28_8bit[4] = surface_create(256, 256);
+		//Note: First sprite_create_from_surface is here
+		for (var a = 4; a < 8; a++){
+		if (!surface_exists(vram28_8bit[a]) || draw_refresh != 0){
+			if (!surface_exists(vram28_8bit[a])){
+				vram28_8bit[a] = surface_create(256, 256);
+			}
 			
 			draw_set_alpha(1);
-			surface_set_target(vram28_8bit[4]);
+			surface_set_target(vram28_8bit[a]);
 			draw_clear_alpha(c_grey, true);
 			for (var b = 0; b < ds_list_size(tim_list); b++){
 				px = tim_list[|b].pixel_x - 768;
 				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
 					continue;
 				}
+				count = 0;
+				#region Tracking color index of patterns [disabled]
+				//if (grid_mode28[0] == 1){
+				//	switch (grid_mode28[1]){
+				//		case 0:
+				//		count = index_blended;
+				//		index_blended++;
+				//		break;
+							
+				//		case 1:
+				//		count = index_zigzag;
+				//		index_zigzag++;
+				//		break;
+							
+				//		case 2:
+				//		count = index_weave;
+				//		index_weave++;
+				//		break;
+							
+				//		case 3:
+				//		count = index_tile;
+				//		index_tile++;
+				//		break;
+				//	}
+				//}
+				#endregion
 				scale = 2;
 				//tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, false);
 				pos_x = (tim_list[|b].pixel_x - 768) * scale;
@@ -208,29 +250,60 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($FFE0D8);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
-				draw_check28_8bit[4] = true;
+				draw_check28_8bit[a] = true;
 			}
-	
+			new_page = alpha_subtract(vram28_8bit[1], vram28_8bit[a]);
+			draw_clear_alpha(c_black, false);
+			draw_sprite(new_page, 0, 0, 0);
+			
 			surface_reset_target();
-			view_surface_id[0] = vram28_8bit[4];
+			view_surface_id[0] = vram28_8bit[a];
 			
 			draw_set_alpha(1);
-			vram28_8bit[4] = alpha_subtract(vram28_8bit[1], vram28_8bit[4]);
+
 		}
-		if (!surface_exists(vram29_8bit[4]) || draw_refresh != 0){
-			vram29_8bit[4] = surface_create(256, 256);
+		if (!surface_exists(vram29_8bit[a]) || draw_refresh != 0){
+			if (!surface_exists(vram29_8bit[a])){
+				vram29_8bit[a] = surface_create(256, 256);
+			}
 			
 			draw_set_alpha(1);
-			surface_set_target(vram29_8bit[4]);
+			surface_set_target(vram29_8bit[a]);
 			draw_clear_alpha(c_grey, true);
 			for (var b = 0; b < ds_list_size(tim_list); b++){
 				px = tim_list[|b].pixel_x - 832;
 				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
 					continue;
 				}
+				count = 0;
+				#region Tracking color index of patterns [disabled]
+				//if (grid_mode29[0] == 1){
+				//	switch (grid_mode29[1]){
+				//		case 0:
+				//		count = index_blended;
+				//		index_blended++;
+				//		break;
+							
+				//		case 1:
+				//		count = index_zigzag;
+				//		index_zigzag++;
+				//		break;
+							
+				//		case 2:
+				//		count = index_weave;
+				//		index_weave++;
+				//		break;
+							
+				//		case 3:
+				//		count = index_tile;
+				//		index_tile++;
+				//		break;
+				//	}
+				//}
+				#endregion
 				scale = 2;
 				//tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, false);
 				pos_x = (tim_list[|b].pixel_x - 832) * scale;
@@ -238,30 +311,60 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($FFE0D8);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
-				draw_check29_8bit[4] = true;
+				draw_check29_8bit[a] = true;
 			}
-	
+			new_page = alpha_subtract(vram29_8bit[1], vram29_8bit[a]);
+			draw_clear_alpha(c_black, false);
+			draw_sprite(new_page, 0, 0, 0);
+			
 			surface_reset_target();
-			view_surface_id[0] = vram29_8bit[4];
+			view_surface_id[0] = vram29_8bit[a];
 			
 			draw_set_alpha(1);
-			
-			vram29_8bit[4] = alpha_subtract(vram29_8bit[1], vram29_8bit[4]);
+
 		}
-		if (!surface_exists(vram30_8bit[4]) || draw_refresh != 0){
-			vram30_8bit[4] = surface_create(256, 256);
+		if (!surface_exists(vram30_8bit[a]) || draw_refresh != 0){
+			if (!surface_exists(vram30_8bit[a])){
+				vram30_8bit[a] = surface_create(256, 256);
+			}
 			
 			draw_set_alpha(1);
-			surface_set_target(vram30_8bit[4]);
+			surface_set_target(vram30_8bit[a]);
 			draw_clear_alpha(c_grey, true);
 			for (var b = 0; b < ds_list_size(tim_list); b++){
 				px = tim_list[|b].pixel_x - 896;
 				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
 					continue;
 				}
+				count = 0;
+				#region Tracking color index of patterns [disabled]
+				//if (grid_mode30[0] == 1){
+				//	switch (grid_mode30[1]){
+				//		case 0:
+				//		count = index_blended;
+				//		index_blended++;
+				//		break;
+							
+				//		case 1:
+				//		count = index_zigzag;
+				//		index_zigzag++;
+				//		break;
+							
+				//		case 2:
+				//		count = index_weave;
+				//		index_weave++;
+				//		break;
+							
+				//		case 3:
+				//		count = index_tile;
+				//		index_tile++;
+				//		break;
+				//	}
+				//}
+				#endregion
 				scale = 2;
 				//tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, false);
 				pos_x = (tim_list[|b].pixel_x - 896) * scale;
@@ -269,30 +372,60 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($FFE0D8);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
-				draw_check30_8bit[4] = true;
+				draw_check30_8bit[a] = true;
 			}
-	
+			new_page = alpha_subtract(vram30_8bit[1], vram30_8bit[a]);
+			draw_clear_alpha(c_black, false);
+			draw_sprite(new_page, 0, 0, 0);
+			
 			surface_reset_target();
-			view_surface_id[0] = vram30_8bit[4];
+			view_surface_id[0] = vram30_8bit[a];
 			
 			draw_set_alpha(1);
-			
-			vram30_8bit[4] = alpha_subtract(vram30_8bit[1], vram30_8bit[4]);
+
 		}
-		if (!surface_exists(vram31_8bit[4]) || draw_refresh != 0){
-			vram31_8bit[4] = surface_create(256, 256);
+		if (!surface_exists(vram31_8bit[a]) || draw_refresh != 0){
+			if (!surface_exists(vram31_8bit[a])){
+				vram31_8bit[a] = surface_create(256, 256);
+			}
 			
 			draw_set_alpha(1);
-			surface_set_target(vram31_8bit[4]);
+			surface_set_target(vram31_8bit[a]);
 			draw_clear_alpha(c_grey, true);
 			for (var b = 0; b < ds_list_size(tim_list); b++){
 				px = tim_list[|b].pixel_x - 960;
 				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
 					continue;
 				}
+				count = 0;
+				#region Tracking color index of patterns [disabled]
+				//if (grid_mode31[0] == 1){
+				//	switch (grid_mode31[1]){
+				//		case 0:
+				//		count = index_blended;
+				//		index_blended++;
+				//		break;
+							
+				//		case 1:
+				//		count = index_zigzag;
+				//		index_zigzag++;
+				//		break;
+							
+				//		case 2:
+				//		count = index_weave;
+				//		index_weave++;
+				//		break;
+							
+				//		case 3:
+				//		count = index_tile;
+				//		index_tile++;
+				//		break;
+				//	}
+				//}
+				#endregion
 				scale = 2;
 				//tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, false);
 				pos_x = (tim_list[|b].pixel_x - 960) * scale;
@@ -300,19 +433,23 @@ if (ds_list_size(tim_list) != 0){
 				draw_set_colour($FFE0D8);
 				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
+				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
 				draw_sprite(new_grid, 0, pos_x, pos_y);
 				tim_count++;
-				draw_check31_8bit[4] = true;
+				draw_check31_8bit[a] = true;
 			}
-	
+			
+			new_page = alpha_subtract(vram31_8bit[1], vram31_8bit[a]);
+			draw_clear_alpha(c_black, false);
+			draw_sprite(new_page, 0, 0, 0);
+				
 			surface_reset_target();
-			view_surface_id[0] = vram31_8bit[4];
+			view_surface_id[0] = vram31_8bit[a];
 			
 			draw_set_alpha(1);
-			
-			vram31_8bit[4] = alpha_subtract(vram31_8bit[1], vram31_8bit[4]);
+
 		}
+	}
 		//tim_count = 0;
 	#endregion
 	#region Draw 4-bit TIMs to VRAM pages
@@ -328,7 +465,9 @@ if (ds_list_size(tim_list) != 0){
 				}
 		
 				if (!surface_exists(vram28_4bit[a]) || draw_refresh != 0){
-					vram28_4bit[a] = surface_create(256, 256);
+					if (!surface_exists(vram28_4bit[a])){
+						vram28_4bit[a] = surface_create(256, 256);
+					}
 			
 					draw_set_alpha(1);
 					surface_set_target(vram28_4bit[a]);
@@ -371,7 +510,9 @@ if (ds_list_size(tim_list) != 0){
 					break;
 				}
 				if (!surface_exists(vram29_4bit[a]) || draw_refresh != 0){
-					vram29_4bit[a] = surface_create(256, 256);
+					if (!surface_exists(vram29_4bit[a])){
+						vram29_4bit[a] = surface_create(256, 256);
+					}
 			
 					draw_set_alpha(1);
 					surface_set_target(vram29_4bit[a]);
@@ -414,7 +555,9 @@ if (ds_list_size(tim_list) != 0){
 					break;
 				}
 				if (!surface_exists(vram30_4bit[a]) || draw_refresh != 0){
-					vram30_4bit[a] = surface_create(256, 256); 
+					if (!surface_exists(vram30_4bit[a])){
+						vram30_4bit[a] = surface_create(256, 256);
+					}
 			
 					draw_set_alpha(1);
 					surface_set_target(vram30_4bit[a]);
@@ -457,7 +600,9 @@ if (ds_list_size(tim_list) != 0){
 					break;
 				}
 				if (!surface_exists(vram31_4bit[a]) || draw_refresh != 0){
-					vram31_4bit[a] = surface_create(256, 256); 
+					if (!surface_exists(vram31_4bit[a])){
+						vram31_4bit[a] = surface_create(256, 256);
+					}
 			
 					draw_set_alpha(1);
 					surface_set_target(vram31_4bit[a]);
@@ -490,130 +635,257 @@ if (ds_list_size(tim_list) != 0){
 					draw_set_alpha(1);
 				}
 			}
-			draw_refresh = 0;
+			
 		//draw grid pages
-		if (!surface_exists(vram28_4bit[4]) || draw_refresh != 0){
-			vram28_4bit[4] = surface_create(256, 256);
-			
-			draw_set_alpha(1);
-			surface_set_target(vram28_4bit[4]);
-			draw_clear_alpha(c_grey, true);
-			for (var b = 0; b < ds_list_size(tim_list); b++){
-				px = tim_list[|b].pixel_x - 768;
-				if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-					continue;
+		for (var a = 4; a < 8; a++){
+			if (!surface_exists(vram28_4bit[a]) || draw_refresh != 0){
+				if (!surface_exists(vram28_4bit[a])){
+					vram28_4bit[a] = surface_create(256, 256);
 				}
-				scale = 4;
-				//tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, false);
-				pos_x = (tim_list[|b].pixel_x - 768) * scale;
-				pos_y = tim_list[|b].pixel_y - 256;
-				draw_set_colour($303030);
-				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+			
+				draw_set_alpha(1);
+				surface_set_target(vram28_4bit[a]);
+				draw_clear_alpha(c_grey, true);
+				for (var b = 0; b < ds_list_size(tim_list); b++){
+					px = tim_list[|b].pixel_x - 768;
+					if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+						continue;
+					}
+					count = 0;
+					#region Tracking color index of patterns [disabled]
+					//if (grid_mode28[0] == 1){
+					//	switch (grid_mode28[1]){
+					//		case 0:
+					//		count = index_blended;
+					//		index_blended++;
+					//		break;
+							
+					//		case 1:
+					//		count = index_zigzag;
+					//		index_zigzag++;
+					//		break;
+							
+					//		case 2:
+					//		count = index_weave;
+					//		index_weave++;
+					//		break;
+							
+					//		case 3:
+					//		count = index_tile;
+					//		index_tile++;
+					//		break;
+					//	}
+					//}
+					#endregion
+					scale = 4;
+					//tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, false);
+					pos_x = (tim_list[|b].pixel_x - 768) * scale;
+					pos_y = tim_list[|b].pixel_y - 256;
+					draw_set_colour($303030);
+					draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
-				draw_sprite(new_grid, 0, (tim_list[|b].pixel_x - 768) * scale, tim_list[|b].pixel_y - 256);
-				tim_count++;
-				draw_check28_4bit[4] = true;
-			}
-	
-			surface_reset_target();
-			view_surface_id[0] = vram28_4bit[4];
-			
-			draw_set_alpha(1);
-			vram28_4bit[4] = alpha_subtract(vram28_4bit[1], vram28_4bit[4]);
-			
-		}
-		if (!surface_exists(vram29_4bit[4]) || draw_refresh != 0){
-			vram29_4bit[4] = surface_create(256, 256);
-			
-			draw_set_alpha(1);
-			surface_set_target(vram29_4bit[4]);
-			draw_clear_alpha(c_grey, true);
-			for (var b = 0; b < ds_list_size(tim_list); b++){
-				px = tim_list[|b].pixel_x - 832;
-				if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-					continue;
+					new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
+					draw_sprite(new_grid, 0, (tim_list[|b].pixel_x - 768) * scale, tim_list[|b].pixel_y - 256);
+					tim_count++;
+					draw_check28_4bit[a] = true;
 				}
-				scale = 4;
-				//tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, false);
-				pos_x = (tim_list[|b].pixel_x - 832) * scale;
-				pos_y = tim_list[|b].pixel_y - 256;
-				draw_set_colour($303030);
-				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				new_page = alpha_subtract(vram28_4bit[1], vram28_4bit[a]);
+				draw_clear_alpha(c_black, false);
+				draw_sprite(new_page, 0, 0, 0);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
-				draw_sprite(new_grid, 0, pos_x, pos_y);
-				tim_count++;
-				draw_check29_4bit[4] = true;
+				surface_reset_target();
+				view_surface_id[0] = vram28_4bit[a];
+			
+				draw_set_alpha(1);
+
+			
 			}
-	
-			surface_reset_target();
-			view_surface_id[0] = vram29_4bit[4];
-			
-			draw_set_alpha(1);
-			vram29_4bit[4] = alpha_subtract(vram29_4bit[1], vram29_4bit[4]);
-		}
-		if (!surface_exists(vram30_4bit[4]) || draw_refresh != 0){
-			vram30_4bit[4] = surface_create(256, 256);
-			
-			draw_set_alpha(1);
-			surface_set_target(vram30_4bit[4]);
-			draw_clear_alpha(c_grey, true);
-			for (var b = 0; b < ds_list_size(tim_list); b++){
-				px = tim_list[|b].pixel_x - 896;
-				if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-					continue;
+			if (!surface_exists(vram29_4bit[a]) || draw_refresh != 0){
+				if (!surface_exists(vram29_4bit[a])){
+					vram29_4bit[a] = surface_create(256, 256);
 				}
-				scale = 4;
-				//tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, false);
-				pos_x = (tim_list[|b].pixel_x - 896) * scale;
-				pos_y = tim_list[|b].pixel_y - 256;
-				draw_set_colour($303030);
-				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+			
+				draw_set_alpha(1);
+				surface_set_target(vram29_4bit[a]);
+				draw_clear_alpha(c_grey, true);
+				for (var b = 0; b < ds_list_size(tim_list); b++){
+					px = tim_list[|b].pixel_x - 832;
+					if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+						continue;
+					}
+					count = 0;
+					#region Tracking color index of patterns [disabled]
+					//if (grid_mode29[0] == 1){
+					//	switch (grid_mode29[1]){
+					//		case 0:
+					//		count = index_blended;
+					//		index_blended++;
+					//		break;
+							
+					//		case 1:
+					//		count = index_zigzag;
+					//		index_zigzag++;
+					//		break;
+							
+					//		case 2:
+					//		count = index_weave;
+					//		index_weave++;
+					//		break;
+							
+					//		case 3:
+					//		count = index_tile;
+					//		index_tile++;
+					//		break;
+					//	}
+					//}
+					#endregion
+					scale = 4;
+					//tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, false);
+					pos_x = (tim_list[|b].pixel_x - 832) * scale;
+					pos_y = tim_list[|b].pixel_y - 256;
+					draw_set_colour($303030);
+					draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
-				draw_sprite(new_grid, 0, pos_x, pos_y);
-				tim_count++;
-				draw_check30_4bit[4] = true;
-			}
-	
-			surface_reset_target();
-			view_surface_id[0] = vram30_4bit[4];
-			
-			draw_set_alpha(1);
-			vram30_4bit[4] = alpha_subtract(vram30_4bit[1], vram30_4bit[4]);
-		}
-		if (!surface_exists(vram31_4bit[4]) || draw_refresh != 0){
-			vram31_4bit[4] = surface_create(256, 256);
-			
-			draw_set_alpha(1);
-			surface_set_target(vram31_4bit[4]);
-			draw_clear_alpha(c_grey, true);
-			for (var b = 0; b < ds_list_size(tim_list); b++){
-				px = tim_list[|b].pixel_x - 960;
-				if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-					continue;
+					new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
+					draw_sprite(new_grid, 0, pos_x, pos_y);
+					tim_count++;
+					draw_check29_4bit[a] = true;
 				}
-				scale = 4;
-				//tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, false);
-				pos_x = (tim_list[|b].pixel_x - 960) * scale;
-				pos_y = tim_list[|b].pixel_y - 256;
-				draw_set_colour($303030);
-				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				new_page = alpha_subtract(vram29_4bit[1], vram29_4bit[a]);
+				draw_clear_alpha(c_black, false);
+				draw_sprite(new_page, 0, 0, 0);
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 1, b, scale);
-				draw_sprite(new_grid, 0, pos_x, pos_y);
-				tim_count++;
-				draw_check31_4bit[4] = true;
-			}
-	
-			surface_reset_target();
-			view_surface_id[0] = vram31_4bit[4];
+				surface_reset_target();
+				view_surface_id[0] = vram29_4bit[a];
 			
-			draw_set_alpha(1);
-			vram31_4bit[4] = alpha_subtract(vram31_4bit[1], vram31_4bit[4]);
+				draw_set_alpha(1);
+			}
+			if (!surface_exists(vram30_4bit[a]) || draw_refresh != 0){
+				if (!surface_exists(vram30_4bit[a])){
+					vram30_4bit[a] = surface_create(256, 256);
+				}
+			
+				draw_set_alpha(1);
+				surface_set_target(vram30_4bit[a]);
+				draw_clear_alpha(c_grey, true);
+				
+				for (var b = 0; b < ds_list_size(tim_list); b++){
+					px = tim_list[|b].pixel_x - 896;
+					if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+						continue;
+					}
+					count = 0;
+					#region Tracking color index of patterns [disabled]
+					//if (grid_mode30[0] == 1){
+					//	switch (grid_mode30[1]){
+					//		case 0:
+					//		count = index_blended;
+					//		index_blended++;
+					//		break;
+							
+					//		case 1:
+					//		count = index_zigzag;
+					//		index_zigzag++;
+					//		break;
+							
+					//		case 2:
+					//		count = index_weave;
+					//		index_weave++;
+					//		break;
+							
+					//		case 3:
+					//		count = index_tile;
+					//		index_tile++;
+					//		break;
+					//	}
+					//}
+					#endregion
+					scale = 4;
+					//tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, false);
+					pos_x = (tim_list[|b].pixel_x - 896) * scale;
+					pos_y = tim_list[|b].pixel_y - 256;
+					draw_set_colour($303030);
+					draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+				
+					new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
+					draw_sprite(new_grid, 0, pos_x, pos_y);
+					tim_count++;
+					draw_check30_4bit[a] = true;
+				}
+				new_page = alpha_subtract(vram30_4bit[1], vram30_4bit[a]);
+				draw_clear_alpha(c_black, false);
+				draw_sprite(new_page, 0, 0, 0);
+				
+				surface_reset_target();
+				view_surface_id[0] = vram30_4bit[a];
+			
+				draw_set_alpha(1);
+
+			}
+			if (!surface_exists(vram31_4bit[a]) || draw_refresh != 0){
+				if (!surface_exists(vram31_4bit[a])){
+					vram31_4bit[a] = surface_create(256, 256);
+				}
+			
+				draw_set_alpha(1);
+				surface_set_target(vram31_4bit[a]);
+				draw_clear_alpha(c_grey, true);
+				for (var b = 0; b < ds_list_size(tim_list); b++){
+					px = tim_list[|b].pixel_x - 960;
+					if (px < 0 || px > 63 || tim_list[|b].bit == 1){
+						continue;
+					}
+					count = 0;
+					#region Tracking color index of patterns [disabled]
+					//if (grid_mode31[0] == 1){
+					//	switch (grid_mode31[1]){
+					//		case 0:
+					//		count = index_blended;
+					//		index_blended++;
+					//		break;
+							
+					//		case 1:
+					//		count = index_zigzag;
+					//		index_zigzag++;
+					//		break;
+							
+					//		case 2:
+					//		count = index_weave;
+					//		index_weave++;
+					//		break;
+							
+					//		case 3:
+					//		count = index_tile;
+					//		index_tile++;
+					//		break;
+					//	}
+					//}
+					#endregion
+					scale = 4;
+					//tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, false);
+					pos_x = (tim_list[|b].pixel_x - 960) * scale;
+					pos_y = tim_list[|b].pixel_y - 256;
+					draw_set_colour($303030);
+					draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+					
+					new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
+					draw_sprite(new_grid, 0, pos_x, pos_y);
+					tim_count++;
+					draw_check31_4bit[a] = true;
+				}
+				new_page = alpha_subtract(vram31_4bit[1], vram31_4bit[a]);
+				draw_clear_alpha(c_black, false);
+				draw_sprite(new_page, 0, 0, 0);
+				
+				surface_reset_target();
+				view_surface_id[0] = vram31_4bit[a];
+			
+				draw_set_alpha(1);
+				
+			}
 		}
 		tim_count = 0;
+		draw_refresh = 0;
 	#endregion
 }
 timer++;

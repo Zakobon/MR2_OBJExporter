@@ -162,9 +162,9 @@ function tmd_prim_draw(_prim_array, _offset, _count, _line, _fill, _vertex_color
 					grid_y = p31_Window.top + 2;
 					break;
 				}
-				draw_vertex_colour(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]), _fill, .4);
-				draw_vertex_colour(grid_x + (x_list[1 + b]), grid_y + (y_list[1 + b]), _fill, .4);
-				draw_vertex_colour(grid_x + (x_list[2 + b]), grid_y + (y_list[2 + b]), _fill, .4);
+				draw_vertex_colour(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]), _fill, .1);
+				draw_vertex_colour(grid_x + (x_list[1 + b]), grid_y + (y_list[1 + b]), _fill, .1);
+				draw_vertex_colour(grid_x + (x_list[2 + b]), grid_y + (y_list[2 + b]), _fill, .1);
 				//draw_vertex_colour(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]), c_list[0 + b], transparency);
 				//draw_vertex_colour(grid_x + (x_list[1 + b]), grid_y + (y_list[1 + b]), c_list[1 + b], transparency);
 				//draw_vertex_colour(grid_x + (x_list[2 + b]), grid_y + (y_list[2 + b]), c_list[2 + b], transparency);

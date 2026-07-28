@@ -1317,9 +1317,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode28[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode28[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1327,9 +1327,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("newmtl VRAM 4bit page #28 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode28[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[0], grid_string[grid_mode28[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1338,9 +1338,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode]));
+		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode29[0]]));
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode29[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1348,9 +1348,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("newmtl VRAM 4bit page #29 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode29[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[0], grid_string[grid_mode29[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1359,9 +1359,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode]));
+		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode30[0]]));
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode30[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1369,9 +1369,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("newmtl VRAM 4bit page #30 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode30[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[0], grid_string[grid_mode30[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1380,19 +1380,19 @@ function export_obj(){
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode]));
+		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode31[0]]));
 		array_push(mtl_string_array, "\n");
-		//array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
-		//array_push(mtl_string_array, "\n");
+		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode31[0]])); //alpha map
+		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
 	if (f31_check_4bit[1] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM 4bit page #31 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode31[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[0], grid_string[grid_mode31[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1403,9 +1403,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode28[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode28[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1413,9 +1413,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("newmtl VRAM 8bit page #28 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode28[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram28{1}{2}.png", filename, bit_string[1], grid_string[grid_mode28[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1424,9 +1424,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode]));
+		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode29[0]]));
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode29[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1434,9 +1434,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("newmtl VRAM 8bit page #29 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode29[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram29{1}{2}.png", filename, bit_string[1], grid_string[grid_mode29[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1445,9 +1445,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode]));
+		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode30[0]]));
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode30[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1455,9 +1455,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("newmtl VRAM 8bit page #30 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode30[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram30{1}{2}.png", filename, bit_string[1], grid_string[grid_mode30[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1466,9 +1466,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("d 1.00000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode]));
+		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode31[0]]));
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode31[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
@@ -1476,9 +1476,9 @@ function export_obj(){
 		array_push(mtl_string_array, string("newmtl VRAM 8bit page #31 Semi-Transparent" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
-		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //texture map
+		array_push(mtl_string_array, string("map_Kd {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode31[0]])); //texture map
 		array_push(mtl_string_array, "\n");
-		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode])); //alpha map
+		array_push(mtl_string_array, string("map_d {0}_vram31{1}{2}.png", filename, bit_string[1], grid_string[grid_mode31[0]])); //alpha map
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}

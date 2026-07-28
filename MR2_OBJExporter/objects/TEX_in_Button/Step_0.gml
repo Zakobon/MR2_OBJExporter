@@ -21,58 +21,55 @@ if (Import_TEX == 1) {
 			user_filepath = variable_clone(filepath);
 		}
 	}
-	if (old_file != ui_name_tex){
-		for (var a = 0; a < 5; a++){
-			if (surface_exists(vram28_8bit[a])){
-				surface_free(vram28_8bit[a]);
-			}
-			draw_check28_4bit[a] = false;
-			draw_check28_8bit[a] = false;
-			if (surface_exists(vram29_8bit[a])){
-				surface_free(vram29_8bit[a]);
-			}
-			draw_check29_4bit[a] = false;
-			draw_check29_8bit[a] = false;
-			if (surface_exists(vram30_8bit[a])){
-				surface_free(vram30_8bit[a]);
-			}
-			draw_check30_4bit[a] = false;
-			draw_check30_8bit[a] = false;
-			if (surface_exists(vram31_8bit[a])){
-				surface_free(vram31_8bit[a]);
-			}
-			draw_check31_4bit[a] = false;
-			draw_check31_8bit[a] = false;
+	for (var a = 0; a < 8; a++){
+		if (surface_exists(vram28_8bit[a])){
+			surface_free(vram28_8bit[a]);
 		}
-		
-		for (var a = 0; a < 5; a++){
-			vram28_4bit[a] = -1;
-			vram29_4bit[a] = -1;
-			vram30_4bit[a] = -1;
-			vram31_4bit[a] = -1;
-	
-			vram28_8bit[a] = -1;
-			vram29_8bit[a] = -1;
-			vram30_8bit[a] = -1;
-			vram31_8bit[a] = -1;
-			
-			draw_check28_4bit[a] = false;
-			draw_check29_4bit[a] = false;
-			draw_check30_4bit[a] = false;
-			draw_check31_4bit[a] = false;
-
-			draw_check28_8bit[a] = false;
-			draw_check29_8bit[a] = false;
-			draw_check30_8bit[a] = false;
-			draw_check31_8bit[a] = false;
+		draw_check28_4bit[a] = false;
+		draw_check28_8bit[a] = false;
+		if (surface_exists(vram29_8bit[a])){
+			surface_free(vram29_8bit[a]);
 		}
-		
-		png_out_success = false;
-		png_duplicate = 0;
-		tex_out_success = false;
-		tex_duplicate = 0;
-		obj_out_success = 0;
-		obj_duplicate = 0;
+		draw_check29_4bit[a] = false;
+		draw_check29_8bit[a] = false;
+		if (surface_exists(vram30_8bit[a])){
+			surface_free(vram30_8bit[a]);
+		}
+		draw_check30_4bit[a] = false;
+		draw_check30_8bit[a] = false;
+		if (surface_exists(vram31_8bit[a])){
+			surface_free(vram31_8bit[a]);
+		}
+		draw_check31_4bit[a] = false;
+		draw_check31_8bit[a] = false;
 	}
+		
+	for (var a = 0; a < 8; a++){
+		vram28_4bit[a] = -1;
+		vram29_4bit[a] = -1;
+		vram30_4bit[a] = -1;
+		vram31_4bit[a] = -1;
+	
+		vram28_8bit[a] = -1;
+		vram29_8bit[a] = -1;
+		vram30_8bit[a] = -1;
+		vram31_8bit[a] = -1;
+			
+		draw_check28_4bit[a] = false;
+		draw_check29_4bit[a] = false;
+		draw_check30_4bit[a] = false;
+		draw_check31_4bit[a] = false;
+
+		draw_check28_8bit[a] = false;
+		draw_check29_8bit[a] = false;
+		draw_check30_8bit[a] = false;
+		draw_check31_8bit[a] = false;
+	}
+	png_out_success = false;
+	png_duplicate = 0;
+	tex_out_success = false;
+	tex_duplicate = 0;
+	obj_out_success = 0;
+	obj_duplicate = 0;
 	variable_instance_set(Visibility_UI, "update", true);
 }

@@ -12,29 +12,31 @@
 // 15 = Background
 globalvar grid_data_clut4bit;
 grid_data_clut4bit = [
-//Transparent
-$000000,
-//Background
-$000008,
-//Greyscale
-$434343,
-$ECECEC,
 //Reds
-$5E2203,
-$8A401B,
-$B36740,
-//Yellows
-$5E5003,
-$8A791B,
-$B3A140,
+$5E1903,
+$8A361B,
+$D36740,
+
+
 //Purples
-$2E1B5F,
+$2E2B58,
 $49347A,
 $695797,
 //Greens
 $023F2B,
 $125C44,
-$2B775E
+$2B775E,
+//Yellows
+$666603,
+$888800,
+$B3B500,
+//Greyscale
+$ECECEC,
+$434343,
+//Background
+$00000F,
+//Transparent
+$000000
 ];
 
 

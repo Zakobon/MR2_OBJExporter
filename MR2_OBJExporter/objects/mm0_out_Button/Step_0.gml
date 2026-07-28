@@ -17,11 +17,11 @@ else{
 	apply = 0;
 	exit;
 }
-switch (grid_mode){
-	case false:
-	variable_instance_set(export_mm0, "display", "Export OBJ[Norm]");
-	break;
-	case true:
-	variable_instance_set(export_mm0, "display", "Export OBJ[Grid]");
-	break;
-}
+//switch (grid_mode){
+//	case false:
+//	variable_instance_set(export_mm0, "display", "Export OBJ[Norm]");
+//	break;
+//	case true:
+//	variable_instance_set(export_mm0, "display", "Export OBJ[Grid]");
+//	break;
+//}

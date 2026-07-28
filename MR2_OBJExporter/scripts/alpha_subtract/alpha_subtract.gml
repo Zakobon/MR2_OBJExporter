@@ -6,7 +6,8 @@
 function alpha_subtract(_mask, _target){
 		mask = sprite_create_from_surface(_mask, 0, 0, 256, 256, false, false, 0, 0);
 		target = sprite_create_from_surface(_target, 0, 0, 256, 256, false, false, 0, 0);
-	
+
+		
 		surface = surface_create(256, 256);
 		surface_set_target(surface);
 		
@@ -21,12 +22,14 @@ function alpha_subtract(_mask, _target){
 		gpu_set_blendmode(bm_add);
 		
 		draw_sprite_ext(mask, 0, 0, 0, 1, 1, 0, c_black, 1);		
-
-		surface_reset_target();
 		
-		sprite_delete(mask);
-		sprite_delete(target);
 		gpu_set_blendmode(bm_normal);
 		draw_set_color(c_white);
-		return surface;
+		surface_reset_target();
+		sprite = sprite_create_from_surface(surface, 0, 0, 256, 256, false, false, 0, 0);
+		
+		surface_free(surface);
+		sprite_delete(mask);
+		sprite_delete(target);
+		return sprite;
 }

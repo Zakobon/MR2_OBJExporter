@@ -96,34 +96,42 @@ variable_instance_set(vram31_8bit_button, "toggle_set", 2);
 
 #region VRAM Grid Buttons
 globalvar vram28_grid_button;
-vram28_grid_button = instance_create_layer(p28_Window.left + p28_Window.width - 65, p28_Window.top - 32, "UI_Draw", Select_Button_16x16);
-variable_instance_set(vram28_grid_button, "display", "Grid View")
-variable_instance_set(vram28_grid_button, "image_index", 14);
-variable_instance_set(vram28_grid_button, "image", 14);
+vram28_grid_button = instance_create_layer(p28_Window.left + 0, p28_Window.top - 32, "UI_Draw", Select_Button_16x16);
+variable_instance_set(vram28_grid_button, "display", "Grid Mode")
+variable_instance_set(vram28_grid_button, "image_index", 20);
+variable_instance_set(vram28_grid_button, "image", 20);
 variable_instance_set(vram28_grid_button, "enable", 0);
 variable_instance_set(vram28_grid_button, "toggle_set", 2);
+variable_instance_set(vram28_grid_button, "t_color_on0", $5fdd60);
+variable_instance_set(vram28_grid_button, "t_color_on1", $a6ffae);
 
 globalvar vram29_grid_button;
-vram29_grid_button = instance_create_layer(p29_Window.left + p29_Window.width - 65, p29_Window.top - 32, "UI_Draw", Select_Button_16x16);
-variable_instance_set(vram29_grid_button, "display", "Grid View")
-variable_instance_set(vram29_grid_button, "image_index", 14);
-variable_instance_set(vram29_grid_button, "image", 14);
+vram29_grid_button = instance_create_layer(p29_Window.left, p29_Window.top - 32, "UI_Draw", Select_Button_16x16);
+variable_instance_set(vram29_grid_button, "display", "Grid Mode")
+variable_instance_set(vram29_grid_button, "image_index", 20);
+variable_instance_set(vram29_grid_button, "image", 20);
 variable_instance_set(vram29_grid_button, "enable", 0);
 variable_instance_set(vram29_grid_button, "toggle_set", 2);
+variable_instance_set(vram29_grid_button, "t_color_on0", $5fdd60);
+variable_instance_set(vram29_grid_button, "t_color_on1", $a6ffae);
 
 globalvar vram30_grid_button;
-vram30_grid_button = instance_create_layer(p30_Window.left + p30_Window.width - 65, p30_Window.top - 32, "UI_Draw", Select_Button_16x16);
-variable_instance_set(vram30_grid_button, "display", "Grid View")
-variable_instance_set(vram30_grid_button, "image_index", 14);
-variable_instance_set(vram30_grid_button, "image", 14);
+vram30_grid_button = instance_create_layer(p30_Window.left, p30_Window.top - 32, "UI_Draw", Select_Button_16x16);
+variable_instance_set(vram30_grid_button, "display", "Grid Mode")
+variable_instance_set(vram30_grid_button, "image_index", 20);
+variable_instance_set(vram30_grid_button, "image", 20);
 variable_instance_set(vram30_grid_button, "enable", 0);
 variable_instance_set(vram30_grid_button, "toggle_set", 2);
+variable_instance_set(vram30_grid_button, "t_color_on0", $5fdd60);
+variable_instance_set(vram30_grid_button, "t_color_on1", $a6ffae);
 
 globalvar vram31_grid_button;
-vram31_grid_button = instance_create_layer(p31_Window.left + p31_Window.width - 65, p31_Window.top - 32, "UI_Draw", Select_Button_16x16);
-variable_instance_set(vram31_grid_button, "display", "Grid View")
-variable_instance_set(vram31_grid_button, "image_index", 14);
-variable_instance_set(vram31_grid_button, "image", 14);
+vram31_grid_button = instance_create_layer(p31_Window.left, p31_Window.top - 32, "UI_Draw", Select_Button_16x16);
+variable_instance_set(vram31_grid_button, "display", "Grid Mode")
+variable_instance_set(vram31_grid_button, "image_index", 20);
+variable_instance_set(vram31_grid_button, "image", 20);
 variable_instance_set(vram31_grid_button, "enable", 0);
 variable_instance_set(vram31_grid_button, "toggle_set", 2);
+variable_instance_set(vram31_grid_button, "t_color_on0", $5fdd60);
+variable_instance_set(vram31_grid_button, "t_color_on1", $a6ffae);
 #endregion
