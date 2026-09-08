@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"get_pdata",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"get_pdata",
+  "parent":{
+    "name":"MR2_OBJExporter",
+    "path":"MR2_OBJExporter.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

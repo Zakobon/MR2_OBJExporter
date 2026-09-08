@@ -15,7 +15,7 @@ if (Import_MM0 == 1){
 		instance_create_layer(0, 0, "Vertex_Draw", GetModel);
 	}
 	variable_instance_set(import_mm0, "active", 0);
-	
+	prim_refresh = true;
 	obj_out_success = 0;
 	obj_duplicate = 0;
 	png_out_success = 0;

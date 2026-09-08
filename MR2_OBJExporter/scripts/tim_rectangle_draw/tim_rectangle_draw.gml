@@ -203,7 +203,7 @@ function tim_rectangle_draw(_alpha = 1){
 	
 
 		if (tim_list[|ui_tim].clut_data[0].stp == 1){
-			draw_set_alpha(_alpha * .7);
+			draw_set_alpha(_alpha * .85);
 		}
 		else{
 			draw_set_alpha(_alpha * 1);

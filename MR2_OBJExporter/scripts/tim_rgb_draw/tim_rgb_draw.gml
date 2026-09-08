@@ -18,22 +18,26 @@ function tim_rgb_draw(_x = 0, _y = 0, _tim, _alpha = 1, _scalew = 2, _scaleh = 2
 			break;
 	}
 	
-	draw_clut = tim_rgb_clut[_tim.clut_y - 505]; //Uses the global CLUT list, NOT the clut supplied as that's not how it works ingame
+	var draw_clut = tim_rgb_clut[_tim.clut_y - 505]; //Uses the global CLUT list, NOT the clut supplied as that's not how it works ingame
 	
 	//Erase area that TIM will be drawn to//
 	//This way, fully transparent pixels can be represented when a background is added
 	gpu_set_blendmode(bm_subtract);
-	draw_set_alpha(1);
+	draw_set_alpha(0);
+	//gpu_set_colourwriteenable(false, false, false, true);
 	draw_set_colour($FFFFFF);
+
 	draw_rectangle(tim_px * mult, tim_py, (tim_pw * mult) + (tim_px * mult) - 1, (tim_ph + tim_py) - 1, false);
 	gpu_set_blendmode(bm_normal);
-
+	//gpu_set_colourwriteenable(true, true, true, true);
 		
 
 	draw_set_alpha(_alpha);
 	h = 0;
 	w = 0;
-		
+	//gpu_set_blendmode_ext_sepalpha(bm_src_alpha, bm_inv_src_alpha, bm_src_alpha, bm_inv_src_alpha);
+	gpu_set_blendequation_sepalpha(bm_eq_max, bm_eq_min);
+	//gpu_set_blendenable(false);
 	for (var a = 0; a < scale_h; a++){
 		for (var b = 0; b < scale_w; b++){
 			h = 0;
@@ -46,10 +50,10 @@ function tim_rgb_draw(_x = 0, _y = 0, _tim, _alpha = 1, _scalew = 2, _scaleh = 2
 					case 1:
 					if (_fill != true){
 						if (grid_mode != 1){
-							draw_set_alpha(_alpha * .95);
+							draw_set_alpha(_alpha * .85);
 						}
 						else{
-							draw_set_alpha(_alpha * .80);
+							draw_set_alpha(_alpha * .85);
 						}
 					}
 					else{
@@ -70,4 +74,6 @@ function tim_rgb_draw(_x = 0, _y = 0, _tim, _alpha = 1, _scalew = 2, _scaleh = 2
 		}
 	}
 	draw_set_alpha(1);
+	gpu_set_blendmode(bm_normal);
+	gpu_set_blendequation(bm_eq_add);
 }

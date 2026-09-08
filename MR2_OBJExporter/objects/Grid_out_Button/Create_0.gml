@@ -2,20 +2,24 @@ globalvar grid_mode;
 grid_mode = 0;
 
 globalvar grid_mode28; //[grid_mode active, pattern_index]
-grid_mode28 = [0, 0];
+grid_mode28 = [0, 0, 0];
 
 globalvar grid_mode29;
-grid_mode29 = [0, 1];
+grid_mode29 = [0, 1, 0];
 
 globalvar grid_mode30;
-grid_mode30 = [0, 2];
+grid_mode30 = [0, 2, 0];
 
 globalvar grid_mode31;
-grid_mode31 = [0, 3];
+grid_mode31 = [0, 3, 0];
 toggle_off = false;
 toggle_on = false;
 x_off = 60;
 
+blended_max = sprite_get_number(Blended256x256) div 3;
+zigzag_max = sprite_get_number(ZigZag256x256) div 3;
+weave_max = sprite_get_number(Weave256x256) div 3;
+tile_max = sprite_get_number(Tile256x256) div 3;
 //grid_button = instance_create_layer(x, y, "UI_Draw", Select_Button_24x24);
 //variable_instance_set(grid_button, "display", "Enable Grid Export");
 //variable_instance_set(grid_button, "toggle_set", 1);

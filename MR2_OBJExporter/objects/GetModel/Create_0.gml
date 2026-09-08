@@ -5,7 +5,7 @@ mm0_base_buffer = -1; //Import buffer
 tmd_edit_buffer = -1; //Export buffer
 p_index = 0; //counter to keep track of where an object's primitives start from
 offset = 0;
-
+v_list = []; //array[array] holds vert indices to seach for duplicate faces
 
 tmd_base = { //Original data, do not edit
 	id : 0,
@@ -22,6 +22,7 @@ tmd_base = { //Original data, do not edit
 	tmd_size : 0,
 	objects : [],
 	
+	shared_verts : false, //was a primitive found sharing the exact same verts as this one? If so, new verts will be made for it
 	packet_data : [], //packet section for MMJ object placement
 	prim : [], //entire primitive section - either "prim3" or "Primitive" struct
 	vert : [], //entire vertex section - use "vertex" struct
@@ -44,6 +45,7 @@ tmd_edit = { //The modified values should be saved here
 	tmd_size : 0,
 	objects : [],
 	
+	shared_verts : false, //was a primitive found sharing the exact same verts as this one? If so, new verts will be made for it
 	packet_data : [], //packet section for MMJ object placement
 	prim : [], //entire primitive section - either "prim3" or "Primitive" struct
 	vert : [], //entire vertex section - use "vertex" struct
@@ -225,6 +227,8 @@ else{
 		
 		for (var i = 0; i < tmd_base.objects[j].prim_num; i++) {
 			primitive = new Primitive();
+			array_push(v_list, []);
+			v_ind = [];
 			
 			buffer_seek(mm0_base_buffer, buffer_seek_relative, tmd_base.prim_offset);
 			
@@ -323,7 +327,9 @@ else{
 						array_push(primitive.colors, vert_rgb);
 					}
 					repeat (3){
-						array_push(primitive.vert, buffer_read(mm0_base_buffer, buffer_u16));
+						v_read = buffer_read(mm0_base_buffer, buffer_u16);
+						array_push(primitive.vert, v_read);
+						array_push(v_ind, v_read);
 						d++;
 					}
 					if (d % 2){
@@ -339,7 +345,9 @@ else{
 					}
 					repeat (3 + p_poly_vert){
 						array_push(primitive.norm, buffer_read(mm0_base_buffer, buffer_u16));
-						array_push(primitive.vert, buffer_read(mm0_base_buffer, buffer_u16));
+						v_read = buffer_read(mm0_base_buffer, buffer_u16);
+						array_push(primitive.vert, v_read);
+						array_push(v_ind, v_read);
 					}
 				}
 			}
@@ -349,13 +357,37 @@ else{
 				x_total += primitive.tex_x[b];
 				y_total += primitive.tex_y[b];
 			}
-			primitive.center_xy = [round((x_total / array_length(primitive.tex_x))), round((y_total / array_length(primitive.tex_y)))]
+			primitive.center_xy = [round((x_total / array_length(primitive.tex_x))), round((y_total / array_length(primitive.tex_y)))];
+			#region Duplicate Search [Disabled]
+			//Note: doesn't work as expected in this iteration
+			//	- found no duplicates in mk_mk(ghost)
+			if (false){
+				for (var v1 = 0; v1 < array_length(v_list); v1++){
+					not_found = false;
+					for (var v2 = 0; v2 < array_length(v_ind); v2++){
+						if (array_contains(v_list[v1], v_ind[v2])){
+							//do nothing intentionally
+						}
+						else{
+							not_found = true;
+							break;
+						}
+					}
+					if !(not_found){
+						primitive.shared_vert = true;
+						show_debug_message("[Testing]:Duplicate Found");
+					}
+				}
+				v_list[i] = v_ind;
+			}
+			#endregion
 			array_push(tmd_base.prim, primitive);
 		}
 	}
 	
 	//buffer_seek(mm0_base_buffer, buffer_seek_start, primbase + 1);
 	vert_total = (tmd_base.objects[0].normal_off - tmd_base.objects[0].vert_off) / 4;
+	v_list = [];
 	for(var a = 0; a < (vert_total * 4); a += 8){
 		vx = buffer_read(mm0_base_buffer, buffer_s16);
 		vy =  buffer_read(mm0_base_buffer, buffer_s16);
@@ -363,6 +395,29 @@ else{
 		pad = buffer_read(mm0_base_buffer, buffer_s16);
 		vertex = new Vertex(pad, vz, vy, vx);
 		array_push(tmd_base.vert, vertex);
+		#region Duplicate Search [Disabled]
+		//Note: Wont work, currently searchs for duplicate coords of single verts
+		if (false){
+			v_ind = [vx, vy, vz];
+			for (var v1 = 0; v1 < array_length(v_list); v1++){
+				not_found = false;
+				for (var v2 = 0; v2 < array_length(v_ind); v2++){
+					if (array_contains(v_list[v1], v_ind[v2])){
+						//do nothing intentionally
+					}
+					else{
+						not_found = true;
+						break;
+					}
+				}
+				if !(not_found){
+					primitive.shared_vert = true;
+					show_debug_message("[Testing]:Duplicate Found");
+				}
+			}
+			array_push(v_list, v_ind);
+		}
+		#endregion
 	}
 	for(var a = 0; a < (vert_total * 4); a += 8){
 		normal_test = 0;

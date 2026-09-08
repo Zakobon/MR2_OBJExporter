@@ -3,7 +3,9 @@ tex_out_success = false;
 globalvar tex_duplicate;
 tex_duplicate = 0;
 
-huh = ["", " ...you're just saving the same file over itself...", " ?", " ???", " why?"]
+alarm[0] = -1;
+
+huh = ["", " ?", " ???", " ...you're just saving the same file over itself...", " why?"]
 
 export_tex = instance_create_layer(x, y, "UI_Draw", Select_Button_24x24);
 variable_instance_set(export_tex, "image_index", 0);

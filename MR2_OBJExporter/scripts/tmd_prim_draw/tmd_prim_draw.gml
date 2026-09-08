@@ -205,23 +205,6 @@ function tmd_prim_draw(_prim_array, _offset, _count, _line, _fill, _vertex_color
 			draw_vertex(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]));
 		}
 		draw_primitive_end();
-
-		#region Vertex Draw [disabled]
-		//If a vertex color is given, a 3x3 square is drawn over each vertex in that color
-		//if (_vertex_color != 0){
-		//	for (var a = 0; a < array_length(x_list); a++){
-		//		draw_set_colour(_vertex_color);
-		//		draw_primitive_begin(pr_trianglelist);
-		//		draw_vertex(2 + grid_x + x_list[a] - vert_size, 2 + grid_y + y_list[a] - vert_size);
-		//		draw_vertex(2 + grid_x + x_list[a] + vert_size, 2 + grid_y + y_list[a] - vert_size);
-		//		draw_vertex(2 + grid_x + x_list[a] - vert_size, 2 + grid_y + y_list[a] + vert_size);
-		//		draw_vertex(2 + grid_x + x_list[a] + vert_size, 2 + grid_y + y_list[a] - vert_size);
-		//		draw_vertex(2 + grid_x + x_list[a] - vert_size, 2 + grid_y + y_list[a] + vert_size);
-		//		draw_vertex(2 + grid_x + x_list[a] + vert_size, 2 + grid_y + y_list[a] + vert_size);
-		//		draw_primitive_end();
-		//	}
-		//}
-		#endregion
 	}
 	gpu_set_blendmode(bm_normal);
 	draw_set_colour(c_white);

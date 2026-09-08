@@ -1,5 +1,5 @@
 function grid_rgb_build(_tim){
-	// need to keep same x/y grouping as progonal TIMs
+	// need to keep same x/y grouping as original TIMs
 	switch (_tim.bit){
 		case 0:
 		count = 16;

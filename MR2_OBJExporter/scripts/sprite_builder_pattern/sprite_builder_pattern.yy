@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"sprite_builder_pattern",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"sprite_builder_pattern",
+  "parent":{
+    "name":"MR2_OBJExporter",
+    "path":"MR2_OBJExporter.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

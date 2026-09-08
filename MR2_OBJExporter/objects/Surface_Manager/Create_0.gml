@@ -1,11 +1,44 @@
 timer = 0;
 tmd_view_scale = .3; //Initial Zoom Level
 tim_count = 0;
-
+count = 0;
+surf = -1;
 t_mode = ["opaque", "semi-transparent"];
 bit_string = ["_4Bit","_8Bit"];
 grid_string = ["","G"];
-	
+
+m_offset = 0; //offset for mod in the color index calculations
+
+
+function frame_info(_sprite){
+	var sprite = sprite_get_info(_sprite);
+	return array_length(sprite.frames);	
+}
+
+
+globalvar tex_grid;//[page28[],page29[],page30[],page31[]]
+tex_grid = [[],[],[],[]];
+
+globalvar grid_sprites;//grid_sprites[page][pattern][variant]
+grid_sprites = [[-1],[-1],[-1],[-1],[-1],[-1],[-1],[-1]];
+
+globalvar prim_sprites;//[page][found, sprite]
+prim_sprites = [[false,-1], [false,-1], [false,-1], [false,-1], [false,-1], [false,-1], [false,-1], [false,-1]];
+
+globalvar prim_refresh;
+prim_refresh = true;
+
+globalvar g_pattern;
+g_pattern = {
+	blended : pattern_reader(Blended8x8),
+	gradient : pattern_reader(Gradient4x4),
+	zigzag2 : pattern_reader(ZigZag4x4),
+	zigzag1 :  pattern_reader(ZigZag6x6),
+	weave : pattern_reader(Weave4x4),
+	tile : pattern_reader(Tile4x4),
+};
+
+
 globalvar tmd_draw;
 tmd_draw = -1;
 
@@ -53,6 +86,11 @@ vram28_4bit = [];
 vram29_4bit = [];
 vram30_4bit = [];
 vram31_4bit = [];
+//vram28_4bit[0] = [-1];
+//vram29_4bit[0] = [-1];
+//vram30_4bit[0] = [-1];
+//vram31_4bit[0] = [-1];
+
 globalvar vram28_8bit;
 globalvar vram29_8bit;
 globalvar vram30_8bit;
@@ -61,6 +99,10 @@ vram28_8bit = [];
 vram29_8bit = [];
 vram30_8bit = [];
 vram31_8bit = [];
+//vram28_8bit[0] = [-1];
+//vram29_8bit[0] = [-1];
+//vram30_8bit[0] = [-1];
+//vram31_8bit[0] = [-1];
 
 //flags to identify what pages were found/drawn to
 globalvar draw_check28_4bit;
@@ -80,17 +122,28 @@ draw_check29_8bit = [];
 draw_check30_8bit = [];
 draw_check31_8bit = [];
 	
-repeat (8){
-	array_push(vram28_4bit, -1);
-	array_push(vram29_4bit, -1);
-	array_push(vram30_4bit, -1);
-	array_push(vram31_4bit, -1);
+
+for (var a = 0; a < 16; a++){
+	array_push(vram28_4bit, []);
+	array_push(vram29_4bit, []);
+	array_push(vram30_4bit, []);
+	array_push(vram31_4bit, []);
 	
-	array_push(vram28_8bit, -1);
-	array_push(vram29_8bit, -1);
-	array_push(vram30_8bit, -1);
-	array_push(vram31_8bit, -1);
+	array_push(vram28_8bit, []);
+	array_push(vram29_8bit, []);
+	array_push(vram30_8bit, []);
+	array_push(vram31_8bit, []);
+	repeat (16){
+		array_push(vram28_4bit[a], -1);
+		array_push(vram29_4bit[a], -1);
+		array_push(vram30_4bit[a], -1);
+		array_push(vram31_4bit[a], -1);
 	
+		array_push(vram28_8bit[a], -1);
+		array_push(vram29_8bit[a], -1);
+		array_push(vram30_8bit[a], -1);
+		array_push(vram31_8bit[a], -1);
+	}
 	array_push(draw_check28_4bit, false);
 	array_push(draw_check29_4bit, false);
 	array_push(draw_check30_4bit, false);
@@ -174,7 +227,10 @@ vmin = 32;
 step = 1.5;
 timer_color = vmin;
 #endregion
-#region //build grid_colors[] size = 60
+#region //build grid_colors[] size = 60 //Not Used//
+
+globalvar png_alpha; //controls alpha level of drawn vram pages, controled by UI buttons
+png_alpha = .7;
 
 hue = 0;
 sat = 255;
@@ -278,6 +334,7 @@ repeat (60) {
 	hue += 8;
 	count++;
 }
+	
 #endregion
 #region //Not used//
 x_sort = function sortx(a,b) {

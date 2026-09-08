@@ -11,8 +11,8 @@
   "name":"Edit_Controls_24x24",
   "overriddenProperties":[],
   "parent":{
-    "name":"Arrow_Buttons",
-    "path":"folders/Objects/UI Buttons/Arrow_Buttons.yy",
+    "name":"Generic Buttons",
+    "path":"folders/Objects/UI Buttons/Generic Buttons.yy",
   },
   "parentObjectId":null,
   "persistent":false,

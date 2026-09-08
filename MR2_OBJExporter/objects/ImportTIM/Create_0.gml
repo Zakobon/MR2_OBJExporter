@@ -14,7 +14,9 @@ if (filename_input != "") {
 	ds_list_clear(tim_list);
  }
 else{
-	instance_destroy();
+	if (ds_list_size(tim_list) < 1){
+		instance_destroy();
+	}
 	exit;
 }
 
@@ -136,10 +138,20 @@ while (filename_input != "" && buffer_tell(tim_buffer) + 16 < buffer_get_size(ti
 for (var a = 0; a < array_length(tim_buffer_list); a++){
 	ds_list_insert(tim_list, a, tim_buffer_list[a]);
 }
+surf = surface_create(256,7);
+surface_set_target(surf);
+draw_clear_alpha(c_white, 0);
 for (var a = 0; a < array_length(tim_buffer_list); a++){
-	tim_rgb_build(tim_buffer_list[a]);
+	tim_rgb_build(tim_buffer_list[a], surf);
 	//array_push(tim_rgb_clut, clut);
 }
+if (sprite_exists(clut_sprite)){
+	sprite_delete(clut_sprite);
+	clut_sprite = -1;
+}
+clut_sprite = sprite_create_from_surface(surf,0,0,256,8,false,false,0,0);
+surface_reset_target();
+surface_free(surf);
 ui_tim = -1;
 ui_obj = 0;
 ui_prim = 0;

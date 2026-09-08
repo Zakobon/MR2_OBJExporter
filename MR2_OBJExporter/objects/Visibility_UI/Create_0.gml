@@ -1,14 +1,14 @@
-update = false; //if true, check global vram page checks
+update = true; //if true, check global vram page checks
 
 ////Visibilty mode of VRAM Pages
 //0bx1: (0 = Grid Off, 1 = Grid On)
 //0b1x: (0 = 4-Bit,    1 = 8-Bit)
 globalvar PageModeTIM;
 PageModeTIM = { 
-	vram28 : 0,
-	vram29 : 0,
-	vram30 : 0,
-	vram31 : 0
+	vram28 : 2,
+	vram29 : 2,
+	vram30 : 2,
+	vram31 : 2
 }
 
 check28_4bit = false;

@@ -3,7 +3,7 @@
 
 test_button = instance_create_layer(x, y, "UI_Draw", Select_Button_16x16);
 variable_instance_set(test_button, "display", "Test Button");
-count1 = 1;
+count1 = -1;
 count2 = 1;
 reverse = false;
 vmax = 232;
@@ -11,3 +11,8 @@ vmin = 32;
 step = 1.5;
 timer = 0;
 copy_data = [];
+build = false;
+on = false;
+test_string = "";
+pattern = pattern_reader(Blended8x8); //test
+test = true;

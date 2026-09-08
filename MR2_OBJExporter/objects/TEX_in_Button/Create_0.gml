@@ -10,6 +10,9 @@ draw_ui_clut = -1;
 globalvar draw_ui_tim; //draw surface of tims
 draw_ui_tim = [];
 
+globalvar clut_sprite;
+clut_sprite = -1;
+
 globalvar png_out_success;
 png_out_success = false;
 //image_xscale = 4.2;
@@ -107,8 +110,10 @@ for (var a = 0; a < 8; a++){ //clut_y
 		clut = new clut_data(cred % 16, cgreen % 16, cblue % 16, 0);
 		tim_data_clut[a][b] = clut;
 		
-		tim_rgb_clut[a][b][0] = make_colour_rgb(dred % 256, dgreen % 256, dblue % 256);
-		tim_rgb_clut[a][b][1] = dstp;
+		//tim_rgb_clut[a][b][0] = make_colour_rgb(dred % 256, dgreen % 256, dblue % 256);
+		//tim_rgb_clut[a][b][1] = dstp;
+		tim_rgb_clut[a][b][0] = make_colour_rgb(0,0,0);
+		tim_rgb_clut[a][b][1] = 0;
 	}
 }
 

@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"pattern_reader",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"pattern_reader",
+  "parent":{
+    "name":"MR2_OBJExporter",
+    "path":"MR2_OBJExporter.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

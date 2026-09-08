@@ -15,63 +15,39 @@
 //#endregion
 #region Set View Mode based on PageModeTIM.vram28-31
 if (PageModeTIM.vram28 & 0b01 == 0){
-	switch (view_semitransparency){
-		case false:
-		view28 = 2;
-		break;
-	
-		case true:
-		view28 = 3;
-		break;
-	}
+	view28[0] = 0;
+	view28[1] = 0;
 }
 else{
-	view28 = grid_mode28[1] + 4;
+	view28[0] = grid_mode28[1] + 1;
+	view28[1] = grid_mode28[2];
 }
 
 if (PageModeTIM.vram29 & 0b01 == 0){
-	switch (view_semitransparency){
-		case false:
-		view29 = 2;
-		break;
-	
-		case true:
-		view29 = 3;
-		break;
-	}
+	view29[0] = 0;
+	view29[1] = 0;
 }
 else{
-	view29 = grid_mode29[1] + 4;
+	view29[0] = grid_mode29[1] + 1;
+	view29[1] = grid_mode29[2];
 }
 
 if (PageModeTIM.vram30 & 0b01 == 0){
-	switch (view_semitransparency){
-		case false:
-		view30 = 2;
-		break;
-	
-		case true:
-		view30 = 3;
-		break;
-	}
+	view30[0] = 0;
+	view30[1] = 0;
 }
 else{
-	view30 = grid_mode30[1] + 4;
+	view30[0] = grid_mode30[1] + 1;
+	view30[1] = grid_mode30[2];
 }
 
 if (PageModeTIM.vram31 & 0b01 == 0){
-	switch (view_semitransparency){
-		case false:
-		view31 = 2;
-		break;
-	
-		case true:
-		view31 = 3;
-		break;
-	}
+	view31[0] = 0;
+	view31[1] = 0;
 }
 else{
-	view31 = grid_mode31[1] + 4;
+	view31[0] = grid_mode31[1] + 1;
+	view31[1] = grid_mode31[2];
 }
 #endregion
 
@@ -80,104 +56,96 @@ if (ui_name_tex != "None"){
 }
 
 #region Draw Page Preview
-#region Variable Instance Get: Visibility_UI 
-check28 = variable_instance_get(Visibility_UI, "check28_4bit") | variable_instance_get(Visibility_UI, "check28_8bit");
-check29 = variable_instance_get(Visibility_UI, "check29_4bit") | variable_instance_get(Visibility_UI, "check29_8bit");
-check30 = variable_instance_get(Visibility_UI, "check30_4bit") | variable_instance_get(Visibility_UI, "check30_8bit");
-check31 = variable_instance_get(Visibility_UI, "check31_4bit") | variable_instance_get(Visibility_UI, "check31_8bit");
-#endregion
+gpu_set_colourwriteenable(true, true, true, false);
 
-if (check28 == true){
+if (draw_check28_8bit == true || draw_check28_4bit == true){
 	draw_sprite(T_Grid, 0, p28_Window.left + 1, p28_Window.top + 1);
-}
-if (check29 == true){
-	draw_sprite(T_Grid, 0, p29_Window.left + 1, p29_Window.top + 1);
-}
-if (check30 == true){
-	draw_sprite(T_Grid, 0, p30_Window.left + 1, p30_Window.top + 1);
-}
-if (check31 == true){
-	draw_sprite(T_Grid, 0, p31_Window.left + 1, p31_Window.top + 1);
-}
-if (draw_check28_8bit[0] == true || draw_check28_4bit[0] == true ){
-	draw_28 = string("VRAM Page 28: {0}_vram28{1}{2}.png", filename, bit_string[PageModeTIM.vram28 >> 1], grid_string[grid_mode])
+	draw_28 = string("Page 28: {0}_vram28{1}{2}.png", filename, bit_string[PageModeTIM.vram28 >> 1], grid_string[grid_mode28[0]])
 	switch (PageModeTIM.vram28 >> 1){
 		case 0:
-		if (surface_exists(vram28_4bit[view28])){
-			draw_surface(vram28_4bit[view28], p28_Window.left + 1, p28_Window.top + 1)
+		if (sprite_exists(grid_sprites[view28[0]][view28[1]])){//grid_sprites[page][pattern][variant]
+			//draw_sprite(grid_sprites[0][view28[0]][view28[1]], 0, p28_Window.left + 1, p28_Window.top + 1);
+			draw_sprite_part(grid_sprites[view28[0]][view28[1]], 0, 0 * 256, 0, 256, 256, p28_Window.left + 1, p28_Window.top + 1);
 		}
 		break;
-		
 		case 1:
-		if (surface_exists(vram28_8bit[view28])){
-			draw_surface(vram28_8bit[view28], p28_Window.left + 1, p28_Window.top + 1)
+		if (sprite_exists(grid_sprites[view28[0]][view28[1]])){
+			//draw_sprite(grid_sprites[4][view28[0]][view28[1]], 0, p28_Window.left + 1, p28_Window.top + 1);
+			draw_sprite_part(grid_sprites[view28[0]][view28[1]], 0, 4 * 256, 0, 256, 256, p28_Window.left + 1, p28_Window.top + 1);
 		}
 		break;
 	}
 }
 else{
-	draw_28 = string("VRAM Page 28: None")
+	draw_28 = string("Page 28: None")
 }
 
-if (draw_check29_8bit[0] == true || draw_check29_4bit[0] == true ){
-	draw_29 = string("VRAM Page 29: {0}_vram29{1}{2}.png", filename, bit_string[PageModeTIM.vram29 >> 1], grid_string[grid_mode])
+if (draw_check29_8bit == true || draw_check29_4bit == true ){
+	draw_sprite(T_Grid, 0, p29_Window.left + 1, p29_Window.top + 1);
+	draw_29 = string("Page 29: {0}_vram29{1}{2}.png", filename, bit_string[PageModeTIM.vram29 >> 1], grid_string[grid_mode29[0]])
 	switch (PageModeTIM.vram29 >> 1){
 		case 0:
-		if (surface_exists(vram29_4bit[view29])){
-			draw_surface(vram29_4bit[view29], p29_Window.left + 1, p29_Window.top + 1)
+		if (sprite_exists(grid_sprites[view29[0]][view29[1]])){
+			//draw_sprite(grid_sprites[1][view29[0]][view29[1]], 0, p29_Window.left + 1, p29_Window.top + 1);
+			draw_sprite_part(grid_sprites[view29[0]][view29[1]], 0, 1 * 256, 0, 256, 256, p29_Window.left + 1, p29_Window.top + 1);
 		}
 		break;
-		
 		case 1:
-		if (surface_exists(vram29_8bit[view29])){
-			draw_surface(vram29_8bit[view29], p29_Window.left + 1, p29_Window.top + 1)
+		if (sprite_exists(grid_sprites[view29[0]][view29[1]])){
+			//draw_sprite(grid_sprites[5][view29[0]][view29[1]], 0, p29_Window.left + 1, p29_Window.top + 1);
+			draw_sprite_part(grid_sprites[view29[0]][view29[1]], 0, 5 * 256, 0, 256, 256, p29_Window.left + 1, p29_Window.top + 1);
 		}
 		break;
 	}
 }
 else{
-	draw_29 = string("VRAM Page 29: None")
+	draw_29 = string("Page 29: None")
 }
 
-if (draw_check30_8bit[0] == true || draw_check30_4bit[0] == true ){
-	draw_30 = string("VRAM Page 30: {0}_vram30{1}{2}.png", filename, bit_string[PageModeTIM.vram30 >> 1], grid_string[grid_mode])
+if (draw_check30_8bit == true || draw_check30_4bit == true ){
+	draw_sprite(T_Grid, 0, p30_Window.left + 1, p30_Window.top + 1);
+	draw_30 = string("Page 30: {0}_vram30{1}{2}.png", filename, bit_string[PageModeTIM.vram30 >> 1], grid_string[grid_mode30[0]])
 	switch (PageModeTIM.vram30 >> 1){
 		case 0:
-		if (surface_exists(vram30_4bit[view30])){
-			draw_surface(vram30_4bit[view30], p30_Window.left + 1, p30_Window.top + 1)
+		if (sprite_exists(grid_sprites[view30[0]][view30[1]])){
+			//draw_sprite(grid_sprites[2][view30[0]][view30[1]], 0, p30_Window.left + 1, p30_Window.top + 1);
+			draw_sprite_part(grid_sprites[view30[0]][view30[1]], 0, 2 * 256, 0, 256, 256, p30_Window.left + 1, p30_Window.top + 1);
 		}
 		break;
-		
 		case 1:
-		if (surface_exists(vram30_8bit[view30])){
-			draw_surface(vram30_8bit[view30], p30_Window.left + 1, p30_Window.top + 1)
+		if (sprite_exists(grid_sprites[view30[0]][view30[1]])){
+			//draw_sprite(grid_sprites[6][view30[0]][view30[1]], 0, p30_Window.left + 1, p30_Window.top + 1);
+			draw_sprite_part(grid_sprites[view30[0]][view30[1]], 0, 6 * 256, 0, 256, 256, p30_Window.left + 1, p30_Window.top + 1);
 		}
 		break;
 	}
 }
 else{
-	draw_30 = string("VRAM Page 30: None")
+	draw_30 = string("Page 30: None")
 }
 
-if (draw_check31_8bit[0] == true || draw_check31_4bit[0] == true ){
-	draw_31 = string("VRAM Page 31: {0}_vram31{1}{2}.png", filename, bit_string[PageModeTIM.vram31 >> 1], grid_string[grid_mode])
+if (draw_check31_8bit == true || draw_check31_4bit == true ){
+	draw_sprite(T_Grid, 0, p31_Window.left + 1, p31_Window.top + 1);
+	draw_31 = string("Page 31: {0}_vram31{1}{2}.png", filename, bit_string[PageModeTIM.vram31 >> 1], grid_string[grid_mode31[0]])
 	switch (PageModeTIM.vram31 >> 1){
 		case 0:
-		if (surface_exists(vram31_4bit[view31])){
-			draw_surface(vram31_4bit[view31], p31_Window.left + 1, p31_Window.top + 1)
+		if (sprite_exists(grid_sprites[view31[0]][view31[1]])){
+			//draw_sprite(grid_sprites[3][view31[0]][view31[1]], 0, p31_Window.left + 1, p31_Window.top + 1);
+			draw_sprite_part(grid_sprites[view31[0]][view31[1]], 0, 3 * 256, 0, 256, 256, p31_Window.left + 1, p31_Window.top + 1);
 		}
 		break;
-		
 		case 1:
-		if (surface_exists(vram31_8bit[view31])){
-			draw_surface(vram31_8bit[view31], p31_Window.left + 1, p31_Window.top + 1)
+		if (sprite_exists(grid_sprites[view31[0]][view31[1]])){
+			//draw_sprite(grid_sprites[7][view31[0]][view31[1]], 0, p31_Window.left + 1, p31_Window.top + 1);
+			draw_sprite_part(grid_sprites[view31[0]][view31[1]], 0, 7 * 256, 0, 256, 256, p31_Window.left + 1, p31_Window.top + 1);
 		}
 		break;
 	}
 }
 else{
-	draw_31 = string("VRAM Page 31: None")
+	draw_31 = string("Page 31: None")
 }
+gpu_set_colourwriteenable(true, true, true, true);
 #endregion
 
 #region Draw Primitive Preview

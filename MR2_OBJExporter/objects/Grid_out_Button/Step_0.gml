@@ -160,97 +160,194 @@ if (vram31_grid_button_active == 1){
 #region Grid Pattern Button Read
 if (grid_28_blended_active){
 	variable_instance_set(grid_28_blended, "active", 0);
+	
+	if (grid_mode28[1] == 0){ //Alternate Grid Patterns
+		grid_mode28[2] = (grid_mode28[2] + 1) mod blended_max;
+	}
+	else{
+		grid_mode28[2] = 0;
+	}
 	grid_mode28[1] = 0;
 }
 
 if (grid_28_zigzag_active){
 	variable_instance_set(grid_28_zigzag, "active", 0);
-	grid_mode28[1] = 1;
 	
+	if (grid_mode28[1] == 1){ //Alternate Grid Patterns
+		grid_mode28[2] = (grid_mode28[2] + 1) mod zigzag_max;
+	}
+	else{
+		grid_mode28[2] = 0;
+	}
+	grid_mode28[1] = 1;	
 }
 
 if (grid_28_weave_active){
 	variable_instance_set(grid_28_weave, "active", 0);
-	grid_mode28[1] = 2;
 	
+	if (grid_mode28[1] == 2){ //Alternate Grid Patterns
+		grid_mode28[2] = (grid_mode28[2] + 1) mod weave_max;
+	}
+	else{
+		grid_mode28[2] = 0;
+	}
+	grid_mode28[1] = 2;
 }
 
 if (grid_28_tile_active){
 	variable_instance_set(grid_28_tile, "active", 0);
-	grid_mode28[1] = 3;
 	
+	if (grid_mode28[1] == 3){ //Alternate Grid Patterns
+		grid_mode28[2] = (grid_mode28[2] + 1) mod tile_max;
+	}
+	else{
+		grid_mode28[2] = 0;
+	}
+	grid_mode28[1] = 3;
 }
 
 if (grid_29_blended_active){
 	variable_instance_set(grid_29_blended, "active", 0);
-	grid_mode29[1] = 0;
 	
+	if (grid_mode29[1] == 0){ //Alternate Grid Patterns
+		grid_mode29[2] = (grid_mode29[2] + 1) mod blended_max;
+	}
+	else{
+		grid_mode29[2] = 0;
+	}
+	grid_mode29[1] = 0;
 }
 
 if (grid_29_zigzag_active){
 	variable_instance_set(grid_29_zigzag, "active", 0);
-	grid_mode29[1] = 1;
 	
+	if (grid_mode29[1] == 1){ //Alternate Grid Patterns
+		grid_mode29[2] = (grid_mode29[2] + 1) mod zigzag_max;
+	}
+	else{
+		grid_mode29[2] = 0;
+	}
+	grid_mode29[1] = 1;	
 }
 
 if (grid_29_weave_active){
 	variable_instance_set(grid_29_weave, "active", 0);
-	grid_mode29[1] = 2;
 	
+	if (grid_mode29[1] == 2){ //Alternate Grid Patterns
+		grid_mode29[2] = (grid_mode29[2] + 1) mod weave_max;
+	}
+	else{
+		grid_mode29[2] = 0;
+	}
+	grid_mode29[1] = 2;
 }
 
 if (grid_29_tile_active){
 	variable_instance_set(grid_29_tile, "active", 0);
-	grid_mode29[1] = 3;
 	
+	if (grid_mode29[1] == 3){ //Alternate Grid Patterns
+		grid_mode29[2] = (grid_mode29[2] + 1) mod tile_max;
+	}
+	else{
+		grid_mode29[2] = 0;
+	}
+	grid_mode29[1] = 3;
 }
 
 if (grid_30_blended_active){
 	variable_instance_set(grid_30_blended, "active", 0);
-	grid_mode30[1] = 0;
 	
+	if (grid_mode30[1] == 0){ //Alternate Grid Patterns
+		grid_mode30[2] = (grid_mode30[2] + 1) mod blended_max;
+	}
+	else{
+		grid_mode30[2] = 0;
+	}
+	grid_mode30[1] = 0;
 }
 
 if (grid_30_zigzag_active){
 	variable_instance_set(grid_30_zigzag, "active", 0);
-	grid_mode30[1] = 1;
 	
+	if (grid_mode30[1] == 1){ //Alternate Grid Patterns
+		grid_mode30[2] = (grid_mode30[2] + 1) mod zigzag_max;
+	}
+	else{
+		grid_mode30[2] = 0;
+	}
+	grid_mode30[1] = 1;	
 }
 
 if (grid_30_weave_active){
 	variable_instance_set(grid_30_weave, "active", 0);
-	grid_mode30[1] = 2;
 	
+	if (grid_mode30[1] == 2){ //Alternate Grid Patterns
+		grid_mode30[2] = (grid_mode30[2] + 1) mod weave_max;
+	}
+	else{
+		grid_mode30[2] = 0;
+	}
+	grid_mode30[1] = 2;
 }
 
 if (grid_30_tile_active){
 	variable_instance_set(grid_30_tile, "active", 0);
-	grid_mode30[1] = 3;
 	
+	if (grid_mode30[1] == 3){ //Alternate Grid Patterns
+		grid_mode30[2] = (grid_mode30[2] + 1) mod tile_max;
+	}
+	else{
+		grid_mode30[2] = 0;
+	}
+	grid_mode30[1] = 3;
 }
 
 if (grid_31_blended_active){
 	variable_instance_set(grid_31_blended, "active", 0);
-	grid_mode31[1] = 0;
 	
+	if (grid_mode31[1] == 0){ //Alternate Grid Patterns
+		grid_mode31[2] = (grid_mode31[2] + 1) mod blended_max;
+	}
+	else{
+		grid_mode31[2] = 0;
+	}
+	grid_mode31[1] = 0;
 }
 
 if (grid_31_zigzag_active){
 	variable_instance_set(grid_31_zigzag, "active", 0);
-	grid_mode31[1] = 1;
-	
+
+	if (grid_mode31[1] == 1){ //Alternate Grid Patterns
+		grid_mode31[2] = (grid_mode31[2] + 1) mod zigzag_max;
+	}
+	else{
+		grid_mode31[2] = 0;
+	}
+		grid_mode31[1] = 1;	
 }
 
 if (grid_31_weave_active){
 	variable_instance_set(grid_31_weave, "active", 0);
-	grid_mode31[1] = 2;
 	
+	if (grid_mode31[1] == 2){ //Alternate Grid Patterns
+		grid_mode31[2] = (grid_mode31[2] + 1) mod weave_max;
+	}
+	else{
+		grid_mode31[2] = 0;
+	}
+	grid_mode31[1] = 2;
 }
 
 if (grid_31_tile_active){
 	variable_instance_set(grid_31_tile, "active", 0);
-	grid_mode31[1] = 3;
 	
+	if (grid_mode31[1] == 3){ //Alternate Grid Patterns
+		grid_mode31[2] = (grid_mode31[2] + 1) mod tile_max;
+	}
+	else{
+		grid_mode31[2] = 0;
+	}
+	grid_mode31[1] = 3;
 }
 #endregion
 #region Sync Grid Button Toggles [disabled] <Off to trial OBJ selective grid export>

@@ -1,26 +1,28 @@
 /// @description Takes a color and returns the sprite of a colored grid
 /// Modes:
-/// 0:Flat
-/// 1:Dragon Scale
-/// 2:Flower
+/// 0:Blended
+/// 1:Zigzag
+/// 2:Weave
+/// 3:Tile
 /// @param {Real} w The width of the grid
 /// @param {Real} h The height of the grid
 /// @param {Array} clut The clut the grid will draw from
-/// @param {Real} alpha The alpha of the sprite
+/// @param {Real} bg_index The CLUT index used for background color
 /// @param {Real} count Current iteration of function
 /// @param {Real} mult Mult value for width. Default:2
-/// @param {Real} [grid_size] Block Size of grid, border line included. Default:8
-/// @param {Real} [grid_mode] Grid pattern used. Default:0
+/// @param {Real} [grid_mode] Grid pattern used. Default: Page - 28
+/// @param {Real} [grid_size] Block Size of grid, border line included. Default:4
+
 /// @return {Asset.GMSprite} New sprite asset
-function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _grid_mode = 0, _grid_size = 4){
+function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _grid_mode = 0, _tim){
 	temp_surface = surface_create(_width, _height);
 	new_sprite = -1;
 	clut = _clut;
-	grid_size = _grid_size;
+	grid_size = 4;
 	width = _width;
 	height = _height;
+	tim = _tim
 	
-	thin = 0;
 	//pix_size = 4;
 	w = 0;
 	h = 0;
@@ -60,7 +62,7 @@ function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _gr
 	//}
 
 	surface_set_target(temp_surface);
-	draw_clear_alpha(c_white, 0);
+	draw_clear_alpha(c_white, false);
 	//draw_sprite_stretched_ext(_sprite, _subimg, 0, 0, _width, _height, c_white, _alpha);
 	//draw_sprite_ext(Grid1_256x256, _grid, 0, 0, 1, 1, 0, _color, _alpha);
 	
@@ -80,7 +82,7 @@ function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _gr
 		//2121
 		//1212
 		//2121
-	
+		
 		//c1 = clut[(count1) mod max_index];
 		//c2 = clut[(count2 * 3) mod (max_index)];
 		if (c1 == c2){
@@ -260,10 +262,11 @@ function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _gr
 		break;
 		case 3:
 		#region 3:Tile
-		//1210
-		//2120
-		//1210
-		//0000
+		//0XXXB
+		//X000B
+		//X0X0B
+		//X000B
+		//BBBBB
 	
 		//c1 = clut[(count1) mod max_index]
 		//c2 = clut[(count2 * 3) mod (max_index)]
@@ -278,10 +281,10 @@ function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _gr
 					draw_set_colour(c2);
 					break;
 					case 2:
-					draw_set_colour(c1);
+					draw_set_colour(c2);
 					break;
 					case 3:
-					draw_set_colour(c1);
+					draw_set_colour(c2);
 					break;
 				}
 				break;
@@ -295,10 +298,10 @@ function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _gr
 					draw_set_colour(c1);
 					break;
 					case 2:
-					draw_set_colour(c2);
+					draw_set_colour(c1);
 					break;
 					case 3:
-					draw_set_colour(c2);
+					draw_set_colour(c1);
 					break;
 				}
 				break;
@@ -306,13 +309,13 @@ function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _gr
 				case 2:
 				switch ((w div pix_size) % grid_size){
 					case 0:
-					draw_set_colour(c1);
-					break;
-					case 1:
 					draw_set_colour(c2);
 					break;
-					case 2:
+					case 1:
 					draw_set_colour(c1);
+					break;
+					case 2:
+					draw_set_colour(c2);
 					break;
 					case 3:
 					draw_set_colour(c1);
@@ -323,16 +326,16 @@ function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _gr
 				case 3:
 				switch ((w div pix_size) % grid_size){
 					case 0:
-					draw_set_colour(c1);
+					draw_set_colour(c2);
 					break;
 					case 1:
-					draw_set_colour(c2);
+					draw_set_colour(c1);
 					break;
 					case 2:
 					draw_set_colour(c1);
 					break;
 					case 3:
-					draw_set_colour(c2);
+					draw_set_colour(c1);
 					break;
 				}
 				break;
@@ -347,6 +350,12 @@ function grid_rgb_draw(_width, _height, _clut, _bg_index, _count, _mult = 2, _gr
 
 			if (h mod (grid_size * pix_size) == 0){
 				draw_set_colour(bg1);
+			}
+			if (tim.clut_data[tim.pixel_data[i div 2]].stp + tim.clut_data[tim.pixel_data[i div 2]].red + tim.clut_data[tim.pixel_data[i div 2]].green + tim.clut_data[tim.pixel_data[i div 2]].blue == 0){
+				draw_set_alpha(0);
+			}
+			else{
+				draw_set_alpha(1);
 			}
 			draw_point(0 + w, 0 + h)
 			w++;

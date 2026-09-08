@@ -1,893 +1,228 @@
 //if (draw_refresh == 0){
 //	exit;
 //}
+if (instance_exists(GetModel)){
+	if (prim_refresh == true){
+		prim_refresh = false;
+		if (surface_exists(surf)){
+			surface_free(surf);
+		}
+		surf = surface_create(2048,256);
+		surface_set_target(surf);
+		full_prim_draw(tmd_edit.prim, c_white);
+		surface_reset_target()
+		for (var a = 0; a < 8; a++){
+			if (sprite_exists(prim_sprites[a][1])){
+				sprite_delete(prim_sprites[a][1]);
+			}
+			prim_sprites[a][1] = sprite_create_from_surface(surf, a * 256, 0, 256, 256, false, false, 0, 0);
+		}
+	}
+}
 
-//Variables to keep count of color index per pattern
-index_blended = 0;
-index_zigzag = 0;
-index_weave = 0;
-index_tile = 0;
-
-if (ds_list_size(tim_list) != 0){
+if (ds_list_size(tim_list) != 0 && draw_refresh != 0){
+	pattern_total = [
+		1,
+		frame_info(Blended256x256) div 3,
+		frame_info(ZigZag256x256) div 3,
+		frame_info(Weave256x256) div 3,
+		frame_info(Tile256x256) div 3		
+	];
+	
+	draw_refresh = 0;
 	if (!surface_exists(vramback)){ //vram page background for transparency visibility
 		draw_set_alpha(1);
 		vramback = surface_create(256, 256); 
-			
+
 		surface_set_target(vramback);
 		draw_sprite(T_Grid, 0, 0, 0);
+		
 		surface_reset_target();
 		view_surface_id[0] = vramback;
 	}
-	#region Draw 8-bit TIMs to VRAM pages
-			//run twice because we only have 2 transparency modes made
-			for (var a = 0; a < 4; a++) { 
-				switch (a % 2){
-					case 0:
-					fill = true;
-					break;
-					case 1:
-					fill = false;
-					break;
-				}
-				
-				if (!surface_exists(vram28_8bit[a]) || draw_refresh != 0){
-					if (!surface_exists(vram28_8bit[a])){
-						vram28_8bit[a] = surface_create(256, 256);
-					}
-					draw_set_alpha(1);
-					surface_set_target(vram28_8bit[a]);
-					draw_clear_alpha(c_white, true);
-					if (a < 2){
-						for (var b = 0; b < ds_list_size(tim_list); b++){
-							px = tim_list[|b].pixel_x - 768;
-							if (px < 0 || px > 63 || tim_list[|b].bit == 0){
-								continue;
-							}
-							tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, fill);
-							draw_check28_8bit[a] = true;
-						}
-					}
-					else{
-						switch (view_transparency){
-							case false:
-							draw_clear_alpha(c_black, true);
-							break;
 	
-							case true:
-							draw_surface(vramback, 0, 0);
-							break;
-						}
-						draw_surface(vram28_8bit[a - 2], 0, 0);
-					}
-					surface_reset_target();
-					view_surface_id[0] = vram28_8bit[a];
-			
-					draw_set_alpha(1);
-				}
-			} 
-			for (var a = 0; a < 4; a++) {
-				switch (a % 2){
-					case 0:
-					fill = true;
-					break;
-					case 1:
-					fill = false;
-					break;
-				}
-				if (!surface_exists(vram29_8bit[a]) || draw_refresh != 0){
-					if (!surface_exists(vram29_8bit[a])){
-						vram29_8bit[a] = surface_create(256, 256);
-					}
-			
-					draw_set_alpha(1);
-					surface_set_target(vram29_8bit[a]);
-					draw_clear_alpha(c_white, true);
-					if (a < 2){
-						for (var b = 0; b < ds_list_size(tim_list); b++){
-							px = tim_list[|b].pixel_x - 832;
-							if (px < 0 || px > 63 || tim_list[|b].bit == 0){
-								continue;
-							}
-							tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, fill);
-							draw_check29_8bit[a] = true;
-						}
-					}
-					else{
-						switch (view_transparency){
-							case false:
-							draw_clear_alpha(c_black, true);
-							break;
 	
-							case true:
-							draw_surface(vramback, 0, 0);
-							break;
-						}
-						draw_surface(vram29_8bit[a - 2], 0, 0);
-					}
-					surface_reset_target();
-					view_surface_id[0] = vram29_8bit[a];
-			
-					draw_set_alpha(1);
-				}
+	#region Draw TIMs to page surfaces
+	if (surface_exists(surf)){
+		surface_free(surf);
+	}
+	for (var a = 0; a < ds_list_size(tim_list); a++){
+		tim = tim_list[|a];
+		bit_mode = tim.bit;
+		switch (tim.pixel_x div 64){
+			case 12:
+			if (bit_mode = 0){
+				draw_check28_4bit = true;
 			}
-			for (var a = 0; a < 4; a++) {
-				switch (a % 2){
-					case 0:
-					fill = true;
-					break;
-					case 1:
-					fill = false;
-					break;
-				}
-				if (!surface_exists(vram30_8bit[a]) || draw_refresh != 0){
-					if (!surface_exists(vram30_8bit[a])){
-						vram30_8bit[a] = surface_create(256, 256);
-					}
-			
-					draw_set_alpha(1);
-					surface_set_target(vram30_8bit[a]);
-					draw_clear_alpha(c_white, true);
-					if (a < 2){
-						for (var b = 0; b < ds_list_size(tim_list); b++){
-							px = tim_list[|b].pixel_x - 896;
-							if (px < 0 || px > 63 || tim_list[|b].bit == 0){
-								continue;
-							}
-							tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, fill);
-							draw_check30_8bit[a] = true;
-						}
-					}
-					else{
-						switch (view_transparency){
-							case false:
-							draw_clear_alpha(c_black, true);
-							break;
-	
-							case true:
-							draw_surface(vramback, 0, 0);
-							break;
-						}
-						draw_surface(vram30_8bit[a - 2], 0, 0);
-					}
-					surface_reset_target();
-					view_surface_id[0] = vram30_8bit[a];
-			
-					draw_set_alpha(1);
-				}
+			else{
+				draw_check28_8bit = true;
 			}
-			for (var a = 0; a < 4; a++) {
-				switch (a % 2){
-					case 0:
-					fill = true;
-					break;
-					case 1:
-					fill = false;
-					break;
-				}
-				if (!surface_exists(vram31_8bit[a]) || draw_refresh != 0){
-					if (!surface_exists(vram31_8bit[a])){
-						vram31_8bit[a] = surface_create(256, 256);
-					}
+			break;
 			
-					draw_set_alpha(1);
-					surface_set_target(vram31_8bit[a]);
-					draw_clear_alpha(c_white, true);
-					if (a < 2){
-						for (var b = 0; b < ds_list_size(tim_list); b++){
-							px = tim_list[|b].pixel_x - 960;
-							if (px < 0 || px > 63 || tim_list[|b].bit == 0){
-								continue;
-							}
-							tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, fill);
-							draw_check31_8bit[a] = true;
-						}
-					}
-					else{
-						switch (view_transparency){
-							case false:
-							draw_clear_alpha(c_black, true);
-							break;
-	
-							case true:
-							draw_surface(vramback, 0, 0);
-							break;
-						}
-						draw_surface(vram31_8bit[a - 2], 0, 0);
-					}
-					surface_reset_target();
-					view_surface_id[0] = vram31_8bit[a];
-			
-					draw_set_alpha(1);
-				}
+			case 13:
+			if (bit_mode = 0){
+				draw_check29_4bit = true;
 			}
-
-		//draw grid pages
-		//Note: First sprite_create_from_surface is here
-		for (var a = 4; a < 8; a++){
-		if (!surface_exists(vram28_8bit[a]) || draw_refresh != 0){
-			if (!surface_exists(vram28_8bit[a])){
-				vram28_8bit[a] = surface_create(256, 256);
+			else{
+				draw_check29_8bit = true;
 			}
+			break;
 			
-			draw_set_alpha(1);
-			surface_set_target(vram28_8bit[a]);
-			draw_clear_alpha(c_grey, true);
-			for (var b = 0; b < ds_list_size(tim_list); b++){
-				px = tim_list[|b].pixel_x - 768;
-				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
-					continue;
-				}
-				count = 0;
-				#region Tracking color index of patterns [disabled]
-				//if (grid_mode28[0] == 1){
-				//	switch (grid_mode28[1]){
-				//		case 0:
-				//		count = index_blended;
-				//		index_blended++;
-				//		break;
-							
-				//		case 1:
-				//		count = index_zigzag;
-				//		index_zigzag++;
-				//		break;
-							
-				//		case 2:
-				//		count = index_weave;
-				//		index_weave++;
-				//		break;
-							
-				//		case 3:
-				//		count = index_tile;
-				//		index_tile++;
-				//		break;
-				//	}
-				//}
-				#endregion
-				scale = 2;
-				//tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, false);
-				pos_x = (tim_list[|b].pixel_x - 768) * scale;
-				pos_y = tim_list[|b].pixel_y - 256;
-				draw_set_colour($FFE0D8);
-				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
-				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
-				draw_sprite(new_grid, 0, pos_x, pos_y);
-				tim_count++;
-				draw_check28_8bit[a] = true;
+			case 14:
+			if (bit_mode = 0){
+				draw_check30_4bit = true;
 			}
-			new_page = alpha_subtract(vram28_8bit[1], vram28_8bit[a]);
-			draw_clear_alpha(c_black, false);
-			draw_sprite(new_page, 0, 0, 0);
+			else{
+				draw_check30_8bit = true;
+			}
+			break;
 			
-			surface_reset_target();
-			view_surface_id[0] = vram28_8bit[a];
-			
-			draw_set_alpha(1);
-
+			case 15:
+			if (bit_mode = 0){
+				draw_check31_4bit = true;
+			}
+			else{
+				draw_check31_8bit = true;
+			}
+			break;
 		}
-		if (!surface_exists(vram29_8bit[a]) || draw_refresh != 0){
-			if (!surface_exists(vram29_8bit[a])){
-				vram29_8bit[a] = surface_create(256, 256);
-			}
-			
-			draw_set_alpha(1);
-			surface_set_target(vram29_8bit[a]);
-			draw_clear_alpha(c_grey, true);
-			for (var b = 0; b < ds_list_size(tim_list); b++){
-				px = tim_list[|b].pixel_x - 832;
-				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
-					continue;
-				}
-				count = 0;
-				#region Tracking color index of patterns [disabled]
-				//if (grid_mode29[0] == 1){
-				//	switch (grid_mode29[1]){
-				//		case 0:
-				//		count = index_blended;
-				//		index_blended++;
-				//		break;
-							
-				//		case 1:
-				//		count = index_zigzag;
-				//		index_zigzag++;
-				//		break;
-							
-				//		case 2:
-				//		count = index_weave;
-				//		index_weave++;
-				//		break;
-							
-				//		case 3:
-				//		count = index_tile;
-				//		index_tile++;
-				//		break;
-				//	}
-				//}
-				#endregion
-				scale = 2;
-				//tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, false);
-				pos_x = (tim_list[|b].pixel_x - 832) * scale;
-				pos_y = tim_list[|b].pixel_y - 256;
-				draw_set_colour($FFE0D8);
-				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
-				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
-				draw_sprite(new_grid, 0, pos_x, pos_y);
-				tim_count++;
-				draw_check29_8bit[a] = true;
-			}
-			new_page = alpha_subtract(vram29_8bit[1], vram29_8bit[a]);
-			draw_clear_alpha(c_black, false);
-			draw_sprite(new_page, 0, 0, 0);
-			
-			surface_reset_target();
-			view_surface_id[0] = vram29_8bit[a];
-			
-			draw_set_alpha(1);
+		px = tim.pixel_x - 768;
+		pp = px div 64;
+		py = tim.pixel_y - 256;
+		pw = tim.pixel_w;
+		ph = tim.pixel_h;
 
+		switch(bit_mode){ 
+			case 0:
+			mult = 4;
+			break;
+					
+			case 1:
+			mult = 1;
+			px += pp * 64;
+			px += 512;
+			break;
 		}
-		if (!surface_exists(vram30_8bit[a]) || draw_refresh != 0){
-			if (!surface_exists(vram30_8bit[a])){
-				vram30_8bit[a] = surface_create(256, 256);
-			}
 			
+		
+		#region Create base texture sprites
+		if !(surface_exists(surf)){
+			surf = surface_create(2048, 256);
+			surface_set_target(surf);
+			draw_clear_alpha(c_white, 0);
 			draw_set_alpha(1);
-			surface_set_target(vram30_8bit[a]);
-			draw_clear_alpha(c_grey, true);
-			for (var b = 0; b < ds_list_size(tim_list); b++){
-				px = tim_list[|b].pixel_x - 896;
-				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
-					continue;
-				}
-				count = 0;
-				#region Tracking color index of patterns [disabled]
-				//if (grid_mode30[0] == 1){
-				//	switch (grid_mode30[1]){
-				//		case 0:
-				//		count = index_blended;
-				//		index_blended++;
-				//		break;
-							
-				//		case 1:
-				//		count = index_zigzag;
-				//		index_zigzag++;
-				//		break;
-							
-				//		case 2:
-				//		count = index_weave;
-				//		index_weave++;
-				//		break;
-							
-				//		case 3:
-				//		count = index_tile;
-				//		index_tile++;
-				//		break;
-				//	}
-				//}
-				#endregion
-				scale = 2;
-				//tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, false);
-				pos_x = (tim_list[|b].pixel_x - 896) * scale;
-				pos_y = tim_list[|b].pixel_y - 256;
-				draw_set_colour($FFE0D8);
-				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
-				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
-				draw_sprite(new_grid, 0, pos_x, pos_y);
-				tim_count++;
-				draw_check30_8bit[a] = true;
-			}
-			new_page = alpha_subtract(vram30_8bit[1], vram30_8bit[a]);
-			draw_clear_alpha(c_black, false);
-			draw_sprite(new_page, 0, 0, 0);
-			
-			surface_reset_target();
-			view_surface_id[0] = vram30_8bit[a];
-			
-			draw_set_alpha(1);
-
+			draw_set_colour($D0D0D0);
+			draw_rectangle(0, 0, 1023, 255, false);
+			draw_set_colour($FFFFFF);
+			draw_rectangle(1024, 0, 2047, 255, false); //empty space filler
 		}
-		if (!surface_exists(vram31_8bit[a]) || draw_refresh != 0){
-			if (!surface_exists(vram31_8bit[a])){
-				vram31_8bit[a] = surface_create(256, 256);
-			}
-			
-			draw_set_alpha(1);
-			surface_set_target(vram31_8bit[a]);
-			draw_clear_alpha(c_grey, true);
-			for (var b = 0; b < ds_list_size(tim_list); b++){
-				px = tim_list[|b].pixel_x - 960;
-				if (px < 0 || px > 63 || tim_list[|b].bit == 0){
-					continue;
-				}
-				count = 0;
-				#region Tracking color index of patterns [disabled]
-				//if (grid_mode31[0] == 1){
-				//	switch (grid_mode31[1]){
-				//		case 0:
-				//		count = index_blended;
-				//		index_blended++;
-				//		break;
-							
-				//		case 1:
-				//		count = index_zigzag;
-				//		index_zigzag++;
-				//		break;
-							
-				//		case 2:
-				//		count = index_weave;
-				//		index_weave++;
-				//		break;
-							
-				//		case 3:
-				//		count = index_tile;
-				//		index_tile++;
-				//		break;
-				//	}
-				//}
-				#endregion
-				scale = 2;
-				//tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, false);
-				pos_x = (tim_list[|b].pixel_x - 960) * scale;
-				pos_y = tim_list[|b].pixel_y - 256;
-				draw_set_colour($FFE0D8);
-				draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
+		else{
+			surface_set_target(surf);
+			//draw_clear_alpha(c_white, 0);
+			//draw_set_alpha(1);
+			//draw_set_colour($D0D0D0);
+			//draw_rectangle(0, 0, 1023, 255, false);
+			//draw_set_colour($FFFFFF);
+			//draw_rectangle(1024, 0, 2047, 255, false); //empty space filler
+		}
+		gpu_set_blendenable(false); //try to make alpha values predictable
 				
-				new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
-				draw_sprite(new_grid, 0, pos_x, pos_y);
-				tim_count++;
-				draw_check31_8bit[a] = true;
-			}
-			
-			new_page = alpha_subtract(vram31_8bit[1], vram31_8bit[a]);
-			draw_clear_alpha(c_black, false);
-			draw_sprite(new_page, 0, 0, 0);
+		pixel_list = pixel_builder(tim_list[|a], false, 0, 0, 0, 0, 0);
 				
-			surface_reset_target();
-			view_surface_id[0] = vram31_8bit[a];
+		#region Draw pixels to surface
+		w = 0;
+		h = 0;
+		for (var d = 0; d < array_length(pixel_list); d++){
+			index = pixel_list[d] >> 1;
+			stp = pixel_list[d] & 0b1;
+							
+			if (w >= pw * mult){
+				w = 0;
+				h++;
+			}
+			#region Alpha setup
+			if (pixel_list[d] >= 512){ //fully transparent, "erases" pixel
+				gpu_set_blendenable(true);
+				draw_set_alpha(1);
+				draw_set_colour($FFFFFF);
+				gpu_set_blendmode(bm_subtract);
+								
+				draw_point_colour((px * mult) + w, py + h, $FFFFFF);
+								
+				gpu_set_blendmode(bm_normal);
+				gpu_set_blendenable(false);
+								
+				w++;
+				continue;
+			}
+			else if (stp == 1){ //semi-transparent
+				draw_set_alpha(png_alpha);
+			}
+			else { //opaque
+				draw_set_alpha(1);
+			}
+			#endregion
+								
+			#region Pixel Draw
 			
-			draw_set_alpha(1);
+			draw_clut = tim_rgb_clut[tim_list[|a].clut_y - 505];
+			draw_point_colour((px * mult) + w, py + h, draw_clut[index + tim_list[|a].clut_x][0]);
 
+			#endregion
+							
+			w++;			
+		}	
+		
+		surface_reset_target();
+		view_surface_id[0] = surf;
+		#endregion
+		
+		draw_set_alpha(1);
+		gpu_set_blendenable(true);
+		#endregion
+	}
+	grid_sprites[0][0] = sprite_create_from_surface(surf, 0, 0, 2048, 256, false, false, 0, 0);
+	#endregion
+	
+	#region Create Grid sprites
+	for (var a = 0; a < 4; a++){
+		switch(a){
+			case 0:
+			pattern = Blended256x256;
+			break;
+			
+			case 1:
+			pattern = ZigZag256x256;
+			break;
+			
+			case 2:
+			pattern = Weave256x256;
+			break;
+			
+			case 3:
+			pattern = Tile256x256;
+			break;
+		}
+		built_sprites = [-1, -1];
+		for (var b = 0; b < pattern_total[a + 1]; b++){
+			count = 1;
+			//array_push(tex_sprites[a], []);
+			built_sprites = sprite_builder_pattern(pattern, b, tim_list);
+			
+			tex_grid[a][b] = sprite_duplicate(built_sprites[1]);
+
+			grid_sprites[a + 1][b] = sprite_duplicate(built_sprites[0]);//grid_sprites[pattern][variant]
+			sprite_delete(built_sprites[0]);
+			sprite_delete(built_sprites[1]);
 		}
 	}
-		//tim_count = 0;
-	#endregion
-	#region Draw 4-bit TIMs to VRAM pages
-			//run twice because we only have 2 transparency modes made
-			for (var a = 0; a < 4; a++) {
-				switch (a % 2){
-					case 0:
-					fill = true;
-					break;
-					case 1:
-					fill = false;
-					break;
-				}
-		
-				if (!surface_exists(vram28_4bit[a]) || draw_refresh != 0){
-					if (!surface_exists(vram28_4bit[a])){
-						vram28_4bit[a] = surface_create(256, 256);
-					}
-			
-					draw_set_alpha(1);
-					surface_set_target(vram28_4bit[a]);
-					draw_clear_alpha(c_white, true);
-					if (a < 2){
-						for (var b = 0; b < ds_list_size(tim_list); b++){
-							px = tim_list[|b].pixel_x - 768;
-							if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-								continue;
-							}
-							tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, fill);
-							draw_check28_4bit[a] = true;
-						}
-					}
-					else{
-						switch (view_transparency){
-							case false:
-							draw_clear_alpha(c_black, true);
-							break;
+	gpu_set_blendenable(true); 
 	
-							case true:
-							draw_surface(vramback, 0, 0);
-							break;
-						}
-						draw_surface(vram28_4bit[a - 2], 0, 0);
-					}
-					surface_reset_target();
-					view_surface_id[0] = vram28_4bit[a];
-			
-					draw_set_alpha(1);
-				}
-			} 
-			for (var a = 0; a < 4; a++) {
-				switch (a % 2){
-					case 0:
-					fill = true;
-					break;
-					case 1:
-					fill = false;
-					break;
-				}
-				if (!surface_exists(vram29_4bit[a]) || draw_refresh != 0){
-					if (!surface_exists(vram29_4bit[a])){
-						vram29_4bit[a] = surface_create(256, 256);
-					}
-			
-					draw_set_alpha(1);
-					surface_set_target(vram29_4bit[a]);
-					draw_clear_alpha(c_white, true);
-					if (a < 2){
-						for (var b = 0; b < ds_list_size(tim_list); b++){
-							px = tim_list[|b].pixel_x - 832;
-							if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-								continue;
-							}
-							tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, fill);
-							draw_check29_4bit[a] = true;
-						}
-					}
-					else{
-						switch (view_transparency){
-							case false:
-							draw_clear_alpha(c_black, true);
-							break;
-	
-							case true:
-							draw_surface(vramback, 0, 0);
-							break;
-						}
-						draw_surface(vram29_4bit[a - 2], 0, 0);
-					}
-					surface_reset_target();
-					view_surface_id[0] = vram29_4bit[a];
-			
-					draw_set_alpha(1);
-				}
-			}
-			for (var a = 0; a < 4; a++) {
-				switch (a % 2){
-					case 0:
-					fill = true;
-					break;
-					case 1:
-					fill = false;
-					break;
-				}
-				if (!surface_exists(vram30_4bit[a]) || draw_refresh != 0){
-					if (!surface_exists(vram30_4bit[a])){
-						vram30_4bit[a] = surface_create(256, 256);
-					}
-			
-					draw_set_alpha(1);
-					surface_set_target(vram30_4bit[a]);
-					draw_clear_alpha(c_white, true);
-					if (a < 2){
-						for (var b = 0; b < ds_list_size(tim_list); b++){
-							px = tim_list[|b].pixel_x - 896;
-							if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-								continue;
-							}
-							tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, fill);
-							draw_check30_4bit[a] = true;
-						}
-					}
-					else{
-						switch (view_transparency){
-							case false:
-							draw_clear_alpha(c_black, true);
-							break;
-	
-							case true:
-							draw_surface(vramback, 0, 0);
-							break;
-						}
-						draw_surface(vram30_4bit[a - 2], 0, 0);
-					}
-					surface_reset_target();
-					view_surface_id[0] = vram30_4bit[a];
-			
-					draw_set_alpha(1);
-				}
-			}
-			for (var a = 0; a < 4; a++) {
-				switch (a % 2){
-					case 0:
-					fill = true;
-					break;
-					case 1:
-					fill = false;
-					break;
-				}
-				if (!surface_exists(vram31_4bit[a]) || draw_refresh != 0){
-					if (!surface_exists(vram31_4bit[a])){
-						vram31_4bit[a] = surface_create(256, 256);
-					}
-			
-					draw_set_alpha(1);
-					surface_set_target(vram31_4bit[a]);
-					draw_clear_alpha(c_white, true);
-					if (a < 2){
-						for (var b = 0; b < ds_list_size(tim_list); b++){
-							px = tim_list[|b].pixel_x - 960;
-							if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-								continue;
-							}
-							tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, fill);
-							draw_check31_4bit[a] = true;
-						}
-					}
-					else{
-						switch (view_transparency){
-							case false:
-							draw_clear_alpha(c_black, true);
-							break;
-	
-							case true:
-							draw_surface(vramback, 0, 0);
-							break;
-						}
-						draw_surface(vram31_4bit[a - 2], 0, 0);
-					}
-					surface_reset_target();
-					view_surface_id[0] = vram31_4bit[a];
-			
-					draw_set_alpha(1);
-				}
-			}
-			
-		//draw grid pages
-		for (var a = 4; a < 8; a++){
-			if (!surface_exists(vram28_4bit[a]) || draw_refresh != 0){
-				if (!surface_exists(vram28_4bit[a])){
-					vram28_4bit[a] = surface_create(256, 256);
-				}
-			
-				draw_set_alpha(1);
-				surface_set_target(vram28_4bit[a]);
-				draw_clear_alpha(c_grey, true);
-				for (var b = 0; b < ds_list_size(tim_list); b++){
-					px = tim_list[|b].pixel_x - 768;
-					if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-						continue;
-					}
-					count = 0;
-					#region Tracking color index of patterns [disabled]
-					//if (grid_mode28[0] == 1){
-					//	switch (grid_mode28[1]){
-					//		case 0:
-					//		count = index_blended;
-					//		index_blended++;
-					//		break;
-							
-					//		case 1:
-					//		count = index_zigzag;
-					//		index_zigzag++;
-					//		break;
-							
-					//		case 2:
-					//		count = index_weave;
-					//		index_weave++;
-					//		break;
-							
-					//		case 3:
-					//		count = index_tile;
-					//		index_tile++;
-					//		break;
-					//	}
-					//}
-					#endregion
-					scale = 4;
-					//tim_rgb_draw(-768, -256, tim_list[|b], 1, 1, 1, false);
-					pos_x = (tim_list[|b].pixel_x - 768) * scale;
-					pos_y = tim_list[|b].pixel_y - 256;
-					draw_set_colour($303030);
-					draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
-				
-					new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
-					draw_sprite(new_grid, 0, (tim_list[|b].pixel_x - 768) * scale, tim_list[|b].pixel_y - 256);
-					tim_count++;
-					draw_check28_4bit[a] = true;
-				}
-				new_page = alpha_subtract(vram28_4bit[1], vram28_4bit[a]);
-				draw_clear_alpha(c_black, false);
-				draw_sprite(new_page, 0, 0, 0);
-				
-				surface_reset_target();
-				view_surface_id[0] = vram28_4bit[a];
-			
-				draw_set_alpha(1);
-
-			
-			}
-			if (!surface_exists(vram29_4bit[a]) || draw_refresh != 0){
-				if (!surface_exists(vram29_4bit[a])){
-					vram29_4bit[a] = surface_create(256, 256);
-				}
-			
-				draw_set_alpha(1);
-				surface_set_target(vram29_4bit[a]);
-				draw_clear_alpha(c_grey, true);
-				for (var b = 0; b < ds_list_size(tim_list); b++){
-					px = tim_list[|b].pixel_x - 832;
-					if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-						continue;
-					}
-					count = 0;
-					#region Tracking color index of patterns [disabled]
-					//if (grid_mode29[0] == 1){
-					//	switch (grid_mode29[1]){
-					//		case 0:
-					//		count = index_blended;
-					//		index_blended++;
-					//		break;
-							
-					//		case 1:
-					//		count = index_zigzag;
-					//		index_zigzag++;
-					//		break;
-							
-					//		case 2:
-					//		count = index_weave;
-					//		index_weave++;
-					//		break;
-							
-					//		case 3:
-					//		count = index_tile;
-					//		index_tile++;
-					//		break;
-					//	}
-					//}
-					#endregion
-					scale = 4;
-					//tim_rgb_draw(-832, -256, tim_list[|b], 1, 1, 1, false);
-					pos_x = (tim_list[|b].pixel_x - 832) * scale;
-					pos_y = tim_list[|b].pixel_y - 256;
-					draw_set_colour($303030);
-					draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
-				
-					new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
-					draw_sprite(new_grid, 0, pos_x, pos_y);
-					tim_count++;
-					draw_check29_4bit[a] = true;
-				}
-				new_page = alpha_subtract(vram29_4bit[1], vram29_4bit[a]);
-				draw_clear_alpha(c_black, false);
-				draw_sprite(new_page, 0, 0, 0);
-				
-				surface_reset_target();
-				view_surface_id[0] = vram29_4bit[a];
-			
-				draw_set_alpha(1);
-			}
-			if (!surface_exists(vram30_4bit[a]) || draw_refresh != 0){
-				if (!surface_exists(vram30_4bit[a])){
-					vram30_4bit[a] = surface_create(256, 256);
-				}
-			
-				draw_set_alpha(1);
-				surface_set_target(vram30_4bit[a]);
-				draw_clear_alpha(c_grey, true);
-				
-				for (var b = 0; b < ds_list_size(tim_list); b++){
-					px = tim_list[|b].pixel_x - 896;
-					if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-						continue;
-					}
-					count = 0;
-					#region Tracking color index of patterns [disabled]
-					//if (grid_mode30[0] == 1){
-					//	switch (grid_mode30[1]){
-					//		case 0:
-					//		count = index_blended;
-					//		index_blended++;
-					//		break;
-							
-					//		case 1:
-					//		count = index_zigzag;
-					//		index_zigzag++;
-					//		break;
-							
-					//		case 2:
-					//		count = index_weave;
-					//		index_weave++;
-					//		break;
-							
-					//		case 3:
-					//		count = index_tile;
-					//		index_tile++;
-					//		break;
-					//	}
-					//}
-					#endregion
-					scale = 4;
-					//tim_rgb_draw(-896, -256, tim_list[|b], 1, 1, 1, false);
-					pos_x = (tim_list[|b].pixel_x - 896) * scale;
-					pos_y = tim_list[|b].pixel_y - 256;
-					draw_set_colour($303030);
-					draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
-				
-					new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
-					draw_sprite(new_grid, 0, pos_x, pos_y);
-					tim_count++;
-					draw_check30_4bit[a] = true;
-				}
-				new_page = alpha_subtract(vram30_4bit[1], vram30_4bit[a]);
-				draw_clear_alpha(c_black, false);
-				draw_sprite(new_page, 0, 0, 0);
-				
-				surface_reset_target();
-				view_surface_id[0] = vram30_4bit[a];
-			
-				draw_set_alpha(1);
-
-			}
-			if (!surface_exists(vram31_4bit[a]) || draw_refresh != 0){
-				if (!surface_exists(vram31_4bit[a])){
-					vram31_4bit[a] = surface_create(256, 256);
-				}
-			
-				draw_set_alpha(1);
-				surface_set_target(vram31_4bit[a]);
-				draw_clear_alpha(c_grey, true);
-				for (var b = 0; b < ds_list_size(tim_list); b++){
-					px = tim_list[|b].pixel_x - 960;
-					if (px < 0 || px > 63 || tim_list[|b].bit == 1){
-						continue;
-					}
-					count = 0;
-					#region Tracking color index of patterns [disabled]
-					//if (grid_mode31[0] == 1){
-					//	switch (grid_mode31[1]){
-					//		case 0:
-					//		count = index_blended;
-					//		index_blended++;
-					//		break;
-							
-					//		case 1:
-					//		count = index_zigzag;
-					//		index_zigzag++;
-					//		break;
-							
-					//		case 2:
-					//		count = index_weave;
-					//		index_weave++;
-					//		break;
-							
-					//		case 3:
-					//		count = index_tile;
-					//		index_tile++;
-					//		break;
-					//	}
-					//}
-					#endregion
-					scale = 4;
-					//tim_rgb_draw(-960, -256, tim_list[|b], 1, 1, 1, false);
-					pos_x = (tim_list[|b].pixel_x - 960) * scale;
-					pos_y = tim_list[|b].pixel_y - 256;
-					draw_set_colour($303030);
-					draw_rectangle(pos_x, pos_y, pos_x + (tim_list[|b].pixel_w * scale) - 1, pos_y + tim_list[|b].pixel_h - 1, false);
-					
-					new_grid = grid_rgb_draw((tim_list[|b].pixel_w * scale), tim_list[|b].pixel_h, grid_data_clut4bit, 14, b, scale, a - 4);
-					draw_sprite(new_grid, 0, pos_x, pos_y);
-					tim_count++;
-					draw_check31_4bit[a] = true;
-				}
-				new_page = alpha_subtract(vram31_4bit[1], vram31_4bit[a]);
-				draw_clear_alpha(c_black, false);
-				draw_sprite(new_page, 0, 0, 0);
-				
-				surface_reset_target();
-				view_surface_id[0] = vram31_4bit[a];
-			
-				draw_set_alpha(1);
-				
-			}
-		}
-		tim_count = 0;
-		draw_refresh = 0;
 	#endregion
 }
+
+
+
 timer++;
 if (timer > 30){
 	timer = 0;

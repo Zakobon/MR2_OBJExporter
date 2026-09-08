@@ -1,7 +1,7 @@
 function tex_builder(){
 	tex_buffer = buffer_create(4, buffer_grow, 1);
 	buffer_seek(tex_buffer, buffer_seek_start, 0);
-	
+	grid_flag = true;
 	//Variables to keep count of color index per pattern
 	index_blended = 0;
 	index_zigzag = 0;
@@ -23,119 +23,26 @@ function tex_builder(){
 		bit_old = tim_list[|a].bit_old & 0b111;
 		clut_flag = (tim_list[|a].has_clut & 0b1) << 3;
 		clut_array = tim_data_clut[clut_y - 505]; //example: tim_data_clut[y - 505][clut_index].red
-		#region Track index of patterns [Disabled]
-		switch(tim_list[|a].pixel_x div 64){
-			case 12:
-			if (grid_mode28[0] == 1){
-				switch (grid_mode28[1]){
-					case 0:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_blended);
-					index_blended++;
-					break;
-					case 1:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_zigzag);
-					index_zigzag++;
-					break;
-					case 2:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_weave);
-					index_weave++;
-					break;
-					case 3:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_tile);
-					index_tile++;
-					break;
-				}
-				
-			}
+		
+		switch (bit_mode){
+			case 0:
+			mult = 4;
+			g_clut = tex_data_clut4bit;
+			//if (tex_flat == true){
+			//	g_clut = tex_flat4bit;
+			//}
 			break;
-			case 13:
-			if (grid_mode29[0] == 1){
-				switch (grid_mode29[1]){
-					case 0:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_blended);
-					index_blended++;
-					break;
-					case 1:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_zigzag);
-					index_zigzag++;
-					break;
-					case 2:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_weave);
-					index_weave++;
-					break;
-					case 3:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_tile);
-					index_tile++;
-					break;
-				}
-			}
-			break;
-			case 14:
-			if (grid_mode30[0] == 1){
-				switch (grid_mode30[1]){
-					case 0:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_blended);
-					index_blended++;
-					break;
-					case 1:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_zigzag);
-					index_zigzag++;
-					break;
-					case 2:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_weave);
-					index_weave++;
-					break;
-					case 3:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_tile);
-					index_tile++;
-					break;
-				}
-			}
-			break;
-			case 15:
-			if (grid_mode31[0] == 1){
-				switch (grid_mode31[1]){
-					case 0:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_blended);
-					index_blended++;
-					break;
-					case 1:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_zigzag);
-					index_zigzag++;
-					break;
-					case 2:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_weave);
-					index_weave++;
-					break;
-					case 3:
-					tim_list[|a]= tex_grid_builder(tim_list[|a], index_tile);
-					index_tile++;
-					break;
-				}
-			}
+			
+			case 1:
+			mult = 2;
+			g_clut = tex_data_clut8bit;
+			//if (tex_flat == true){
+			//	g_clut = tex_flat8bit;
+			//}
 			break;
 		}
-		#endregion
-		if (grid_mode28[0] | grid_mode29[0] | grid_mode30[0] | grid_mode31[0] == 1){
-			tim_list[|a]= tex_grid_builder(tim_list[|a], a);
-		}
-		//switch (bit_mode){
-		//	case 0:
-		//	clut_w = 16;
-		//	multiplier = 2;
-		//	tim_list[|a].clut_x = 0;
-		//	clut_default = clut_4_default;
-		//	break;
-			
-		//	case 1:
-		//	clut_w = 256;
-		//	multiplier = 1;
-		//	break;
-			
-		//	case 2:
-		//	clut_w = 0;
-		//	break;
-		//}
+
+		tim_list[|a] = tex_grid_builder(tim_list[|a]); //Convert clut and pixel data to grid format
 		
 		
 		flag = (bit_mode) | (clut_flag);
@@ -145,72 +52,23 @@ function tex_builder(){
 		buffer_write(tex_buffer, buffer_u32, 0x10);
 		buffer_write(tex_buffer, buffer_u32, flag);
 		
-		//if(import_flag == 1){
-			buffer_write(tex_buffer, buffer_u32, 12 + ((clut_w * clut_h) * 2));//pointer to end of clut data
-			buffer_write(tex_buffer, buffer_u16, tim_list[|a].clut_x);
-			buffer_write(tex_buffer, buffer_u16, tim_list[|a].clut_y);
-			buffer_write(tex_buffer, buffer_u16, clut_w);
-			buffer_write(tex_buffer, buffer_u16, clut_h);
-			
-			for (var b = 0; b < clut_w; b++){
-				clut_data = tim_list[|a].clut_data[b].red & 0b11111;
-				clut_data = clut_data | ((tim_list[|a].clut_data[b].green & 0b11111) << 5);
-				clut_data = clut_data | ((tim_list[|a].clut_data[b].blue & 0b11111) << 10);
-				clut_data = clut_data | ((tim_list[|a].clut_data[b].stp & 0b1) << 15);
-				buffer_write(tex_buffer, buffer_u16, clut_data);
-			}
-		//}
-		//else{ //pulls from the saved tim_data_clut arrays
-		//	//Clut header
-		//	buffer_write(tex_buffer, buffer_u32, 12 + ((clut_w * clut_h) * 2));
-		//	buffer_write(tex_buffer, buffer_u16, tim_list[|a].clut_x);
-		//	buffer_write(tex_buffer, buffer_u16, tim_list[|a].clut_y);
-		//	buffer_write(tex_buffer, buffer_u16, clut_w);
-		//	buffer_write(tex_buffer, buffer_u16, clut_h);
-		//	//else{//fill missing clut entries with default values
-		//	//for (var b = 0; b <  array_length(tim_list[|a].clut_data); b++){
-		//	for (var b = 0; b < clut_w; b++){
-		//		//buffer_write(tex_buffer, buffer_u16, clut_array[b + clut_x][0]);
-		//		clut_data = clut_array[b + clut_x].red & 0b11111;
-		//		clut_data = clut_data | ((clut_array[b + clut_x].green & 0b11111) << 5);
-		//		clut_data = clut_data | ((clut_array[b + clut_x].blue & 0b11111) << 10);
-		//		clut_data = clut_data | ((clut_array[b + clut_x].stp & 0b1) << 15);
-		//		buffer_write(tex_buffer, buffer_u16, clut_data);
-		//	}
-		//}
-			//Clut data
-			//if (array_length(tim_list[|a].clut_data) == 1){
-			//	for (var b = 0; b < clut_w; b++){
-			//		switch(bit_mode){
-			//			case 0:
-			//			clut_data = clut_4_default;
-			//			break;
-					
-			//			case 1:
-			//			clut_data = clut_8_default;
-			//			break;
-			//		}
-			//		clut_hold = variable_clone(clut_data[b]);
-			//		clut_data[b] = clut_data[b] & ~0x8000;
-			//		clut_data[b] = clut_data[b] | (tim_list[|a].bit & 0x8000);
-			//		buffer_write(tex_buffer, buffer_u16, clut_data[b]);
-			//	}
-			//}
-			//else if (array_length(tim_list[|a].clut_data) >= (clut_w - 1)){
-			//	for (var b = 0; b < clut_w; b++){
-			//		clut_data = tim_list[|a].clut_data[b].red & 0b11111;
-			//		clut_data = clut_data | ((tim_list[|a].clut_data[b].green & 0b11111) << 5);
-			//		clut_data = clut_data | ((tim_list[|a].clut_data[b].blue & 0b11111) << 10);
-			//		clut_data = clut_data | ((tim_list[|a].clut_data[b].stp & 0b1) << 15);
-			//		buffer_write(tex_buffer, buffer_u16, clut_data);
-			//	}
-			//}
-			//else{//fill missing clut entries with default values
-			//	for (var b = array_length(tim_list[|a].clut_data); b < clut_w; b++){
-			//		buffer_write(tex_buffer, buffer_u16, clut_default[b]);
-			//	}
-			//}
-			
+
+		buffer_write(tex_buffer, buffer_u32, 12 + ((clut_w * clut_h) * 2));//pointer to end of clut data
+		buffer_write(tex_buffer, buffer_u16, tim_list[|a].clut_x);
+		buffer_write(tex_buffer, buffer_u16, tim_list[|a].clut_y);
+		buffer_write(tex_buffer, buffer_u16, clut_w);
+		buffer_write(tex_buffer, buffer_u16, clut_h);
+		
+		for (var b = 0; b < clut_w; b++){
+			//rgb_data = tim_list[|a].clut_data[b];
+			clut_data = g_clut[b].red & 0b11111;
+			clut_data = clut_data | ((g_clut[b].green & 0b11111) << 5);
+			clut_data = clut_data | ((g_clut[b].blue & 0b11111) << 10);
+			clut_data = clut_data | ((g_clut[b].stp & 0b1) << 15);
+			buffer_write(tex_buffer, buffer_u16, clut_data);
+		}
+
+	
 		
 		//Pixel header
 		buffer_write(tex_buffer, buffer_u32, 12 + ((image_w * image_h) * 2));//pointer to end of Pixel data
@@ -223,7 +81,7 @@ function tex_builder(){
 		
 		switch (bit_mode){
 			case 0:
-			for (var b = 0; b < image_w  * image_h * 4; b++){
+			for (var b = 0; b < image_w  * image_h * mult; b++){
 				pixel_data = tim_list[|a].pixel_data[b] & 0b1111;
 				b++;
 				pixel_data = pixel_data | ((tim_list[|a].pixel_data[b] & 0b1111) << 4);
@@ -231,15 +89,17 @@ function tex_builder(){
 				pixel_data = pixel_data | ((tim_list[|a].pixel_data[b] & 0b1111) << 8);
 				b++;
 				pixel_data = pixel_data | ((tim_list[|a].pixel_data[b] & 0b1111) << 12);
+
 				buffer_write(tex_buffer, buffer_u16, pixel_data);
 			}
 			break;
 			
 			case 1:
-			for (var b = 0; b < image_w * image_h * 2; b++){
+			for (var b = 0; b < image_w * image_h * mult; b++){
 				pixel_data = tim_list[|a].pixel_data[b] & 0b1111_1111;
 				b++;
 				pixel_data = pixel_data | ((tim_list[|a].pixel_data[b] & 0b1111_1111) << 8);
+
 				buffer_write(tex_buffer, buffer_u16, pixel_data);
 			}
 			break;

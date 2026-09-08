@@ -1,9 +1,258 @@
 -------------------[to-do]-------------------
-||Currently Doing||
+||=============||
+||Version 1.7.0|| Planning
+||=============||
+
+//Release Checklist\\
+[]
+[] Write Changelist
+\\-------------------------//
+
+/Currently Doing\
+-UV Export
+	+/- create button
+		+ [Done] create drop down menu
+		- attach export code to respective buttons
+- Clut Preview displays when no TEX file is imported
+		^^Left off here^^
+		
+	+ [Done] draw prims to surface(2048, 256) and create sprite
+		= Draw as: 
+			Background:
+				|color:c_black
+				|alpha:0
+			Primitives:
+				|color:c_white
+				|alpha:1
+		
+	+ [Done] "slice" sprite onto surface(256,256) for png export
+		= export code will be attached to an export button
+	
+= maybe automatically create work folder for all png exports?
+
+- [issue] forgot to add grid lines to the grid mode...
+
+- create help/info panel with toggle
+- implement a flat color mode?
+	+ [Done] create rgb and CLUT data for flat colors
+	- draw rectangles to a 2048x256 surface and slice into pages for png export
+		- include black borders
+	- finish tex_builder implementation
+	- create button
+		= if I wait till after ver 1.6.0, I can switch import/export buttons over to drop down menus
+		
+- investigate options for primitives that ignore light calculations in OBJ export 
+
+\---------------/
+
+
+||=============||
+||Version 1.6.0|| Ready for release
+||=============||
+
+//Release Checklist\\
+[+] Export OBJ/PNG with all VRAM pages drawn to
+[+] Export OBJ/PNG with semi transparent parts
+[+] Export OBJ/PNG with 4bit pages
+[+] Export OBJ/PNG with Grid mode enabled + variants
+[+] Export TEX with 4bit pages
+[+] Export TEX with Grid mode variants
+[+] Export TEX with semi transparent parts
+[+] Write Changelist
+\\-------------------------//
+
+##Changelist##
+#[Features]
++ Added multiple "Variants" to each pattern that can be cycled through by clicking the same 
+pattern button multiple times in a row
+	+ This will change exported patterns for both PNG and TEX exports
+	+ Made it easier to add more patterns/variants in the future, possibly even user made ones
++ Expanded color selection for 8bit grid patterns slightly
+	= If I use the full 127 colors that are possible, it'll make colors harder to tell apart
++ Changed the way surfaces are drawn and saved so far less memory is used
++ Cleaned up CLUT preview
+
+#[Bug Fixes]
+[Model]
++ Exported OBJ file's X coordinates were reversed
++ A few MMJ models that had both Opaque and Semi transparent part would have the faces mixed up
+
+[Texture]
++ When canceling tex import with one already loaded. It deactivated the TEX export button.
++ Jell's CLUT display was drawing each row as a default monochrome gradient
+	+ Fix should affect any other TEX file that had this issue
++ Exported grid textures didn't cycle through colors properly
++ PNG: Exported Alpha values between original textures and grid textures were different
+	+ This took longer to fix than I'd care to admit...
++ TEX Grid Export didn't export grid patterns by default if no grid patterns were being previewed
++ Exported TEX files didn't handle semi-transparency correctly
++ Didn't know that created surfaces(texture preview window) would erase itself randomly while the 
+program was minimized
+	+ Lucky that I found this one as it's hard to replicate without waiting ~5-15 min while doing nothing
+
+#[Future Plans]
++ Flat Color Mode that uses 127 different colors for 8bit and 15 colors for 4bit
+	= 8bit:127 & 4bit:15 because each color needs two entries: one Opaque and the other Semi-transparent
+		= 8bit:128th and 4bit:16th entries are reserved for the Fully Transparent pixel color
+	= Flat Color Mode helps enable features like coloring based on:
+		- CLUT palette assignments
+			= No easy or accesable way to know this atm, would be very helpful
+		- Highlighting errors or inconsistencies between Primitive data and Texture data
+			= More important for double checking custom model edits
+		- Drawing Primitives(Polygons) as single color triangles on single color textures
+			= Might help with understanding placement more than just a simple UV PNG export 
+				= Should still have a UV PNG export option though
+		
++ Scalable Black grid line overlay
++ Interface to change alpha level for exported PNGs 
++ UI Changes to Import/Export buttons
+	+ Already built drop down menu interface
++ Toggleable Help/Info Panel that gives explanations of what buttons do as the mouse is hovering over them
+	+ Additional Info panel while hovering over the numerous Import/Export buttons
+		= This should help some of the confusion on how to use this program
++ Considering making exported files go into an automatically created "Workspace folder
+	= Currently dumps everything into the selected directory and is a pain to manage if you don't expect it
+
+##----------##
+
+
++ [Fixed] Didn't realize that x vertex coordinates were reversed, easy fix
++ [Done] Fix page filename alignment
++ [Fixed] Grid buttons are broken after fixing PNG Export
++ [Fixed] When canceling tex import with one already loaded. It deactivates TEX export button
++ [Fixed] Grids aren't fully erased when importing new TEX files
++ [Fixed] Durahan/Metalner OBJ Export: Sword primitives are all messed up
+	= Only the sword
+	= They look out of order
+		= issue with transparancy bit split [f30_8bit[0, 1]]
+			= it's indexing opaque, then semi which offset the first face by 8
+				+ [Done] try removing the opaque/semi-transparent split
+					+ [Done] make everything semi enabled and rely on alpha values
+				+ [Done] update mtl names
+
+
+<<UV Export>>
+- create button
+- draw prims to surface(2048, 256) and create sprite
+	- "slice" sprite onto surface(256,256) for png export
+= maybe automatically create work folder for all png exports?
+
+
++ [Fixed] Jell TEX import: CLUT displays incorrectly
++ [Fixed] TEX Export crashes
++ [Fixed] Exported TEX has wrong CLUT data
+
+- implement flat color mode?
+	+ [Done] create rgb and CLUT data for flat colors
+	- create button
+		= if I wait till after next update, I can switch import/export buttons over to drop down menus
+		
+
+
+- [Bug] MMX duplicate Prims
+	= searching for duplicates was a dead end
+	- try reversing face order on export for now?
+	
+- [Bug] Missing faces on MMX models
+	= This is because Blender replaces duplicate faces, even if they have different UVs
+		= Replacement overrides the old faces with latest one in face list
+		- Test reversing face order on OBJ export to see if it fixes missing polygon issue on ghost
+		<<^This is next>>
+		?: Create new vertices when dupes are found?
+			= If so, would need to search for dupes before writing to OBJ file
+				?: Option to disable this feature and just skip found duplicates?
+					= Should have option on which face to use, newest or oldest with some kind of visual
+			
++ [Fixed] PNG Export Alpha is slightly off between grid and orginal <<In-Progress>>
+	= Problem has to due with Blend calculation in alpha_subtract()
+	= [god dammit] giving up on this garbage code, will instead draw the grids with the same code used for TIMs
+		= just swap out the pixel data for the grid pattern
+			= coulda saved 6 hours of my life if I did that from the start
+		+ [Done] convert pattern code to script for all three uses: TEX Export, Grid Draw, RGB Draw(skipped)
+			= input: tim, pattern index
+			= return: array[[CLUT],[STP Bit]] or array[(CLUT << 1) + (0b1 & STP bit)]
+				= 32 indices atm, but could be more, thats why STP bit is the first bit
+			+ finish replacing old code in surface manager
+			+ fix pattern pix size issue + double check color cycling
+		+ [Done] Update TEX Export with grid changes
+			+ [Fixed] 4-bit preview colors don't match after tex export changes
+				= caused by reducing clut size(c_num) and adding a bit_mode mult
+				+ [Done] need to actually create a 6 color palette for 4-bit in both TEX export and grid preview
+				+ [Fixed] Wtf is happening on PNG export?
+					+ [Fixed] Exports wrong patterns + crashes when variant selected
+				+ [Fixed] PNG and TEX export still don't match
+			
+			+ [Done] Giving up on generating the color cycling on demand, swapping to generating a single
+			color list on startup instead. No more trying to match two different outputs.
+				= Arrays will contain the color pairs in bit form
+					Array 0: [4-bit] [0-15, 0-15]
+					= bits 0-3: first color index
+					= bits 4-7: second color index
+					
+					Array 1: [8-bit] [0-255, 0-255]
+					= bits 0-7: first color index
+					= bits 8-15: second color index
+				+ [Done] Create script that will build color sequences(c_index_builder)
+				+ [Done] implement new color sequences 
+					+ [Done] preview/png drawing
+			+ [Done] Create test 256x256 pattern to try simpler way of drawing vram
+				+ [Done] test drawing to vram pages
+				+ [Done] match with TEX export
+					+ [Done] make test code in Testing Object
+						+ [Done] confirm color indexes match
+						+ [Done] convert to script and test
+					+ [Done] implement into tex_builder
+				+ [Done] make rest of 256x256 basic pattern PNGs
+				+ [Done] fix preview not showing correct pattern
+				+ [Done] make variant pattern PNGs
+				+ [Fixed] not clearing all surfaces+variants when changing TEX file
+					+ [Fixed] changing TEX file doesn't update bitmode properly for drawn pages
+					= fix could be swapping to sprites instead
+						= this solves the erased surfaces issue that comes from minimizing program 
+						+ [Done] swap surfaces to sprites
+						+ [Done] create page surfaces to draw sprites to every frame
+						+ [Done] update PNG_out_Button with new sprite changes
+						+ [Fixed] oh god there's so many textures in the debugger after import
+							= surface_manager step_1: currently creates a sprite after each tim is drawn
+								= [Nope] should instead create a new sprite once for every page+bit_mode
+								or
+								= [Done] draw to single 2048x256 surface, cut sprites out in blocks like grid code
+						
+						
+				+ [Fixed] Crash when exporting a TEX file with 4-bit pages
+				+ [Fixed] color indexing might not be cycling c2 correctly?
+
++ [Fixed] Tex Export button doesn't export Grid pattern by default if no grids are enabled		
+
++ [Done] Transparency levels were too low on png export
+
++ [Fixed] Semi-Transparency is wonky on TEX Export
+	= Caused by 16 color palette being restricted by STP inclusion
+	= Fix should just be expanding the amount of colors to include STP variants
+		= So, at least 32 colors instead of 16
+
++ [R&D] 4-bit textures that overflow into the next page don't get drawn
+	= Unsure if there's a single TEX file that does this for 4-bit
+		= ka_mp does it for 8-bit, unsure why they didn't just use page 28 instead. 
+	<<Result>>
+	[No] TMD files are offset to specific page offsets while TIMs are absolute coords
+		= Max value for prim UV coords is capped at 0b1111_1111 (255)
+			| 8-bit yes 
+			| 4-bit no
+		= So even though TIMs can be drawn passed that value, prims can't 	
+	
+	
+
+
+||=============||
+||Version 1.5.0||
+||=============||
+
 + [Done] fix import file not replacing file when the name is the same
 + [Done] test TEX export ingame on ghost
 
-||===============||
+
+
 + [Done] New Icon for program
 + [Done] Primitive Display built and working for 4bit & 8bit modes
 + [Done] Program Icon is missing Text
@@ -45,7 +294,7 @@
 		+ [Done] Maybe include a way to carry over fully transparent pixels from TIMs
 	
 	- Controls to modify transparency levels for OBJ export?
-		= currently alpha(.8) for textures and alpha(.95) for grids
+		= currently alpha(.85) for textures and alpha(.85) for grids
 		= would need a better way to preview alpha level changes
 	
 	+ Export Option for TEX

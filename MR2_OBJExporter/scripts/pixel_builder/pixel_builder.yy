@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"pixel_builder",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"pixel_builder",
+  "parent":{
+    "name":"MR2_OBJExporter",
+    "path":"MR2_OBJExporter.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}
