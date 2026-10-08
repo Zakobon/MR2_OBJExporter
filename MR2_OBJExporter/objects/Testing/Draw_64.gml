@@ -1,4 +1,5 @@
-if (string_length(keyboard_string) > 9){
+
+if (string_length(keyboard_string) > 3){
 	keyboard_string = test_string;
 }
 else if(keyboard_lastkey == vk_backspace){

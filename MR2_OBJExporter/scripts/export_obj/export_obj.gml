@@ -175,7 +175,7 @@
 // |o TMD object #{0}, VRAM page #{1}        //creating object{0} and group{1}
 // |usemtl VRAM page #{1}
 // |
-// |f 1/1 2/2 3/3                            //linking vert and text indices
+// |f 1/1 2/2 3/3                            //linking vert and texture indices
 // |f 4/4 5/5 6/6 7/7                        //list 4 if a quad
 // |
 // |o TMD object #{0}, VRAM page #{1}        //repeat for remaining objects, split for seperate mtl/VRAM pages
@@ -185,13 +185,17 @@
 // |f 4/4 5/5 6/6       
 #endregion
 //To-Do//
-//Need Normals to fix auto shading issue in Blender
+//-Change how multiple objects are handled
+//	-most likely the reason why mmj export isn't great
+//-Need Normals to fix auto shading issue in Blender
 //	-Normals are acting buggy and produce unexpected results, disabled for now
 //  -Caused by flipped faces
 
 /// @desc Takes imported MM file and exports an OBJ with MTL file. 
 /// TEX File must also be imported to properly link the PNGs in the MTL file. 
+
 function export_obj(){
+	quad_split = true;
 	test_count = 0;
 	bit_string = ["_4Bit","_8Bit"];
 	grid_string = ["","G"];
@@ -202,15 +206,82 @@ function export_obj(){
 	obj_string_array = [];
 	mtl_string_array = [];
 	
-	f28_check_4bit[0] = 0;
-	f29_check_4bit[0] = 0;
-	f30_check_4bit[0] = 0;
-	f31_check_4bit[0] = 0;
+	#region Functions
+	/// @desc Fills obj_string_array with the vt field(UV) of a supplied primitive
+	/// @arg {Asset.Primitive} _prim Target prim that will supply the UV data
+	function vt_write(_prim) {
+		for (var b = 0; b < array_length(_prim.tex_x); b++){
+			array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(_prim.tex_x[b]), convert_xy_uv(_prim.tex_y[b], 1)) + "\n");
+			vt_count++;
+			if (b == 3){
+				quad_count++;
+			}
+		}
+	}
 	
-	f28_check_8bit[0] = 0;
-	f29_check_8bit[0] = 0;
-	f30_check_8bit[0] = 0;
-	f31_check_8bit[0] = 0;
+	/// @desc fills prim_group with arrays of sorted indices of the prim's p_index fields
+	/// @arg {Array.Primitive} _prims The target primitive array
+	function prim_group_sort(_prims){
+		var temp_array = [];
+		repeat (8){
+			array_push(temp_array, []);
+		}
+		for (var a = 0; a < array_length(_prims); a++){
+			var ind = (_prims[a].page_x - 12) + (_prims[a].c_mode * 4)
+			array_push(temp_array[ind], a);
+		}
+		return temp_array;
+	}
+	
+	/// @desc Returns given array. Used to stop new arrays from becoming pointers to the old ones
+	/// @arg {array} Array Copy target
+	function array_clone(_array){
+		_array = _array;
+		return _array;
+	}
+	#endregion
+	
+	//Reverse order of primitives, which will match the way it's rendered in game
+	
+	tmd_duplicates = {
+		prim : [],
+		vert : [],
+		norm : []
+	};
+
+	//add duplicate primitive's data so Blender doesn't overwrite it
+	for (var a = 0; a < array_length(tmd_base.duplicates); a++){
+		var dupe_prim = tmd_edit.prim[tmd_base.duplicates[a][0]];
+		array_push(tmd_duplicates.prim, dupe_prim);
+		for (var b = 0; b < array_length(dupe_prim.vert); b++){
+			var new_vert = tmd_edit.vert[dupe_prim.vert[b]]
+			new_vert.vz--;
+			array_push(tmd_duplicates.vert, new_vert);
+			tmd_duplicates.prim[a].vert[b] = a;
+		}
+		for (var b = 0; b < array_length(dupe_prim.norm); b++){
+			var new_norm = tmd_edit.norm[dupe_prim.norm[b]]
+			new_norm.nz -= 1;
+			array_push(tmd_duplicates.norm, new_norm);
+			tmd_duplicates.prim[a].norm[b] = a;
+		}
+	}
+
+	//prim_group holds 8 arrays that contain the sorted primitive's p_index fields
+	//sorted by the 4 VRAM pages, and the two bit modes
+	//prim_group = [
+	//	[p28 4bit], [p29 4bit], [p30 4bit], [p31 4bit],
+	//	[p28 8bit], [p29 8bit], [p30 8bit], [p31 8bit]
+	//]
+	
+	prim_group = [];
+	dupe_group = [];
+	// Stat counters to print out in comment fields
+	vt_count = 0;
+	quad_count = 0;
+	triangle_count = 0;
+	
+	
 	#region OBJ File Header
 	//title
 	array_push(obj_string_array, "# Wavefront OBJ exported by TMD Converter" + "\n");
@@ -224,696 +295,158 @@ function export_obj(){
 	array_push(obj_string_array, "\n");
 	#endregion
 	#region Vertec Coordinate Section
-	if(array_length(tmd_edit.vert) > 0){
-		for (var a = 0; a < array_length(tmd_edit.vert); a++){
-			//array_push(obj_string_array, string("v {0}.000000 {1}.000000 {2}.000000", tmd_edit.vert[a].vx, ~tmd_edit.vert[a].vy + 1, tmd_edit.vert[a].vz) + "\n");
-			array_push(obj_string_array, string("v {0} {1} {2}", str_obj_vert(-tmd_edit.vert[a].vx), str_obj_vert(-tmd_edit.vert[a].vy), str_obj_vert(tmd_edit.vert[a].vz)) + "\n");
+	if(array_length(tmd_reverse.vert) > 0){
+		for (var a = 0; a < array_length(tmd_reverse.vert); a++){
+			//array_push(obj_string_array, string("v {0}.000000 {1}.000000 {2}.000000", tmd_reverse.vert[a].vx, ~tmd_reverse.vert[a].vy + 1, tmd_reverse.vert[a].vz) + "\n");
+			array_push(obj_string_array, string("v {0} {1} {2}", str_obj_vert(-tmd_reverse.vert[a].vx), str_obj_vert(-tmd_reverse.vert[a].vy), str_obj_vert(tmd_reverse.vert[a].vz)) + "\n");
 		}
 	}
 	//default for no verts
 	else {array_push(obj_string_array, string("v 0.000000 0.000000 0.000000") + "\n");}
 	//comment with vert count
-	array_push(obj_string_array, string("# {0} vertices", array_length(tmd_edit.vert)) + "\n");
+	array_push(obj_string_array, string("# {0} vertices", array_length(tmd_reverse.vert)) + "\n");
 	array_push(obj_string_array, "\n");
 	#endregion
-	#region Vertex Normals Section
-	
-	if(array_length(tmd_edit.norm) > 0){ 
-		for (var a = 0; a < array_length(tmd_edit.norm); a++){
+	#region Vertex + Normals Section
+	n_count = 0;
+	if(array_length(tmd_reverse.norm) > 0){ 
+		for (var a = 0; a < array_length(tmd_reverse.norm); a++){
 			//testing//
-			array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(tmd_edit.norm[a].nx), str_obj_norm(tmd_edit.norm[a].ny), str_obj_norm(tmd_edit.norm[a].nz)) + "\n");
-			//array_push(obj_string_array, string("vn {0} {1} {2}", string(tmd_edit.norm[a].nx), string(tmd_edit.norm[a].ny), string(tmd_edit.norm[a].nz)) + "\n");
+			n_count++;
+			array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(tmd_reverse.norm[a].nx, true), str_obj_norm(tmd_reverse.norm[a].ny, true), str_obj_norm(tmd_reverse.norm[a].nz, false)) + "\n");
+			//array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(tmd_reverse.norm[a].nx, false), str_obj_norm(tmd_reverse.norm[a].ny, false), str_obj_norm(tmd_reverse.norm[a].nz, false)) + "\n");
+			//array_push(obj_string_array, string("vn {0} {1} {2}", string(tmd_reverse.norm[a].nx), string(tmd_reverse.norm[a].ny), string(tmd_reverse.norm[a].nz)) + "\n");
 		}
-		array_push(obj_string_array, string("# {0} normals", array_length(tmd_edit.norm)) + "\n");
-		array_push(obj_string_array, "\n");
 	}
 	else {array_push(obj_string_array, string("vn 0.000000 0.000000 0.000000") + "\n");
-		array_push(obj_string_array, string("# {0} normals", 0) + "\n");
-		array_push(obj_string_array, "\n");
 	}//default for no normals
+	array_push(obj_string_array, string("# {0} normals", n_count) + "\n");
+	array_push(obj_string_array, "\n");
 	#endregion
+	
 	#region Texture Coordinate Section
 	//vertex texture page coords
 	//need to keep in mind the prim duplication when doing the primitive section
-	vt_count4bit = 0;
-	vt_count8bit = 0;
-	quad_count = 0;
-	if(array_length(tmd_edit.prim) > 0){
-		for(var a = 0; a < tmd_edit.obj_num; a++){
-			f28_4bit = [];
-			f29_4bit = [];
-			f30_4bit = [];
-			f31_4bit = [];
-			
-			f28_8bit = [];
-			f29_8bit = [];
-			f30_8bit = [];
-			f31_8bit = [];
-			for (var b = 0; b < tmd_edit.objects[a].prim_num; b++){ //Texture Coords sorting
-				current_prim = tmd_edit.prim[b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num];
-				switch (current_prim.c_mode){
-					case 0:
-					switch (current_prim.page_x){
-						case 12:
-						array_push(f28_4bit, current_prim);
-						break;
-						case 13:
-						array_push(f29_4bit, current_prim);
-						break;
-						case 14:
-						array_push(f30_4bit, current_prim);
-						break;
-						case 15:
-						array_push(f31_4bit, current_prim);
-						break;
-					}
-					break;
-					
-					case 1:
-					switch (current_prim.page_x){
-						case 12:
-						array_push(f28_8bit, current_prim);
-						break;
-						case 13:
-						array_push(f29_8bit, current_prim);
-						break;
-						case 14:
-						array_push(f30_8bit, current_prim);
-						break;
-						case 15:
-						array_push(f31_8bit, current_prim);
-						break;
-					}
-					break;
-				}
+	
+	
+	#region Page Sorting V2 [Under construction: Finished]
+
+	prim_group = prim_group_sort(tmd_reverse.prim);
+	dupe_group = prim_group_sort(tmd_duplicates.prim);
+	#endregion
+	
+	
+	#region vt Writing [Under construction: Finished]
+	if(array_length(tmd_reverse.prim) > 0){
+		for (var a = 0; a < array_length(prim_group); a++){
+			for (var b = 0; b < array_length(prim_group[a]); b++){
+				vt_write(tmd_reverse.prim[prim_group[a][b]]);
 			}
-			
-			if (array_length(f28_4bit) != 0){
-				for(var b = 0; b < array_length(f28_4bit); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_y[0], 1)) + "\n");
-					vt_count4bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_y[1], 1)) + "\n");
-					vt_count4bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_y[2], 1)) + "\n");
-					vt_count4bit++;
-					if(tmd_edit.prim[f28_4bit[b].p_index].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f28_4bit[b].p_index].tex_y[3], 1)) + "\n");
-						vt_count4bit++;
-					}
-				}
-			}
-			if (array_length(f29_4bit) != 0){
-				for(var b = 0; b < array_length(f29_4bit); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_y[0], 1)) + "\n");
-					vt_count4bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_y[1], 1)) + "\n");
-					vt_count4bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_y[2], 1)) + "\n");
-					vt_count4bit++;
-					if(tmd_edit.prim[f29_4bit[b].p_index].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f29_4bit[b].p_index].tex_y[3], 1)) + "\n");
-						vt_count4bit++;
-					}
-				}
-			}
-			if (array_length(f30_4bit) != 0){
-				for(var b = 0; b < array_length(f30_4bit); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_y[0], 1)) + "\n");
-					vt_count4bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_y[1], 1)) + "\n");
-					vt_count4bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_y[2], 1)) + "\n");
-					vt_count4bit++;
-					if(tmd_edit.prim[f30_4bit[b].p_index].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f30_4bit[b].p_index].tex_y[3], 1)) + "\n");
-						vt_count4bit++;
-					}
-				}
-			}
-			if (array_length(f31_4bit) != 0){
-				for(var b = 0; b < array_length(f31_4bit); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_y[0], 1)) + "\n");
-					vt_count4bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_y[1], 1)) + "\n");
-					vt_count4bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_y[2], 1)) + "\n");
-					vt_count4bit++;
-					if(tmd_edit.prim[f31_4bit[b].p_index].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f31_4bit[b].p_index].tex_y[3], 1)) + "\n");
-						vt_count4bit++;
-					}
-				}
-			}
-			
-		
-			if (array_length(f28_8bit) != 0){
-				for(var b = 0; b < array_length(f28_8bit); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_y[0], 1)) + "\n");
-					vt_count8bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_y[1], 1)) + "\n");
-					vt_count8bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_y[2], 1)) + "\n");
-					vt_count8bit++;
-					if(tmd_edit.prim[f28_8bit[b].p_index].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f28_8bit[b].p_index].tex_y[3], 1)) + "\n");
-						vt_count8bit++;
-					}
-				}
-			}
-			if (array_length(f29_8bit) != 0){
-				for(var b = 0; b < array_length(f29_8bit); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_y[0], 1)) + "\n");
-					vt_count8bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_y[1], 1)) + "\n");
-					vt_count8bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_y[2], 1)) + "\n");
-					vt_count8bit++;
-					if(tmd_edit.prim[f29_8bit[b].p_index].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f29_8bit[b].p_index].tex_y[3], 1)) + "\n");
-						vt_count8bit++;
-					}
-				}
-			}
-			if (array_length(f30_8bit) != 0){
-				for(var b = 0; b < array_length(f30_8bit); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_y[0], 1)) + "\n");
-					vt_count8bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_y[1], 1)) + "\n");
-					vt_count8bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_y[2], 1)) + "\n");
-					vt_count8bit++;
-					if(tmd_edit.prim[f30_8bit[b].p_index].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f30_8bit[b].p_index].tex_y[3], 1)) + "\n");
-						vt_count8bit++;
-					}
-				}
-			}
-			if (array_length(f31_8bit) != 0){
-				for(var b = 0; b < array_length(f31_8bit); b++){
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_x[0]), convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_y[0], 1)) + "\n");
-					vt_count8bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_x[1]), convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_y[1], 1)) + "\n");
-					vt_count8bit++;
-					array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_x[2]), convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_y[2], 1)) + "\n");
-					vt_count8bit++;
-					if(tmd_edit.prim[f31_8bit[b].p_index].cmd & 0b1000 == 8){
-						array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_x[3]), convert_xy_uv(tmd_edit.prim[f31_8bit[b].p_index].tex_y[3], 1)) + "\n");
-						vt_count8bit++;
-					}
-				}
-			}
-			
 		}
 	}
 	else {//default for no texture coords
-		array_push(obj_string_array, string("vt 0.000000 0.000000"));
+		array_push(obj_string_array, string("vt 0.000000 0.000000") + "\n");
 	}
 	
-	
-	//comment with vert coord count
-	array_push(obj_string_array, string("# {0} texture coordinates", vt_count4bit + vt_count8bit) + "\n");
+	array_push(obj_string_array, string("# {0} texture coordinates", vt_count) + "\n");
 	array_push(obj_string_array, "\n");
+	
 	#endregion
+	
 	#region Object Grouping/Face Section
 	// grouping part of primitive section
 	current_obj = 0;
 	vert_base = 0;
 	tex_base = 1;
 	tex_count = 0;
-	triangle_total = 0;
-	//flags for found pages. Used in mtl linking
-	f28_check_4bit = 0;
-	f29_check_4bit = 0;
-	f30_check_4bit = 0;
-	f31_check_4bit = 0;
 	
-	f28_check_8bit = 0;
-	f29_check_8bit = 0;
-	f30_check_8bit = 0;
-	f31_check_8bit = 0;
-	for(var a = 0; a < tmd_edit.obj_num; a++){
-		//g TMD object #0, VRAM page #30 
+	//change = tmd_edit.objects[a].vert_off - tmd_edit.objects[0].vert_off;
+	//vert_base = change / 8;
+	//change = tmd_edit.objects[a].normal_off - tmd_edit.objects[0].normal_off;
+	//norm_base = change / 8;
+		
+	mtl_title = ["VRAM 4bit page #28", "VRAM 4bit page #29", "VRAM 4bit page #30", "VRAM 4bit page #31", 
+	"VRAM 8bit page #28", "VRAM 8bit page #29", "VRAM 8bit page #30", "VRAM 8bit page #31"];
+	mtl_check = [false, false, false, false, false, false, false, false];
+	
+	norm_flag = false;
+	triangle_group = 0;
+	for (var a = 0; a < array_length(prim_group) + array_length(dupe_group); a++){
+	//for (var a = 0; a < array_length(prim_group); a++){
+		if (a < array_length(prim_group)){
+			mtl_sorted = prim_group;
+			mtl = mtl_title[a]
+		}
+		else{
+			mtl_sorted = dupe_group;
+			mtl = string("{0}, {1}", mtl_title[a mod 8], "Duplicate");
+		}
+		if (array_length(mtl_sorted[a mod 8]) == 0){
+			continue;
+		}
+		//group declaration + name
+		array_push(obj_string_array, string("g TMD object #{0}, {1}", triangle_group, mtl) + "\n");
+		//matlib declaraion
+		array_push(obj_string_array, string("usemtl {0}", mtl_title[a mod 8]) + "\n");
+			
+		if (quad_split == true){
+			for (var b = 0; b < array_length(mtl_sorted[a mod 8]); b++){
+				mtl_check[a] = true;
+				skip = false;
 
-		change = tmd_edit.objects[a].vert_off - tmd_edit.objects[0].vert_off;
-		vert_base = change / 8;
-		change = tmd_edit.objects[a].normal_off - tmd_edit.objects[0].normal_off;
-		norm_base = change / 8;
-		//Arrays to hold sorted prims
-		//Used for mtl linking
-		f28_4bit = [];
-		f29_4bit = [];
-		f30_4bit = [];
-		f31_4bit = [];
-		f28_8bit = [];
-		f29_8bit = [];
-		f30_8bit = [];
-		f31_8bit = [];
-		#region Page Sorting
-		for (var b = 0; b < tmd_edit.objects[a].prim_num; b++){
-			current_prim = b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num;
-			primitive = tmd_edit.prim[b + tmd_edit.objects[a].prim_index - tmd_edit.objects[a].prim_num];
-
-			switch (primitive.page_x){
-				case 12:
-				switch (primitive.c_mode){
-					case 0:
-					array_push(f28_4bit, current_prim);
-					break;
-					case 1:
-					array_push(f28_8bit, current_prim);
-					break;
-				}
-				break;
-				
-				case 13:
-				switch (primitive.c_mode){
-					case 0:
-					array_push(f29_4bit, current_prim);
-					break;
-					case 1:
-					array_push(f29_8bit, current_prim);
-					break;
-				}
-				break;
-				
-				case 14:
-				switch (primitive.c_mode){
-					case 0:
-					array_push(f30_4bit, current_prim);
-					break;
-					case 1:
-					array_push(f30_8bit, current_prim);
-					break;
-				}
-				break;
-				
-				case 15:
-				switch (primitive.c_mode){
-					case 0:
-					array_push(f31_4bit, current_prim);
-					break;
-					case 1:
-					array_push(f31_8bit, current_prim);
-					break;
-				}
-				break;
-			}
-		}
-		#endregion
-		#region Group Writing 4bit
-		
-		if (array_length(f28_4bit) != 0){
-			f28_check_4bit = 1;
-			triangle_group = 0;
-			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #28 Semi_Transparent", a) + "\n");
-			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM 4bit page #28") + "\n");
-			for (var b = 0; b < array_length(f28_4bit); b++){
-				f_vert = tmd_edit.prim[f28_4bit[b]];
-				switch (array_length(f_vert.vert)){
-					case 4:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					
-					array_push(obj_string_array, string("f "));
-					tex_base = tex_base - 2;
-					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
+				var prim_r = tmd_reverse.prim[mtl_sorted[a mod 8][b]];
+				for (var c = 0; c < array_length(tmd_edit.duplicates); c++){
+					if (quad_count > 0){
+						break;
 					}
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-					
-					case 3:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-				}
-			}
-			//triangle_total = triangle_total + array_length(f28_4bit);
-			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
-			array_push(obj_string_array, "\n");
-		}
-		
-		if (array_length(f29_4bit) != 0){
-			f29_check_4bit = 1;
-			triangle_group = 0;
-			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #29", a) + "\n");
-			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM 4bit page #29") + "\n");
-			for (var b = 0; b < array_length(f29_4bit); b++){
-				f_vert = tmd_edit.prim[f29_4bit[b]];
-				switch (array_length(f_vert.vert)){
-					case 4:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					
-					array_push(obj_string_array, string("f "));
-					tex_base = tex_base - 2;
-					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
+					if (prim_r.p_index == tmd_edit.duplicates[c][1]){
+						tex_base += 3;
+						skip = true;
+						continue;
 					}
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-					
-					case 3:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
 				}
-			}
-			//triangle_total = triangle_total + array_length(f29_4bit);
-			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
-			array_push(obj_string_array, "\n");
-
-		}
-		
-		if (array_length(f30_4bit) != 0){
-			f30_check_4bit = 1;
-			triangle_group = 0;
-			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #30", a) + "\n");
-			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM 4bit page #30") + "\n");
-			for (var b = 0; b < array_length(f30_4bit); b++){
-				f_vert = tmd_edit.prim[f30_4bit[b]];
-				switch (array_length(f_vert.vert)){
-					case 4:
+				if (skip){
+					continue;
+				}
+				for (var c = 0; c < (array_length(prim_r.vert) - 2); c++){
 					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					
-					array_push(obj_string_array, string("f "));
-					tex_base = tex_base - 2;
-					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
+					if (c > 0){
+						tex_base -= 2;
+						flip = false;
 					}
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-					
-					case 3:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-				}
-			}
-			//triangle_total = triangle_total + array_length(f30_4bit);
-			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
-			array_push(obj_string_array, "\n");
-		}
-		
-		if (array_length(f31_4bit) != 0){
-			f31_check_4bit = 1;
-			triangle_group = 0;
-			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM 4bit page #31", a) + "\n");
-			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM 4bit page #31") + "\n");
-			for (var b = 0; b < array_length(f31_4bit); b++){
-				f_vert = tmd_edit.prim[f31_4bit[b]];
-				switch (array_length(f_vert.vert)){
-					case 4:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					
-					array_push(obj_string_array, string("f "));
-					tex_base = tex_base - 2;
-					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
+					else {
+						flip = true;
 					}
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-					
-					case 3:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-				}
-			}
-			//triangle_total = triangle_total + array_length(f31_4bit);
-			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
-			array_push(obj_string_array, "\n");
-		}
-		#endregion
-		#region Group Writing 8bit
-		
-		if (array_length(f28_8bit) != 0){
-			f28_check_8bit = 1;
-			triangle_group = 0;
-			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #28 Semi_Transparent", a) + "\n");
-			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM 8bit page #28") + "\n");
-			for (var b = 0; b < array_length(f28_8bit); b++){
-				f_vert = tmd_edit.prim[f28_8bit[b]];
-				switch (array_length(f_vert.vert)){
-					case 4:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					
-					array_push(obj_string_array, string("f "));
-					tex_base = tex_base - 2;
-					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
+					for (var d = 0; d < 3; d++){
+						if (c == 0){
+							v_ind = 2 - d;
+						}
+						else{
+							v_ind = 0 + d;
+						}
+						if (norm_flag == true){ //Normals disabled until I can get a better result than when they're excluded
+							norm_str = string("/{0} ", prim_r.norm_final[v_ind + c] + 1);
+						}
+						else{
+							norm_str = " ";
+						}
+						array_push(obj_string_array, string("{0}/{1}{2}", string(prim_r.vert_final[v_ind + c] + 1), string(tex_base + v_ind), norm_str));
 					}
+					tex_base += 3;
 					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-					
-					case 3:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
+					triangle_count++;
 				}
 			}
-			//triangle_total = triangle_total + array_length(f28_8bit);
-			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
-			array_push(obj_string_array, "\n");
+			triangle_group++;
 		}
-		
-		if (array_length(f29_8bit) != 0){
-			f29_check_8bit = 1;
-			triangle_group = 0;
-			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #29", a) + "\n");
-			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM 8bit page #29") + "\n");
-			for (var b = 0; b < array_length(f29_8bit); b++){
-				f_vert = tmd_edit.prim[f29_8bit[b]];
-				switch (array_length(f_vert.vert)){
-					case 4:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					
-					array_push(obj_string_array, string("f "));
-					tex_base = tex_base - 2;
-					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					}
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-					
-					case 3:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-				}
-			}
-			//triangle_total = triangle_total + array_length(f29_8bit);
-			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
-			array_push(obj_string_array, "\n");
-
-		}
-		
-		if (array_length(f30_8bit) != 0){
-			f30_check_8bit = 1;
-			triangle_group = 0;
-			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #30", a) + "\n");
-			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM 8bit page #30") + "\n");
-			for (var b = 0; b < array_length(f30_8bit); b++){
-				f_vert = tmd_edit.prim[f30_8bit[b]];
-				switch (array_length(f_vert.vert)){
-					case 4:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					
-					array_push(obj_string_array, string("f "));
-					tex_base = tex_base - 2;
-					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					}
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-					
-					case 3:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-				}
-			}
-			//triangle_total = triangle_total + array_length(f30_8bit);
-			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
-			array_push(obj_string_array, "\n");
-		}
-		
-		if (array_length(f31_8bit) != 0){
-			f31_check_8bit = 1;
-			triangle_group = 0;
-			//group declaration + name
-			array_push(obj_string_array, string("g TMD object #{0}, VRAM 8bit page #31", a) + "\n");
-			//matlib declaraion
-			array_push(obj_string_array, string("usemtl VRAM 8bit page #31") + "\n");
-			for (var b = 0; b < array_length(f31_8bit); b++){
-				f_vert = tmd_edit.prim[f31_8bit[b]];
-				switch (array_length(f_vert.vert)){
-					case 4:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					
-					array_push(obj_string_array, string("f "));
-					tex_base = tex_base - 2;
-					for (var c = 1; c < 4; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					}
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-					
-					case 3:
-					array_push(obj_string_array, string("f "));
-					for (var c = 0; c < 3; c++){
-						array_push(obj_string_array, string("{0}/{1} ", string(vert_base + f_vert.vert[c] + 1), string(tex_base)));//, string(norm_base + f_vert.norm[c] + 1)));
-						tex_base++;
-					} 
-					array_push(obj_string_array, "\n");
-					triangle_total++;
-					triangle_group++;
-					break;
-				}
-			}
-			//triangle_total = triangle_total + array_length(f31_8bit);
-			array_push(obj_string_array, string("# {0} triangles in group", triangle_group) + "\n");
-			array_push(obj_string_array, "\n");
-		}
-		#endregion
+		array_push(obj_string_array, "\n");
 	}
-	//quad_string = string("{0} quads", quad_count);	
-	array_push(obj_string_array, string("# {0} triangles total", triangle_total));	
-	#endregion
+	
+
+
+	array_push(obj_string_array, string("# {0} triangles total", triangle_count) + "\n");
+	array_push(obj_string_array, string("# {0} quads found", quad_count));
+	
 	//export_path = get_save_filename_ext("Wavefront OBJ|*.obj", fname_mm0, "","Save OBJ File");
 	//export_path = variable_clone(user_filepath);
 	#region OBJ File Export
@@ -934,7 +467,7 @@ function export_obj(){
 	
 
 	#region MTL List 4bit
-	if (f28_check_4bit != 0){
+	if (mtl_check[0] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM 4bit page #28" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
@@ -944,7 +477,7 @@ function export_obj(){
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f29_check_4bit != 0){
+	if (mtl_check[1] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM 4bit page #29" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
@@ -954,7 +487,7 @@ function export_obj(){
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f30_check_4bit != 0){
+	if (mtl_check[2] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM 4bit page #30" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
@@ -964,7 +497,7 @@ function export_obj(){
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f31_check_4bit != 0){
+	if (mtl_check[3] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM 4bit page #31" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
@@ -976,7 +509,7 @@ function export_obj(){
 	}
 	#endregion
 	#region MTL List 8bit
-	if (f28_check_8bit != 0){
+	if (mtl_check[4] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM 8bit page #28" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
@@ -986,7 +519,7 @@ function export_obj(){
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f29_check_8bit != 0){
+	if (mtl_check[5] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM 8bit page #29" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
@@ -996,7 +529,7 @@ function export_obj(){
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f30_check_8bit != 0){
+	if (mtl_check[6] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM 8bit page #30" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));
@@ -1006,7 +539,7 @@ function export_obj(){
 		array_push(mtl_string_array, "\n");
 		array_push(mtl_string_array, "\n");
 	}
-	if (f31_check_8bit != 0){
+	if (mtl_check[7] != 0){
 		array_push(mtl_string_array, string("newmtl VRAM 8bit page #31" + "\n"));
 		array_push(mtl_string_array, string("Kd 0.50000 0.50000 0.50000" + "\n"));
 		array_push(mtl_string_array, string("illum 0" + "\n"));

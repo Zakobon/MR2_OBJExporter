@@ -1,14 +1,17 @@
 draw_set_font(fnt_example);
-instr_title = "== Fixing weird looking polygons in Blender =="
-instr = "Step 0: Import OBJ into Blender\n" +
-		"Step 1: Enter \"Edit Mode\" with OBJ\n"+
-	    "Step 2: Press [A] to select all vertices\n"+
-		"Step 3: Press [Shift] + [N] to recalculate normals";
+#region Old instruction display for fixing broken Normals [Disabled]
+
+//instr_title = "== Fixing weird looking polygons in Blender =="
+//instr = "Step 0: Import OBJ into Blender\n" +
+//		"Step 1: Enter \"Edit Mode\" with OBJ\n"+
+//	    "Step 2: Press [A] to select all vertices\n"+
+//		"Step 3: Press [Shift] + [N] to recalculate normals";
 		
-draw_set_colour($666666);
-draw_text_transformed(Instr_Window.left + 180, Instr_Window.top + 8, instr_title, .75, .75, 0);
-draw_text_transformed(Instr_Window.left + 180, Instr_Window.top + 32, instr, .7, .7, 0);
-draw_set_colour($FFFFFF);
+//draw_set_colour($666666);
+//draw_text_transformed(Instr_Window.left + 180, Instr_Window.top + 8, instr_title, .75, .75, 0);
+//draw_text_transformed(Instr_Window.left + 180, Instr_Window.top + 32, instr, .7, .7, 0);
+//draw_set_colour($FFFFFF);
+#endregion
 // TX = 900;
 // TY = 10;
 // TX_Gap = 20;

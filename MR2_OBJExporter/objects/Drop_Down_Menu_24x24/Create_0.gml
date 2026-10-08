@@ -1,7 +1,8 @@
 //Centered on displayed string|          <<<"string">>>
 //Expands out with x_off|        <<<(-x_off)"string"(+x_off)>>>
 
-display = "Null";
+display = "Drop Down Menu Test";
+display = "Import";
 enable = 1;
 create = 0;
 timer = 0;

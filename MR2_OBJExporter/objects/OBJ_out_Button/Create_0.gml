@@ -7,6 +7,9 @@ filename_array = [];
 globalvar obj_duplicate; //tracks the number of duplicate exports to display, so you know it's still doing something
 obj_duplicate = 0;
 
+globalvar tmd_reverse;
+tmd_reverse = -1;
+
 //export_status = ["Edit Target", "File not found", "File Found", "Exported"];
 export_status = ["File not found", "File Found", "Exported!"];
 

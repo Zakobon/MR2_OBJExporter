@@ -9,6 +9,7 @@ v_list = []; //array[array] holds vert indices to seach for duplicate faces
 
 tmd_base = { //Original data, do not edit
 	id : 0,
+	mmj : false, //MMJ filetype flag
 	
 	mm0header : { //MM0 file's actual header is just a table linking start of tmd(1) and start of animations(1-2)
 		tsize : 0, // 2 or 3 items, table doesn't include the 32bit zero padding right after size 
@@ -21,18 +22,20 @@ tmd_base = { //Original data, do not edit
 	
 	tmd_size : 0,
 	objects : [],
-	
-	shared_verts : false, //was a primitive found sharing the exact same verts as this one? If so, new verts will be made for it
+
 	packet_data : [], //packet section for MMJ object placement
 	prim : [], //entire primitive section - either "prim3" or "Primitive" struct
 	vert : [], //entire vertex section - use "vertex" struct
 	norm : [],
 	final : [], //animation section - can just dump rest of file into here
+	
+	duplicates : [] //indices of Primitives that share every vertex
 }
 
 tmd_edit = { //The modified values should be saved here
 	id : 0,
-
+	//mmj : false, //MMJ filetype flag
+	
 	mm0header : { //MM0 file's actual header is just a table linking start of tmd(1) and start of animations(1-2)
 		tsize : 0, // 2 or 3 items, table doesn't include the 32bit zero padding right after size 
 		pointer : [],
@@ -44,13 +47,14 @@ tmd_edit = { //The modified values should be saved here
 	
 	tmd_size : 0,
 	objects : [],
-	
-	shared_verts : false, //was a primitive found sharing the exact same verts as this one? If so, new verts will be made for it
+
 	packet_data : [], //packet section for MMJ object placement
 	prim : [], //entire primitive section - either "prim3" or "Primitive" struct
 	vert : [], //entire vertex section - use "vertex" struct
 	norm : [],
-	final : [], //normal + animation section - can just dump rest of file into here
+	final : [], //animation section
+	
+	duplicates : [] //indices of Primitives that share every vertex
 }
 
 tmd_draw = {
@@ -69,11 +73,10 @@ function Object(_prim_index, _Scale, _PrimNum, _PrimOff, _NormNum, _NormOff, _Ve
 		prim_num = _PrimNum;
 		scale = _Scale;
 		prim_index = _prim_index;
-
 }
 function Primitive(_rgb_off = 0, _pad = 0, _t_disable = 0, _c_mode = 0, _t_mode = 0, _page_y = 256, _page_x = 0, _clut_y = 0, _clut_x = 0, _cmd = 0, _p_id = 0) constructor{
-	p_id = _p_id;
-	p_index = 0; //index in tmd.prim
+	p_id = _p_id; 
+	p_index = 0; //index in tmd_base.prim + object offset
 	r_steps = []; //tracks rotation steps from edit_write to prevent warping
 	r_cx = []; //centerX points of r_steps
 	r_cy = []; //centerY points of r_steps
@@ -111,6 +114,7 @@ function Primitive(_rgb_off = 0, _pad = 0, _t_disable = 0, _c_mode = 0, _t_mode 
 	clut_x = _clut_x;
 	clut_y = _clut_y;
 	
+	
 	page_x = _page_x;       //0bxxxx xxxx xxxx 1111// page_x + (16 * page_y) = page number or page_x * 64 = page x
 	page_y = _page_y;       //0bxxxx xxxx xxx1 xxxx// page_y base = page_y * 256;
 	t_mode = _t_mode;       //0bxxxx xxxx x11x xxxx// transparency mode
@@ -122,6 +126,9 @@ function Primitive(_rgb_off = 0, _pad = 0, _t_disable = 0, _c_mode = 0, _t_mode 
 	rgb_off = _rgb_off;
 	norm = []; // 3 or 4 x u16
 	vert = []; //Vertex(_pad,_vz,_vy,_vz)
+	vert_final = []; //Vertex Index + offset from Object header
+	norm_final = []; //Normal Index + offset from Object header
+	dupe_v = []; //indices of faces that share every single vertex with this primitive
 	ax = 0; // vertx average for depth sorting
 	az = 0; // vertz average for depth sorting
 }
@@ -143,13 +150,16 @@ function Vertex_Color(_pad, _blue, _green, _red) constructor{
 	b = _blue; //u8
 	pad = _pad; //u8
 }
-function packet_TrRo(_rz = 0, _ry = 0, _rx = 0, _tz = 0, _ty = 0, _tx = 0) constructor{
+function packet_TrRo( _sz = 1, _sy = 1, _sx = 1, _rz = 0, _ry = 0, _rx = 0, _tz = 0, _ty = 0, _tx = 0) constructor{
 	tx = _tx; //s16
 	ty = _ty; //s16
 	tz = _tz; //s16
 	rx = _rx; //s16 4096 = 360/0 degrees
 	ry = _ry; //s16
 	rz = _rz; //s16
+	sx = _sx; //s16
+	sy = _sy; //s16
+	sz = _sz; //s16
 }
 filename_input = get_open_filename_ext("MRDX MM_ Files|*.mmj;*.mmx", "", "","Open MRDX MMJ/MMX File");
 
@@ -237,8 +247,8 @@ else{
 			primitive.ilen = buffer_read(mm0_base_buffer, buffer_u8);
 			primitive.flag = buffer_read(mm0_base_buffer, buffer_u8);
 			var CMD = buffer_read(mm0_base_buffer, buffer_u8);
-			
-			
+			n_index = (tmd_base.objects[j].normal_off - tmd_base.objects[0].normal_off) / 8;
+			v_index = (tmd_base.objects[j].vert_off - tmd_base.objects[0].vert_off) / 8;
 			
 			primitive.p_id = i;
 			primitive.p_index = i + primbase;
@@ -261,7 +271,8 @@ else{
 				array_push(primitive.tex_y, buffer_read(mm0_base_buffer, buffer_u8));
 				clut = buffer_read(mm0_base_buffer, buffer_u16);
 				primitive.clut_x = clut & 0b111111;
-				primitive.clut_y = (clut >> 6) & 0b111111111;
+				primitive.clut_y = (clut >> 6) & 0b1_1111_1111;
+				primitive.mbyte = (clut >> 15);
 				
 				array_push(primitive.tex_x, buffer_read(mm0_base_buffer, buffer_u8));
 				array_push(primitive.tex_y, buffer_read(mm0_base_buffer, buffer_u8));
@@ -327,14 +338,15 @@ else{
 						array_push(primitive.colors, vert_rgb);
 					}
 					repeat (3){
-						v_read = buffer_read(mm0_base_buffer, buffer_u16);
-						array_push(primitive.vert, v_read);
-						array_push(v_ind, v_read);
+						vert_read = buffer_read(mm0_base_buffer, buffer_u16);
+						array_push(primitive.vert, vert_read);
+						array_push(primitive.vert_final, vert_read + v_index);
 						d++;
 					}
 					if (d % 2){
 						buffer_read(mm0_base_buffer, buffer_u16); //padding
 					}
+					
 				}
 				else{
 					buffer_read(mm0_base_buffer, buffer_u16); //padding
@@ -344,10 +356,13 @@ else{
 						buffer_read(mm0_base_buffer, buffer_u16); //padding
 					}
 					repeat (3 + p_poly_vert){
-						array_push(primitive.norm, buffer_read(mm0_base_buffer, buffer_u16));
-						v_read = buffer_read(mm0_base_buffer, buffer_u16);
-						array_push(primitive.vert, v_read);
-						array_push(v_ind, v_read);
+						norm_read = buffer_read(mm0_base_buffer, buffer_u16);
+						array_push(primitive.norm, norm_read);
+						array_push(primitive.norm_final, norm_read + n_index);
+						
+						vert_read = buffer_read(mm0_base_buffer, buffer_u16);
+						array_push(primitive.vert, vert_read);
+						array_push(primitive.vert_final, vert_read + v_index);
 					}
 				}
 			}
@@ -358,99 +373,59 @@ else{
 				y_total += primitive.tex_y[b];
 			}
 			primitive.center_xy = [round((x_total / array_length(primitive.tex_x))), round((y_total / array_length(primitive.tex_y)))];
-			#region Duplicate Search [Disabled]
-			//Note: doesn't work as expected in this iteration
-			//	- found no duplicates in mk_mk(ghost)
-			if (false){
-				for (var v1 = 0; v1 < array_length(v_list); v1++){
-					not_found = false;
-					for (var v2 = 0; v2 < array_length(v_ind); v2++){
-						if (array_contains(v_list[v1], v_ind[v2])){
-							//do nothing intentionally
-						}
-						else{
-							not_found = true;
-							break;
-						}
-					}
-					if !(not_found){
-						primitive.shared_vert = true;
-						show_debug_message("[Testing]:Duplicate Found");
-					}
-				}
-				v_list[i] = v_ind;
-			}
-			#endregion
+
 			array_push(tmd_base.prim, primitive);
 		}
 	}
-	
+	dupe_count = 0;
+	for (var a = 0; a < array_length(tmd_base.prim); a++){
+		a_list = tmd_base.prim[a].vert;
+		for (var b = a + 1; b < array_length(tmd_base.prim); b++){
+			b_list = tmd_base.prim[b].vert;
+			found = true;
+			for (var c = 0; c < array_length(b_list); c++){
+				if (array_contains(a_list, b_list[c])){
+					pass = 1;
+				}
+				else {
+					found = false;
+					break;
+				}
+			}
+			if (found){
+				dupe_count++;
+				show_debug_message("[Testing]:# of Duplicates Found:{0}", dupe_count);
+				show_debug_message("[Testing]:Duplicate Prim Index:a:{0}", a);
+				show_debug_message("[Testing]:Duplicate Prim Index:b:{0}", b);
+				array_push(tmd_base.duplicates, [tmd_base.prim[a].p_index, tmd_base.prim[b].p_index]);
+			}
+		}
+		
+	}
 	//buffer_seek(mm0_base_buffer, buffer_seek_start, primbase + 1);
-	vert_total = (tmd_base.objects[0].normal_off - tmd_base.objects[0].vert_off) / 4;
+	vert_total = (tmd_base.objects[0].normal_off - tmd_base.objects[0].vert_off) / 8;
+	last_object = array_length(tmd_base.objects) - 1;
+	norm_total = ((tmd_base.objects[0].scale - 12) - tmd_base.objects[0].normal_off) / 8;
 	v_list = [];
-	for(var a = 0; a < (vert_total * 4); a += 8){
+	for(var a = 0; a < (vert_total * 8); a += 8){
 		vx = buffer_read(mm0_base_buffer, buffer_s16);
 		vy =  buffer_read(mm0_base_buffer, buffer_s16);
 		vz = buffer_read(mm0_base_buffer, buffer_s16);
 		pad = buffer_read(mm0_base_buffer, buffer_s16);
 		vertex = new Vertex(pad, vz, vy, vx);
 		array_push(tmd_base.vert, vertex);
-		#region Duplicate Search [Disabled]
-		//Note: Wont work, currently searchs for duplicate coords of single verts
-		if (false){
-			v_ind = [vx, vy, vz];
-			for (var v1 = 0; v1 < array_length(v_list); v1++){
-				not_found = false;
-				for (var v2 = 0; v2 < array_length(v_ind); v2++){
-					if (array_contains(v_list[v1], v_ind[v2])){
-						//do nothing intentionally
-					}
-					else{
-						not_found = true;
-						break;
-					}
-				}
-				if !(not_found){
-					primitive.shared_vert = true;
-					show_debug_message("[Testing]:Duplicate Found");
-				}
-			}
-			array_push(v_list, v_ind);
-		}
-		#endregion
 	}
-	for(var a = 0; a < (vert_total * 4); a += 8){
-		normal_test = 0;
-		n_test_array = [];
-		nx = buffer_read(mm0_base_buffer, buffer_s16);
-		array_push(n_test_array, (nx >> 15) & 0b1);
-		array_push(n_test_array, (nx >> 12) & 0b111);
-		array_push(n_test_array, nx & 0b1111_1111_1111);
-		if ((nx & ~32768) > 4096){
-			normal_test = 1;
-			
-		}
-		ny =  buffer_read(mm0_base_buffer, buffer_s16);
-		array_push(n_test_array, (ny >> 15) & 0b1);
-		array_push(n_test_array, (ny >> 12) & 0b111);
-		array_push(n_test_array, ny & 0b1111_1111_1111);
-		if ((ny & ~32768) > 4096){
-			normal_test = 1;
-		}
-		nz = buffer_read(mm0_base_buffer, buffer_s16);
-		array_push(n_test_array, (nz >> 15) & 0b1);
-		array_push(n_test_array, (nz >> 12) & 0b111);
-		array_push(n_test_array, nz & 0b1111_1111_1111);
-		if ((nz & ~32768) > 4096){
-			normal_test = 1;
-		}
-		pad = buffer_read(mm0_base_buffer, buffer_s16);
+	for(var a = 0; a < (norm_total * 8); a += 8){
+
+		nx = buffer_read(mm0_base_buffer, buffer_u16);
+		ny =  buffer_read(mm0_base_buffer, buffer_u16);
+		nz = buffer_read(mm0_base_buffer, buffer_u16);
+		pad = buffer_read(mm0_base_buffer, buffer_u16);
+		
 		normal = new Normal(pad, nz, ny, nx);
 		array_push(tmd_base.norm, normal);
-		if (normal_test == 1){
-			show_message(string(normal) + "\n" + string(n_test_array));
-		}
 	}
+	tmd_base.mmj = false;
 	tmd_base.tmd_size = tmd_base.objects[0].scale;
 	check = buffer_peek(mm0_base_buffer, tmd_base.tmd_size + tmd_base.mm0header.pointer[1], buffer_u16);
 	animation_pointer = tmd_base.tmd_size + tmd_base.mm0header.pointer[1];
@@ -458,6 +433,7 @@ else{
 	//Animation data collection
 	buffer_seek(mm0_base_buffer, 0, animation_pointer);
 	if (check == 4){ //check for MMJ position ID
+		tmd_base.mmj = true;
 		repeat (8){
 			array_push(tmd_base.final, buffer_read(mm0_base_buffer, buffer_u32));
 		}
@@ -469,6 +445,7 @@ else{
 		packet_num = (packet_data_end - packet_data_start) / 12;
 		for (var a = 0; a < packet_num; a++){
 			packet_data_in = new packet_TrRo(
+				0,0,0,
 				buffer_read(mm0_base_buffer, buffer_s16), //tx
 				buffer_read(mm0_base_buffer, buffer_s16), //ty
 				buffer_read(mm0_base_buffer, buffer_s16), //tz
@@ -477,8 +454,8 @@ else{
 				buffer_read(mm0_base_buffer, buffer_s16) //rz
 			)
 			array_push(tmd_base.packet_data, packet_data_in);
-		}
-	}
+		}		
+	}	
 	else{
 		packet_data_in = new packet_TrRo(0, 0, 0, 0, 0, 0);
 		array_push(tmd_base.packet_data, packet_data_in);
@@ -501,7 +478,8 @@ for (var a = 0; a < array_length(tmd_base.objects); a++){ //Verts with TrRo pack
 				tmd_draw.vert[v_index].vz = tmd_base.vert[v_index].vz + tmd_draw.packet_data[a].tz;
 			}
 		}
-
 	}
 }
 tmd_edit = variable_clone(tmd_draw);
+tmd_reverse = variable_clone(tmd_draw);
+tmd_reverse.prim = array_reverse(tmd_reverse.prim);

@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"str_obj_norm_Backup_09_12_2026",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"str_obj_norm_Backup_09_12_2026",
+  "parent":{
+    "name":"OBJ",
+    "path":"folders/Scripts/OBJ.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

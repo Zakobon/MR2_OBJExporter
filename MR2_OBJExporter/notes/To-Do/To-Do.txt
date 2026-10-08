@@ -8,12 +8,48 @@
 [] Write Changelist
 \\-------------------------//
 
+- [Bug] Preview Bit Mode buttons are enabled even if that page has nothing on it
+	= Cause by loading a TEX file after already having Ghost's loaded
+	
+||=============||
+||Version 1.6.1|| bugfix
+||=============||
+
+//Release Checklist\\
++ [Fixed] MMJ Exported OBJ has messed scrambled faces and incorrectly placed vertices
+	= Disabling the code for duplicates [export_obj: line 407] fixed the faces, but has no affect on vertex position
+	= Running export_obj messes with the data in tmd_edit...
+		= Extra norms, verts and prims are added. 
+		= A few verts in object 0 get their Y coored increased
+	= Solution might just be to handle the polygon reversing in GetModel instead and assign it to a global tmd_reverse
+
++ [Fixed(Kinda)]Duplicate Polygons missing
+	= reversing primitive list didn't fix the issue
+	= modifying the order of object groups did "fix" it
+		= Still deletes a polygon, but it's the one that isn't used in anything
+		= Fix will be just creating a followup section of groups that contain only the primary polygons in the duplicate set
+
++ [Fixed] Polygon face direction is correct on export now
+	= This is what cause models to look weird when importing into Blender
+		= I can now remove the "recalculate normals" instructions that were in the top right corner
+		
+[Done] Write Changelist
+\\-------------------------//
+
 /Currently Doing\
--UV Export
++ [Fixed(Kinda)]Duplicate Polygons missing
+	= reversing primitive list didn't fix the issue
+	= modifying the order of object groups did "fix" it
+		= Still deletes a polygon, but it's the one that isn't used in anything
+		= Fix will be just creating a followup section of groups that contain only the primary polygons in the duplicate set
+
+- UV Export
 	+/- create button
 		+ [Done] create drop down menu
 		- attach export code to respective buttons
-- Clut Preview displays when no TEX file is imported
+		
++ Clut Preview displays when no TEX file is imported
+	= Not really an issue as it doesn't look bad displaying the default flat's CLUTs
 		^^Left off here^^
 		
 	+ [Done] draw prims to surface(2048, 256) and create sprite
@@ -33,18 +69,31 @@
 - [issue] forgot to add grid lines to the grid mode...
 
 - create help/info panel with toggle
+	= Place in top right corner?
+
 - implement a flat color mode?
 	+ [Done] create rgb and CLUT data for flat colors
 	- draw rectangles to a 2048x256 surface and slice into pages for png export
 		- include black borders
-	- finish tex_builder implementation
+	- finish tex_builder version for flats
 	- create button
 		= if I wait till after ver 1.6.0, I can switch import/export buttons over to drop down menus
 		
 - investigate options for primitives that ignore light calculations in OBJ export 
+	= Maybe an emission mask?
 
+- TIMBuilder compatability?
+	- TIMBuilder orders TIMs by the order they appear in file
+	- "Slots" are sized by the largest width and height found amoung the TIMs
+	- Number of columns/rows are >ceil(sqrt(# of TIMs))
 \---------------/
-
++ [Fixed] Face direction is correct on export now
+	= This is what cause models to look weird when importing into Blender
+		= I can now remove the "recalculate normals" instructions that were in the top right corner
+		
++ [Fixed?] Normals [Disabled for now]
+	= Still looks weird, like it ~90% correct
+		= But that missing 10% matters
 
 ||=============||
 ||Version 1.6.0|| Ready for release
