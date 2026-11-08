@@ -28,74 +28,72 @@ var vram31_8bit_button_toggle = variable_instance_get(vram31_8bit_button, "toggl
 #endregion
 
 
-if (instance_exists(ImportTIM)){
-	check28_4bit = false; //Flag: True if 4bit or 8bit is found
-	check29_4bit = false;
-	check30_4bit = false;
-	check31_4bit = false;
-	
-	check28_8bit = false; //Flag: True if 4bit or 8bit is found
-	check29_8bit = false;
-	check30_8bit = false;
-	check31_8bit = false;
+if (instance_exists(ImportTIM)){	
 	
 	#region 4bit/8bit button enable checks
-	if (draw_check28_4bit == true || prim_check28_4bit == true){
+	if (draw_check28_4bit == true){
 		variable_instance_set(vram28_4bit_button, "enable", 1);
 		check28_4bit = true;
 	}
 	else{
 		variable_instance_set(vram28_4bit_button, "enable", 0);
+		check30_4bit = false;
 	}
-	if (draw_check29_4bit == true || prim_check29_4bit == true){
+	if (draw_check29_4bit == true){
 		variable_instance_set(vram29_4bit_button, "enable", 1);
 		check29_4bit = true;
 	}
 	else{
 		variable_instance_set(vram29_4bit_button, "enable", 0);
+		check30_4bit = false;
 	}
-	if (draw_check30_4bit == true || prim_check30_4bit == true){
+	if (draw_check30_4bit == true){
 		variable_instance_set(vram30_4bit_button, "enable", 1);
 		check30_4bit = true;
 	}
 	else{
 		variable_instance_set(vram30_4bit_button, "enable", 0);
+		check30_4bit = false;
 	}
-	if (draw_check31_4bit == true || prim_check31_4bit == true){
+	if (draw_check31_4bit == true){
 		variable_instance_set(vram31_4bit_button, "enable", 1);
 		check31_4bit = true;
 	}
 	else{
 		variable_instance_set(vram31_4bit_button, "enable", 0);
+		check31_4bit = false;
 	}
 	
-	if (draw_check28_8bit == true || prim_check28_8bit == true){
+	if (draw_check28_8bit == true){
 		variable_instance_set(vram28_8bit_button, "enable", 1);
 		check28_8bit = true;
 	}
 	else{
 		variable_instance_set(vram28_8bit_button, "enable", 0);
 	}
-	if (draw_check29_8bit == true || prim_check29_8bit == true){
+	if (draw_check29_8bit == true){
 		variable_instance_set(vram29_8bit_button, "enable", 1);	
 		check29_8bit = true;
 	}
 	else{
 		variable_instance_set(vram29_8bit_button, "enable", 0);
+		check29_8bit = false;
 	}
-	if (draw_check30_8bit == true || prim_check30_8bit == true){
+	if (draw_check30_8bit == true){
 		variable_instance_set(vram30_8bit_button, "enable", 1);
 		check30_8bit = true;
 	}
 	else{
 		variable_instance_set(vram30_8bit_button, "enable", 0);
+		check30_8bit = false;
 	}
-	if (draw_check31_8bit == true || prim_check31_8bit == true){
+	if (draw_check31_8bit == true){
 		variable_instance_set(vram31_8bit_button, "enable", 1);
 		check31_8bit = true;
 	}
 	else{
 		variable_instance_set(vram31_8bit_button, "enable", 0);
+		check31_8bit = false;
 	}
 	#endregion
 	
@@ -130,7 +128,6 @@ if (instance_exists(ImportTIM)){
 	#endregion
 }
 
-
 #region Transparency Controls [Disabled]
 //if (ds_list_size(tim_list) != 0){
 //	variable_instance_set(semi_transparency, "enable", 1);
@@ -152,7 +149,6 @@ if (instance_exists(ImportTIM)){
 //	draw_refresh = 1;
 //}
 #endregion
-
 
 #region View Bit Controls
 if (vram28_4bit_button_active == 1 || vram28_8bit_button_active == 1){

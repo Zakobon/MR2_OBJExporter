@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"export_timb_todo",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"export_timb_todo",
+  "parent":{
+    "name":"OBJ",
+    "path":"folders/Scripts/OBJ.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

@@ -1,3 +1,3 @@
-for (var a = 0; a < array_length(option_array);a++){
-	array_push(menu.button, new option(option_array[a]));
+for (var a = 0; a < array_length(button_array);a++){
+	array_push(menu.button, new option(button_array[a]));
 }

@@ -1,4 +1,4 @@
-var export_menu_active = variable_instance_get(export_menu, "active");
+var menu_button_active = variable_instance_get(menu_button, "active");
 
 if (menu.draw == true){
 	if (mouse_check_button_pressed(mb_left) == true){
@@ -8,7 +8,8 @@ if (menu.draw == true){
 			y_off = (h_off) + (a * 2) + 26;
 			y_bound = mouse_y >= y + y_off && mouse_y < y + y_off + menu.button[a].h;
 			if (y_bound == true && x_bound == true){
-				show_debug_message(string("{0}: active", menu.button[a].display))
+				selection = a;
+				show_debug_message(string("{0}: active", menu.button[selection].display))
 			}
 		}
 		menu.draw = false;
@@ -16,14 +17,14 @@ if (menu.draw == true){
 	}
 }
 
-if (export_menu_active == 1){
-	variable_instance_set(export_menu, "active", 0);
-	button_lock = true;
+if (menu_button_active == 1){
+	variable_instance_set(menu_button, "active", 0);
+	//button_lock = true;
 	mouse_clear(mb_left);
 	toggle = true;
 	if (menu.draw == true){
 		menu.draw = false;
-		button_lock = false;
+		//button_lock = false;
 		exit;
 	}
 	if (alarm[2] == -1){

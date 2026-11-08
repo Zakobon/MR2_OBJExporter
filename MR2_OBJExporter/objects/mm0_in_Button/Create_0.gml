@@ -11,8 +11,9 @@ globalvar fname_mm0;
 fname_mm0 = "";
 globalvar ui_name_mm0;
 ui_name_mm0 = "None";
-globalvar filepath;
-filepath = "";
+
+globalvar mm0_hash;
+mm0_hash = -1;
 
 #region Prim Check Variables
 globalvar prim_check28_4bit;

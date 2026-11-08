@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"timb_tim",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"timb_tim",
+  "parent":{
+    "name":"TIMBuilder",
+    "path":"folders/Scripts/OBJ/TIMBuilder.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

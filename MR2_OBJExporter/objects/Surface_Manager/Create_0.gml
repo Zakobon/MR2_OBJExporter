@@ -6,7 +6,8 @@ surf = -1;
 t_mode = ["opaque", "semi-transparent"];
 bit_string = ["_4Bit","_8Bit"];
 grid_string = ["","G"];
-
+grid_x = 0;
+grid_y = 0;
 m_offset = 0; //offset for mod in the color index calculations
 
 
@@ -27,6 +28,9 @@ prim_sprites = [[false,-1], [false,-1], [false,-1], [false,-1], [false,-1], [fal
 
 globalvar prim_refresh;
 prim_refresh = true;
+
+globalvar tim_select;
+tim_select = 0;
 
 globalvar g_pattern;
 g_pattern = {

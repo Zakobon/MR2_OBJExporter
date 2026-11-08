@@ -15,8 +15,12 @@ clut_sprite = -1;
 
 globalvar png_out_success;
 png_out_success = false;
+
+globalvar tex_hash;
+tex_hash = -1;
 //image_xscale = 4.2;
 huh = ["", " ...you're just saving the same file over itself...", " ?", " ???", " why?"]
+
 //ARAGON16 PALETTE
 //Created by Space-AgeWrangler
 //https://lospec.com/palette-list/aragon16

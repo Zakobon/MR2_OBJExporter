@@ -1294,13 +1294,13 @@ function export_obj_Backup_08_28_2026(){
 	array_push(obj_string_array, string("# {0} triangles total", triangle_total));	
 	#endregion
 	//export_path = get_save_filename_ext("Wavefront OBJ|*.obj", fname_mm0, "","Save OBJ File");
-	//export_path = variable_clone(user_filepath);
+	//export_path = variable_clone(adv_options.user_path);
 	#region OBJ File Export
 	for (var a = 0; a < array_length(obj_string_array); a++){
 		buffer_write(objbuffer, buffer_text, obj_string_array[a]);
 	}
-	export_path_obj = string("{0}{1}.obj", user_filepath, fname_mm0);
-	export_path_mtl = string("{0}{1}.mtl", user_filepath, fname_mm0);
+	export_path_obj = string("{0}{1}.obj", adv_options.user_path, fname_mm0);
+	export_path_mtl = string("{0}{1}.mtl", adv_options.user_path, fname_mm0);
 	buffer_save(objbuffer, export_path_obj);
 	#endregion
 	#region MTL File Creation

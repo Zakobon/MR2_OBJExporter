@@ -1,16 +1,77 @@
 -------------------[to-do]-------------------
-||=============||
-||Version 1.7.0|| Planning
-||=============||
-
 //Release Checklist\\
 []
 [] Write Changelist
-\\-------------------------//
+\\-----------------//
 
-- [Bug] Preview Bit Mode buttons are enabled even if that page has nothing on it
-	= Cause by loading a TEX file after already having Ghost's loaded
+- [Feature] Pattern CLUT based on CLUT X/Y instead of TIM Index
+	- Need to draw the original white sprite templates as those CLUT values
+	- New TEX export script?
 	
+- [Feature] Info panel
+	= Top right corner
+	= Give descriptions and tips for this the mouse hovers over
+	= Button to disable it
+
+- [Feature] TIM Palette Identification
+	= Currently no way for users to know which TIM uses which palette
+		= No easy way for 4-bit & 8-bit identification either
+	= Maybe option to export TIMs as flat rectangles, color coded by their Palette ID?
+		= Can expand exported PNGs to include a small "key" section at the bottom/top
+		= Or just a smaller color coded "Map" that contains a "Key" with mini-TIM rectangles?
+			= Current size is (256 x 256) * 8, smallest TIM I think was either 4x4 or 8x8
+				= So I can shrink the pages down to 25% at least, so:
+				2 Rows of 4 * (64 x 64)
+				or
+				256 x 128(+key/data section)
+
+- [Bug] Default CLUT surface still exists after importing TEX
+	= most likely is still being drawn under new CLUT sprite
+
+<<Currently doing>>
+
+||=============||
+||Version 1.7.0|| Ready for release
+||=============||
+
++ TIMBuilder_out_Button
+	+ [Done] timb_tmd creation
+	+/- Next step is to build the timb_sprite, then update prim.tex_x/y with new origins
+		+ [Done] prim offsets updated maybe?
+		+ [Done] build new sprite when VRAM sprites are made
+			- [Bug] Semi-Transparent TIMs in file have different color values?
+				= Might delay fixing, the color values are off by a tiny amount and the fix could
+				add another day to the release date. GameMaker's blending confuses me. 
+				= Has to be caused by GameMaker's blend equation?
+					= Maybe try drawing the TIMs without alpha, then apply a alpha "mask"
+						= Disable RGB when applying mask, of course
+				= Plus: Shouldn't draw the Black squares due to Blender use and blending messing up colors
+			= [Note] TIMBuilder uses higher Alpha values [.937]
+				= OBJExport uses lower values for use in Blender [.486]
+		+ [Fixed] Ghost is missing UV's for some parts?
+			= Looks like it happens in the last release too
+			= Affects both the 4-bit and 8-bit card textures
+			= Happens in both OBJ and TIMB exports
+				=? [Tested:Yes] Maybe an issue with duplicate prims skipping them?
+		+ [Done] Need to make contents of Object.TIMBuilder_out_Button available as a script
+			+ [Done] run it from OBJ_out_Button, before running export_timb()		
+		+ [Done] Implement patterns with TIMBuilder mode			
+			
++ [Fixed] Pixie ka_ka missing chest prims
+	= They're duplicate Prims
+		= Wasn't an issue before reversing face order
+
++ [Done] Need to decide on a way to toggle between VRAM and TIMBuilder exports
+	= Could try dropdown menu maybe?
+
+
+	
++ [Fixed] Preview Bit Mode buttons are enabled even if that page has nothing on it
+	= Reproduce by loading a TEX file after already having Ghost's loaded
+
+= [Tested:No] Add Emmision values/option to Blender mtl Exports for improved visibility?
+	= Result inconsistent and could complicate painting/color accuracy for users in Blender
+				
 ||=============||
 ||Version 1.6.1|| bugfix
 ||=============||
@@ -20,7 +81,7 @@
 	= Disabling the code for duplicates [export_obj: line 407] fixed the faces, but has no affect on vertex position
 	= Running export_obj messes with the data in tmd_edit...
 		= Extra norms, verts and prims are added. 
-		= A few verts in object 0 get their Y coored increased
+		= A few verts in object 0 get their Y coord increased
 	= Solution might just be to handle the polygon reversing in GetModel instead and assign it to a global tmd_reverse
 
 + [Fixed(Kinda)]Duplicate Polygons missing
@@ -31,7 +92,6 @@
 
 + [Fixed] Polygon face direction is correct on export now
 	= This is what cause models to look weird when importing into Blender
-		= I can now remove the "recalculate normals" instructions that were in the top right corner
 		
 [Done] Write Changelist
 \\-------------------------//

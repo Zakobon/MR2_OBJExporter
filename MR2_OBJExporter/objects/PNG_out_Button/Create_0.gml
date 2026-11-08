@@ -1,3 +1,5 @@
+surf = -1;
+
 globalvar ui_name_tex;
 ui_name_tex = "None";
 globalvar tex_buffer;

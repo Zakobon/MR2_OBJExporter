@@ -6,7 +6,7 @@ tmd_edit_buffer = -1; //Export buffer
 p_index = 0; //counter to keep track of where an object's primitives start from
 offset = 0;
 v_list = []; //array[array] holds vert indices to seach for duplicate faces
-
+skip_dupe = false;
 tmd_base = { //Original data, do not edit
 	id : 0,
 	mmj : false, //MMJ filetype flag
@@ -168,6 +168,7 @@ if (filename_input != "") {
 	base_tag = string_copy(file_destination, string_length(file_destination) - 4, 5);
 	new_tag = string_delete(base_tag, 0, 1);
     mm0_base_buffer = buffer_load(filename_input);
+	mm0_hash = variable_get_hash(mm0_base_buffer);
     buffer_seek(mm0_base_buffer, buffer_seek_start, 0);
 	filename_array = string_split(filename_input, "\\");
 	ui_name_mm0 = filename_array[array_length(filename_array) - 1];
@@ -239,6 +240,7 @@ else{
 			primitive = new Primitive();
 			array_push(v_list, []);
 			v_ind = [];
+			
 			
 			buffer_seek(mm0_base_buffer, buffer_seek_relative, tmd_base.prim_offset);
 			
@@ -372,6 +374,9 @@ else{
 				x_total += primitive.tex_x[b];
 				y_total += primitive.tex_y[b];
 			}
+			if (array_length(primitive.tex_x) == 4){
+				skip_dupe = true;
+			}
 			primitive.center_xy = [round((x_total / array_length(primitive.tex_x))), round((y_total / array_length(primitive.tex_y)))];
 
 			array_push(tmd_base.prim, primitive);
@@ -380,6 +385,9 @@ else{
 	dupe_count = 0;
 	for (var a = 0; a < array_length(tmd_base.prim); a++){
 		a_list = tmd_base.prim[a].vert;
+		if (skip_dupe = true){
+			break;
+		}
 		for (var b = a + 1; b < array_length(tmd_base.prim); b++){
 			b_list = tmd_base.prim[b].vert;
 			found = true;

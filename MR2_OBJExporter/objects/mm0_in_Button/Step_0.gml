@@ -8,7 +8,7 @@ if (Import_MM0 == 1){
 			vram29 : 0,
 			vram30 : 0,
 			vram31 : 0,
-		}
+		}	
 		instance_create_layer(0, 0, "Vertex_Draw", GetModel);
 	}
 	else{
@@ -21,14 +21,15 @@ if (Import_MM0 == 1){
 	png_out_success = 0;
 	png_duplicate = 0;
 	
-	if (user_filepath_given == false){
-		if (filepath == ""){
-			filepath = "";
+	if (adv_options.user_path_flag == false){
+		if (adv_options.filepath == ""){
+			adv_options.filepath = "";
 			for (var a = 0; a < array_length(filename_array) - 1;a++){
-				filepath = string_insert(string(filename_array[a] + "\\"), filepath, string_length(filepath) + 1);
+				adv_options.filepath = string_insert(string(filename_array[a] + "\\"), adv_options.filepath, string_length(adv_options.filepath) + 1);
 			}
-			user_filepath = variable_clone(filepath);
+			adv_options.user_path = variable_clone(adv_options.filepath);
 		}
 	}
+	
 	variable_instance_set(Visibility_UI, "update", true);
 }

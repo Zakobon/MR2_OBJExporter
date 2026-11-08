@@ -1,7 +1,7 @@
-if (instance_exists(ImportTIM)){
-	exit;
+if (create == false){
+	variable_instance_set(menu_button, "display", string(display));
+	create = true;
 }
-
 exit;
 if (create == 0){
 	create = 1;

@@ -168,7 +168,7 @@ switch (reverse){
 line_color = make_colour_hsv(0, 0, timer_color);
 fill_color = make_colour_hsv(0, 0, (timer_color * .25));
 if (instance_exists(GetModel)){
-	tmd_prim_draw(tmd_edit.prim, 0, array_length(tmd_edit.prim), line_color, fill_color);
+	tmd_prim_draw(tmd_edit.prim, 0, array_length(tmd_edit.prim), line_color, fill_color, c_black, 1);
 }
 #endregion
 

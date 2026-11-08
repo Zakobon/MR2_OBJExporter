@@ -195,8 +195,9 @@
 /// TEX File must also be imported to properly link the PNGs in the MTL file. 
 
 function export_obj(){
-	quad_split = true;
-	test_count = 0;
+	var norm_flag = adv_options.normals;
+	var quad_split = adv_options.quad_split;
+
 	bit_string = ["_4Bit","_8Bit"];
 	grid_string = ["","G"];
 	objbuffer = buffer_create(0, buffer_grow, 1);
@@ -205,13 +206,25 @@ function export_obj(){
 	mtllib = [mtllib_string];
 	obj_string_array = [];
 	mtl_string_array = [];
+	var obj_tmd = -1; //tmd struct
+	
+	//MMX/MMJ check
+	//This is a fix for the duplicate/erased prims issue
+	switch(array_length(tmd_edit.objects)){
+		case 0://MMX
+		obj_tmd = variable_clone(tmd_reverse);
+		break;
+		default://MMJ
+		obj_tmd = variable_clone(tmd_edit);
+		break;
+	}
 	
 	#region Functions
 	/// @desc Fills obj_string_array with the vt field(UV) of a supplied primitive
 	/// @arg {Asset.Primitive} _prim Target prim that will supply the UV data
 	function vt_write(_prim) {
 		for (var b = 0; b < array_length(_prim.tex_x); b++){
-			array_push(obj_string_array, string("vt 0.{0} 0.{1}", convert_xy_uv(_prim.tex_x[b]), convert_xy_uv(_prim.tex_y[b], 1)) + "\n");
+			array_push(obj_string_array, string("vt {0} {1}", convert_xy_uv(_prim.tex_x[b], 256, false), convert_xy_uv(_prim.tex_y[b], 256, true)) + "\n");
 			vt_count++;
 			if (b == 3){
 				quad_count++;
@@ -250,17 +263,17 @@ function export_obj(){
 	};
 
 	//add duplicate primitive's data so Blender doesn't overwrite it
-	for (var a = 0; a < array_length(tmd_base.duplicates); a++){
-		var dupe_prim = tmd_edit.prim[tmd_base.duplicates[a][0]];
+	for (var a = 0; a < array_length(obj_tmd.duplicates); a++){
+		var dupe_prim = obj_tmd.prim[obj_tmd.duplicates[a][0]];
 		array_push(tmd_duplicates.prim, dupe_prim);
 		for (var b = 0; b < array_length(dupe_prim.vert); b++){
-			var new_vert = tmd_edit.vert[dupe_prim.vert[b]]
+			var new_vert = obj_tmd.vert[dupe_prim.vert[b]]
 			new_vert.vz--;
 			array_push(tmd_duplicates.vert, new_vert);
 			tmd_duplicates.prim[a].vert[b] = a;
 		}
 		for (var b = 0; b < array_length(dupe_prim.norm); b++){
-			var new_norm = tmd_edit.norm[dupe_prim.norm[b]]
+			var new_norm = obj_tmd.norm[dupe_prim.norm[b]]
 			new_norm.nz -= 1;
 			array_push(tmd_duplicates.norm, new_norm);
 			tmd_duplicates.prim[a].norm[b] = a;
@@ -295,27 +308,27 @@ function export_obj(){
 	array_push(obj_string_array, "\n");
 	#endregion
 	#region Vertec Coordinate Section
-	if(array_length(tmd_reverse.vert) > 0){
-		for (var a = 0; a < array_length(tmd_reverse.vert); a++){
-			//array_push(obj_string_array, string("v {0}.000000 {1}.000000 {2}.000000", tmd_reverse.vert[a].vx, ~tmd_reverse.vert[a].vy + 1, tmd_reverse.vert[a].vz) + "\n");
-			array_push(obj_string_array, string("v {0} {1} {2}", str_obj_vert(-tmd_reverse.vert[a].vx), str_obj_vert(-tmd_reverse.vert[a].vy), str_obj_vert(tmd_reverse.vert[a].vz)) + "\n");
+	if(array_length(obj_tmd.vert) > 0){
+		for (var a = 0; a < array_length(obj_tmd.vert); a++){
+			//array_push(obj_string_array, string("v {0}.000000 {1}.000000 {2}.000000", obj_tmd.vert[a].vx, ~obj_tmd.vert[a].vy + 1, obj_tmd.vert[a].vz) + "\n");
+			array_push(obj_string_array, string("v {0} {1} {2}", str_obj_vert(-obj_tmd.vert[a].vx), str_obj_vert(-obj_tmd.vert[a].vy), str_obj_vert(obj_tmd.vert[a].vz)) + "\n");
 		}
 	}
 	//default for no verts
 	else {array_push(obj_string_array, string("v 0.000000 0.000000 0.000000") + "\n");}
 	//comment with vert count
-	array_push(obj_string_array, string("# {0} vertices", array_length(tmd_reverse.vert)) + "\n");
+	array_push(obj_string_array, string("# {0} vertices", array_length(obj_tmd.vert)) + "\n");
 	array_push(obj_string_array, "\n");
 	#endregion
-	#region Vertex + Normals Section
+	#region Normals Section
 	n_count = 0;
-	if(array_length(tmd_reverse.norm) > 0){ 
-		for (var a = 0; a < array_length(tmd_reverse.norm); a++){
+	if(array_length(obj_tmd.norm) > 0){ 
+		for (var a = 0; a < array_length(obj_tmd.norm); a++){
 			//testing//
 			n_count++;
-			array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(tmd_reverse.norm[a].nx, true), str_obj_norm(tmd_reverse.norm[a].ny, true), str_obj_norm(tmd_reverse.norm[a].nz, false)) + "\n");
-			//array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(tmd_reverse.norm[a].nx, false), str_obj_norm(tmd_reverse.norm[a].ny, false), str_obj_norm(tmd_reverse.norm[a].nz, false)) + "\n");
-			//array_push(obj_string_array, string("vn {0} {1} {2}", string(tmd_reverse.norm[a].nx), string(tmd_reverse.norm[a].ny), string(tmd_reverse.norm[a].nz)) + "\n");
+			array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(obj_tmd.norm[a].nx, true), str_obj_norm(obj_tmd.norm[a].ny, true), str_obj_norm(obj_tmd.norm[a].nz, false)) + "\n");
+			//array_push(obj_string_array, string("vn {0} {1} {2}", str_obj_norm(obj_tmd.norm[a].nx, false), str_obj_norm(obj_tmd.norm[a].ny, false), str_obj_norm(obj_tmd.norm[a].nz, false)) + "\n");
+			//array_push(obj_string_array, string("vn {0} {1} {2}", string(obj_tmd.norm[a].nx), string(obj_tmd.norm[a].ny), string(obj_tmd.norm[a].nz)) + "\n");
 		}
 	}
 	else {array_push(obj_string_array, string("vn 0.000000 0.000000 0.000000") + "\n");
@@ -331,16 +344,16 @@ function export_obj(){
 	
 	#region Page Sorting V2 [Under construction: Finished]
 
-	prim_group = prim_group_sort(tmd_reverse.prim);
+	prim_group = prim_group_sort(obj_tmd.prim);
 	dupe_group = prim_group_sort(tmd_duplicates.prim);
 	#endregion
 	
 	
 	#region vt Writing [Under construction: Finished]
-	if(array_length(tmd_reverse.prim) > 0){
+	if(array_length(obj_tmd.prim) > 0){
 		for (var a = 0; a < array_length(prim_group); a++){
 			for (var b = 0; b < array_length(prim_group[a]); b++){
-				vt_write(tmd_reverse.prim[prim_group[a][b]]);
+				vt_write(obj_tmd.prim[prim_group[a][b]]);
 			}
 		}
 	}
@@ -360,16 +373,16 @@ function export_obj(){
 	tex_base = 1;
 	tex_count = 0;
 	
-	//change = tmd_edit.objects[a].vert_off - tmd_edit.objects[0].vert_off;
+	//change = obj_tmd.objects[a].vert_off - obj_tmd.objects[0].vert_off;
 	//vert_base = change / 8;
-	//change = tmd_edit.objects[a].normal_off - tmd_edit.objects[0].normal_off;
+	//change = obj_tmd.objects[a].normal_off - obj_tmd.objects[0].normal_off;
 	//norm_base = change / 8;
 		
 	mtl_title = ["VRAM 4bit page #28", "VRAM 4bit page #29", "VRAM 4bit page #30", "VRAM 4bit page #31", 
 	"VRAM 8bit page #28", "VRAM 8bit page #29", "VRAM 8bit page #30", "VRAM 8bit page #31"];
 	mtl_check = [false, false, false, false, false, false, false, false];
 	
-	norm_flag = false;
+	
 	triangle_group = 0;
 	for (var a = 0; a < array_length(prim_group) + array_length(dupe_group); a++){
 	//for (var a = 0; a < array_length(prim_group); a++){
@@ -385,7 +398,7 @@ function export_obj(){
 			continue;
 		}
 		//group declaration + name
-		array_push(obj_string_array, string("g TMD object #{0}, {1}", triangle_group, mtl) + "\n");
+		array_push(obj_string_array, string("g TMD object #0, {1}", triangle_group, mtl) + "\n");
 		//matlib declaraion
 		array_push(obj_string_array, string("usemtl {0}", mtl_title[a mod 8]) + "\n");
 			
@@ -394,12 +407,12 @@ function export_obj(){
 				mtl_check[a] = true;
 				skip = false;
 
-				var prim_r = tmd_reverse.prim[mtl_sorted[a mod 8][b]];
-				for (var c = 0; c < array_length(tmd_edit.duplicates); c++){
+				var prim_r = obj_tmd.prim[mtl_sorted[a mod 8][b]];
+				for (var c = 0; c < array_length(obj_tmd.duplicates); c++){
 					if (quad_count > 0){
 						break;
 					}
-					if (prim_r.p_index == tmd_edit.duplicates[c][1]){
+					if (prim_r.p_index == obj_tmd.duplicates[c][1]){
 						tex_base += 3;
 						skip = true;
 						continue;
@@ -448,13 +461,13 @@ function export_obj(){
 	array_push(obj_string_array, string("# {0} quads found", quad_count));
 	
 	//export_path = get_save_filename_ext("Wavefront OBJ|*.obj", fname_mm0, "","Save OBJ File");
-	//export_path = variable_clone(user_filepath);
+	//export_path = variable_clone(adv_options.user_path);
 	#region OBJ File Export
 	for (var a = 0; a < array_length(obj_string_array); a++){
 		buffer_write(objbuffer, buffer_text, obj_string_array[a]);
 	}
-	export_path_obj = string("{0}{1}.obj", user_filepath, fname_mm0);
-	export_path_mtl = string("{0}{1}.mtl", user_filepath, fname_mm0);
+	export_path_obj = string("{0}{1}.obj", adv_options.user_path, fname_mm0);
+	export_path_mtl = string("{0}{1}.mtl", adv_options.user_path, fname_mm0);
 	buffer_save(objbuffer, export_path_obj);
 	#endregion
 	#region MTL File Creation

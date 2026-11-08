@@ -1,4 +1,106 @@
 
+#region TIMBuilder [Debugging Tool]
+if (tex_hash != -1 && mm0_hash != -1){
+	//if (timb_sprite == -1){
+	//	exit;
+	//}
+	max_w = 0;
+	max_h = 0;
+	for (var a = 0; a < ds_list_size(tim_list); a++){
+		switch (tim_list[|a].bit){
+			case 0:
+			mult = 4
+			break;
+			case 1:
+			mult = 2
+			break;
+		}
+		if ((tim_list[|a].pixel_w * mult) > max_w){
+			max_w = tim_list[|a].pixel_w * mult;
+		}
+		if ((tim_list[|a].pixel_h) > max_h){
+			max_h = tim_list[|a].pixel_h;
+		}
+	}
+	if !(surface_exists(surf)){
+		surf = surface_create(max_w, max_h);
+		surface_set_target(surf);
+		draw_clear_alpha(c_white, 0);
+		draw_set_alpha(1);
+		draw_set_colour($FFFFFF);
+		draw_rectangle(0, 0, max_w, max_h, false); //empty space filler
+	}
+	else{
+		surface_set_target(surf);
+	}
+	px = 0;
+	py = 0;
+	pw = tim_list[|tim_select].pixel_w;
+	ph = tim_list[|tim_select].pixel_h;
+	
+	gpu_set_blendenable(false); //try to make alpha values predictable
+				
+	pixel_list = pixel_builder(tim_list[|tim_select], false, 0, 0, 0, 0, 0);
+				
+	#region Draw pixels to surface
+	var w = 0;
+	var h = 0;
+	for (var d = 0; d < array_length(pixel_list); d++){
+		index = pixel_list[d] >> 1;
+		stp = pixel_list[d] & 0b1;
+							
+		if (w >= pw * mult){
+			w = 0;
+			h++;
+		}
+		#region Alpha setup
+		if (pixel_list[d] >= 512){ //fully transparent, "erases" pixel
+			gpu_set_blendenable(true);
+			draw_set_alpha(1);
+			draw_set_colour($FFFFFF);
+			gpu_set_blendmode(bm_subtract);
+								
+			draw_point_colour((px * mult) + w, py + h, $FFFFFF);
+								
+			gpu_set_blendmode(bm_normal);
+			gpu_set_blendenable(false);
+								
+			w++;
+			continue;
+		}
+		else if (stp == 1){ //semi-transparent
+			draw_set_alpha(png_alpha);
+		}
+		else { //opaque
+			draw_set_alpha(1);
+		}
+		#endregion
+								
+		#region Pixel Draw			
+		draw_clut = tim_rgb_clut[tim_list[|tim_select].clut_y - 505];
+		draw_point_colour((px * mult) + w, py + h, draw_clut[index + tim_list[|tim_select].clut_x][0]);
+		
+		w++;
+		#endregion
+	}
+	surface_reset_target();
+	view_surface_id[0] = surf;
+	draw_set_alpha(1);
+	gpu_set_blendenable(true);
+	
+	draw_surface(surf, x + 0, 0);
+	if (surface_exists(surf)){
+		surface_free(surf);
+	}
+	
+	p_array = [];
+	for (var a = 0; a < array_length(timb_groups[tim_select]); a++){
+		array_push(p_array, timb_tmd.prim[timb_groups[tim_select][a]]);
+	}
+	tmd_prim_draw(p_array, 0, array_length(p_array), c_black, c_white, c_grey, 1, x + 0, 0);
+}
+#endregion
+
 if (string_length(keyboard_string) > 3){
 	keyboard_string = test_string;
 }

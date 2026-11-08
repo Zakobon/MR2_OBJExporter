@@ -2,7 +2,7 @@
 //_base_offset is added to _prim_array[i + _offset]'s index
 //_prim_array[i + _offset][_base_offset + i].tex
 
-function tmd_prim_draw(_prim_array, _offset, _count, _line, _fill, _vertex_color = 0, _transparency = 1){
+function tmd_prim_draw(_prim_array, _offset, _count, _line, _fill, _vertex_color = 0, _transparency = 1, _x_loc = -1, _y_loc = -1){
 	prim_array = [];
 	vert_size = 2;
 	prim = [];
@@ -107,33 +107,43 @@ function tmd_prim_draw(_prim_array, _offset, _count, _line, _fill, _vertex_color
 			draw_primitive_begin_texture(pr_trianglelist, -1);
 			
 			for (var b = 0; b < array_length(x_list) - 2; b++){ //Repeats with +1 index if more than 3 verts exist
-				switch(page_list[b] + 16){
-				case 28:
-				grid_x = p28_Window.left + 2;
-				grid_y = p28_Window.top + 2;
-				break;
+				if (_x_loc != -1){
+					x_loc = _x_loc;
+					y_loc = _y_loc;
+				}
+				if (_y_loc != -1){
+					x_loc = _x_loc;
+					y_loc = _y_loc;
+				}
+				if (_x_loc == -1 && _y_loc == -1){
+					switch(page_list[b] + 16){
+						case 28:
+						x_loc = p28_Window.left + 2;
+						y_loc = p28_Window.top + 2;
+						break;
 					
-				case 29:
-				grid_x = p29_Window.left + 2;
-				grid_y = p29_Window.top + 2;
-				break;
+						case 29:
+						x_loc = p29_Window.left + 2;
+						y_loc = p29_Window.top + 2;
+						break;
 					
-				case 30:
-				grid_x = p30_Window.left + 2;
-				grid_y = p30_Window.top + 2;
-				break;
+						case 30:
+						x_loc = p30_Window.left + 2;
+						y_loc = p30_Window.top + 2;
+						break;
 					
-				case 31:
-				grid_x = p31_Window.left + 2;
-				grid_y = p31_Window.top + 2;
-				break;
-			}
-				draw_vertex_colour(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]), _fill, transparency);
-				draw_vertex_colour(grid_x + (x_list[1 + b]), grid_y + (y_list[1 + b]), _fill, transparency);
-				draw_vertex_colour(grid_x + (x_list[2 + b]), grid_y + (y_list[2 + b]), _fill, transparency);
-				//draw_vertex_colour(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]), c_list[0 + b], transparency);
-				//draw_vertex_colour(grid_x + (x_list[1 + b]), grid_y + (y_list[1 + b]), c_list[1 + b], transparency);
-				//draw_vertex_colour(grid_x + (x_list[2 + b]), grid_y + (y_list[2 + b]), c_list[2 + b], transparency);
+						case 31:
+						x_loc = p31_Window.left + 2;
+						y_loc = p31_Window.top + 2;
+						break;
+					}
+				}
+				draw_vertex_colour(x_loc + (x_list[0 + b]), y_loc + (y_list[0 + b]), _fill, transparency);
+				draw_vertex_colour(x_loc + (x_list[1 + b]), y_loc + (y_list[1 + b]), _fill, transparency);
+				draw_vertex_colour(x_loc + (x_list[2 + b]), y_loc + (y_list[2 + b]), _fill, transparency);
+				//draw_vertex_colour(x_loc + (x_list[0 + b]), y_loc + (y_list[0 + b]), c_list[0 + b], transparency);
+				//draw_vertex_colour(x_loc + (x_list[1 + b]), y_loc + (y_list[1 + b]), c_list[1 + b], transparency);
+				//draw_vertex_colour(x_loc + (x_list[2 + b]), y_loc + (y_list[2 + b]), c_list[2 + b], transparency);
 			}
 		draw_primitive_end();
 		}
@@ -141,33 +151,43 @@ function tmd_prim_draw(_prim_array, _offset, _count, _line, _fill, _vertex_color
 			draw_primitive_begin_texture(pr_trianglelist, -1);
 			
 			for (var b = 0; b < array_length(x_list) - 2; b++){ //Repeats with +1 index if more than 3 verts exist
-				switch(page_list[b] + 16){
-					case 28:
-					grid_x = p28_Window.left + 2;
-					grid_y = p28_Window.top + 2;
-					break;
-					
-					case 29:
-					grid_x = p29_Window.left + 2;
-					grid_y = p29_Window.top + 2;
-					break;
-					
-					case 30:
-					grid_x = p30_Window.left + 2;
-					grid_y = p30_Window.top + 2;
-					break;
-					
-					case 31:
-					grid_x = p31_Window.left + 2;
-					grid_y = p31_Window.top + 2;
-					break;
+				if (_x_loc != -1){
+					x_loc = _x_loc;
+					y_loc = _y_loc;
 				}
-				draw_vertex_colour(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]), _fill, .1);
-				draw_vertex_colour(grid_x + (x_list[1 + b]), grid_y + (y_list[1 + b]), _fill, .1);
-				draw_vertex_colour(grid_x + (x_list[2 + b]), grid_y + (y_list[2 + b]), _fill, .1);
-				//draw_vertex_colour(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]), c_list[0 + b], transparency);
-				//draw_vertex_colour(grid_x + (x_list[1 + b]), grid_y + (y_list[1 + b]), c_list[1 + b], transparency);
-				//draw_vertex_colour(grid_x + (x_list[2 + b]), grid_y + (y_list[2 + b]), c_list[2 + b], transparency);
+				if (_y_loc != -1){
+					x_loc = _x_loc;
+					y_loc = _y_loc;
+				}
+				if (_x_loc == -1 && _y_loc == -1){
+					switch(page_list[b] + 16){
+						case 28:
+						x_loc = p28_Window.left + 2;
+						y_loc = p28_Window.top + 2;
+						break;
+					
+						case 29:
+						x_loc = p29_Window.left + 2;
+						y_loc = p29_Window.top + 2;
+						break;
+					
+						case 30:
+						x_loc = p30_Window.left + 2;
+						y_loc = p30_Window.top + 2;
+						break;
+					
+						case 31:
+						x_loc = p31_Window.left + 2;
+						y_loc = p31_Window.top + 2;
+						break;
+					}
+				}
+				draw_vertex_colour(x_loc + (x_list[0 + b]), y_loc + (y_list[0 + b]), _fill, .1);
+				draw_vertex_colour(x_loc + (x_list[1 + b]), y_loc + (y_list[1 + b]), _fill, .1);
+				draw_vertex_colour(x_loc + (x_list[2 + b]), y_loc + (y_list[2 + b]), _fill, .1);
+				//draw_vertex_colour(x_loc + (x_list[0 + b]), y_loc + (y_list[0 + b]), c_list[0 + b], transparency);
+				//draw_vertex_colour(x_loc + (x_list[1 + b]), y_loc + (y_list[1 + b]), c_list[1 + b], transparency);
+				//draw_vertex_colour(x_loc + (x_list[2 + b]), y_loc + (y_list[2 + b]), c_list[2 + b], transparency);
 			}
 		draw_primitive_end();
 		}
@@ -178,31 +198,41 @@ function tmd_prim_draw(_prim_array, _offset, _count, _line, _fill, _vertex_color
 		//draws polygon lines
 		draw_primitive_begin(pr_linestrip);
 		for (var b = 0; b < array_length(x_list) - 2; b++){ //Repeats with +1 index if more than 3 verts exist
-			switch(page_list[b] + 16){
-				case 28:
-				grid_x = p28_Window.left + 2;
-				grid_y = p28_Window.top + 2;
-				break;
+			if (_x_loc != -1){
+					x_loc = _x_loc;
+					y_loc = _y_loc;
+				}
+				if (_y_loc != -1){
+					x_loc = _x_loc;
+					y_loc = _y_loc;
+				}
+				if (_x_loc == -1 && _y_loc == -1){
+					switch(page_list[b] + 16){
+						case 28:
+						x_loc = p28_Window.left + 2;
+						y_loc = p28_Window.top + 2;
+						break;
 					
-				case 29:
-				grid_x = p29_Window.left + 2;
-				grid_y = p29_Window.top + 2;
-				break;
+						case 29:
+						x_loc = p29_Window.left + 2;
+						y_loc = p29_Window.top + 2;
+						break;
 					
-				case 30:
-				grid_x = p30_Window.left + 2;
-				grid_y = p30_Window.top + 2;
-				break;
+						case 30:
+						x_loc = p30_Window.left + 2;
+						y_loc = p30_Window.top + 2;
+						break;
 					
-				case 31:
-				grid_x = p31_Window.left + 2;
-				grid_y = p31_Window.top + 2;
-				break;
-			}
-			draw_vertex(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]));
-			draw_vertex(grid_x + (x_list[1 + b]), grid_y + (y_list[1 + b]));
-			draw_vertex(grid_x + (x_list[2 + b]), grid_y + (y_list[2 + b]));
-			draw_vertex(grid_x + (x_list[0 + b]), grid_y + (y_list[0 + b]));
+						case 31:
+						x_loc = p31_Window.left + 2;
+						y_loc = p31_Window.top + 2;
+						break;
+					}
+				}
+			draw_vertex(x_loc + (x_list[0 + b]), y_loc + (y_list[0 + b]));
+			draw_vertex(x_loc + (x_list[1 + b]), y_loc + (y_list[1 + b]));
+			draw_vertex(x_loc + (x_list[2 + b]), y_loc + (y_list[2 + b]));
+			draw_vertex(x_loc + (x_list[0 + b]), y_loc + (y_list[0 + b]));
 		}
 		draw_primitive_end();
 	}

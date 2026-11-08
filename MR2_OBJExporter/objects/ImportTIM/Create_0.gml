@@ -10,6 +10,7 @@ filename_input = get_open_filename_ext("MRDX TIM Files|*.tex", "", "","Open MRDX
 
 if (filename_input != "") {
     tim_buffer = buffer_load(filename_input);
+	tex_hash = variable_get_hash(tim_buffer);
     buffer_seek(tim_buffer, buffer_seek_start, 0);
 	ds_list_clear(tim_list);
  }
@@ -51,7 +52,9 @@ while (filename_input != "" && buffer_tell(tim_buffer) + 16 < buffer_get_size(ti
 		pixel_w : 0,
 		pixel_h : 0,
 		pixel_data : [],
-
+		
+		pixel_x_origin : 0,
+		pixel_y_origin : 0,
 	}
 	clut_entry = {
 		red : 0,
@@ -108,6 +111,8 @@ while (filename_input != "" && buffer_tell(tim_buffer) + 16 < buffer_get_size(ti
 	
 	tim.pixel_data = [];
 	
+	
+	
 	switch (tim.bit){
 		case 0:
 		for (var i = 0; i < tim.pixel_w * tim.pixel_h; i++) {
@@ -120,6 +125,7 @@ while (filename_input != "" && buffer_tell(tim_buffer) + 16 < buffer_get_size(ti
 			array_push(tim.pixel_data, second);
 			array_push(tim.pixel_data, third);
 			array_push(tim.pixel_data, forth);
+			mult = 4;
 		}
 		break;
 		
@@ -130,9 +136,19 @@ while (filename_input != "" && buffer_tell(tim_buffer) + 16 < buffer_get_size(ti
 			second = (entry >> 8) & 0b1111_1111;
 			array_push(tim.pixel_data, first);
 			array_push(tim.pixel_data, second);
+			mult = 2;
 		}
 		break;
 	}
+	//page = tim.pixel_x div 64;
+	//page_x = page * 64;
+	//tim_x = (tim.pixel_x mod 64) * mult;
+	//x_origin = page_x + tim_x;
+	x_origin = tim.pixel_x - 768;
+	y_origin = tim.pixel_y mod 256;
+	
+	tim.pixel_x_origin = x_origin// * mult;
+	tim.pixel_y_origin = y_origin;
 	array_push(tim_buffer_list, tim);
 }
 for (var a = 0; a < array_length(tim_buffer_list); a++){

@@ -1,9 +1,3 @@
-globalvar filepath;
-filepath = "";
-globalvar user_filepath; //folder user selects to output to
-user_filepath = "(waiting for import)";
-globalvar user_filepath_given;
-user_filepath_given = false;
 
 globalvar File_Window;
 File_Window = layer_get_flexpanel_node("File_Menu");

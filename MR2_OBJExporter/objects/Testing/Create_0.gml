@@ -16,3 +16,4 @@ on = false;
 test_string = "";
 pattern = pattern_reader(Blended8x8); //test
 test = true;
+surf = -1;

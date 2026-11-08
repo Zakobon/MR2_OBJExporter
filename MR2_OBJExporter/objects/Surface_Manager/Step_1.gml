@@ -219,8 +219,14 @@ if (ds_list_size(tim_list) != 0 && draw_refresh != 0){
 	gpu_set_blendenable(true); 
 	
 	#endregion
+	
+	
 }
+#region TIMBuilder Surface + Sprite creation
 
+if (surface_exists(surf)){
+		surface_free(surf);
+	}
 
 
 timer++;

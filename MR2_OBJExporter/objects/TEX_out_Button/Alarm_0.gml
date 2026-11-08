@@ -8,10 +8,11 @@
 if !(instance_exists(ImportTIM)){
 	exit;
 }
+
 tex_builder();
 filename = string_delete(ui_name_tex, string_length(ui_name_tex) - 3, 4);
 
-filename = get_save_filename_ext("TEX File|*.tex", filename, user_filepath, "Export Grid TEX as");
+filename = get_save_filename_ext("TEX File|*.tex", filename, adv_options.user_path, "Export Grid TEX as");
 if (filename != ""){
 	buffer_save(tex_buffer, filename);
 	

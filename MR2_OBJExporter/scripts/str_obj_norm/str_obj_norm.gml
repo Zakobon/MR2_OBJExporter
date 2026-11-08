@@ -53,13 +53,22 @@ function str_obj_norm(_num, _neg_flag){
 	}
 
 	n_dec_bin = _num & 0b1111_1111_1111;
-	acc_adj = 1_000_000;
+
 	n_str0 = (_num >> 12) & 0b111;
 	if ((_num >> 15) & 0b1 == 1){
 		n_str0 *= -1;
 	}
-	n_str1 = (n_dec_bin) / (4096);
-	
+
+	dec_fraction = 1;
+	dec_total = 0;
+	for (var a = 11; a > -1; a--){ //Decimal bit conversion
+		dec_fraction = dec_fraction / 2;
+		bit = (n_dec_bin >> a) & 0b1;
+		if (bit == 1){
+			dec_total += dec_fraction;
+		}
+	}
+	n_str1 = dec_total;
 	if (_neg_flag == 1){
 		n_str0 *= -1;
 	}
@@ -69,5 +78,6 @@ function str_obj_norm(_num, _neg_flag){
 	else{
 		n_str2 = n_str0 + n_str1;
 	}
+	
 	return (string_format(n_str2,2,10));
 }

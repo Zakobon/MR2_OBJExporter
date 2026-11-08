@@ -1,6 +1,5 @@
 var Import_TEX = variable_instance_get(import_tex, "active");
 if (Import_TEX == 1) {
-	old_file = ui_name_tex;
 	variable_instance_set(import_tex, "active", 0);
 	
 	if (instance_exists(ImportTIM)){
@@ -54,30 +53,21 @@ if (Import_TEX == 1) {
 			vram28_8bit[a][0] = -1;
 			vram29_8bit[a][0] = -1;
 			vram30_8bit[a][0] = -1;
-			vram31_8bit[a][0] = -1;
-			
-			draw_check28_4bit = false;
-			draw_check29_4bit = false;
-			draw_check30_4bit = false;
-			draw_check31_4bit = false;
-
-			draw_check28_8bit = false;
-			draw_check29_8bit = false;
-			draw_check30_8bit = false;
-			draw_check31_8bit = false;
+			vram31_8bit[a][0] = -1;			
 		}
+		
 		instance_create_layer(0, 0, "TIM_Draw", ImportTIM);
 	}
 	else{
 		instance_create_layer(0, 0, "TIM_Draw", ImportTIM);
 	}
 	
-	if (user_filepath_given == false){
-		if (filepath == ""){
+	if (adv_options.user_path_flag == false){
+		if (adv_options.filepath == ""){
 			for (var a = 0; a < array_length(filename_array) - 1;a++){
-				filepath = string_insert(string(filename_array[a] + "\\"), filepath, string_length(filepath) + 1);
+				adv_options.filepath = string_insert(string(filename_array[a] + "\\"), adv_options.filepath, string_length(adv_options.filepath) + 1);
 			}
-			user_filepath = variable_clone(filepath);
+			adv_options.user_path = variable_clone(adv_options.filepath);
 		}
 	}
 	
