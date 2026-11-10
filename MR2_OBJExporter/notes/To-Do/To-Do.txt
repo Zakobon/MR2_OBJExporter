@@ -3,7 +3,10 @@
 []
 [] Write Changelist
 \\-----------------//
-
++ [Fixed] Chooseing export directory before importing files causes a crash when you try to export an obj
+	= Forgot to clone adv_options.filepath into adv_options.user_path
+		=? Need to double check to see if these variables are redundant
+		
 - [Feature] Pattern CLUT based on CLUT X/Y instead of TIM Index
 	- Need to draw the original white sprite templates as those CLUT values
 	- New TEX export script?

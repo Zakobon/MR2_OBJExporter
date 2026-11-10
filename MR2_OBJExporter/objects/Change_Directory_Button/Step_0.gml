@@ -6,6 +6,7 @@ if (ChangePath == 1){
 	if (user_input != "") {
 		adv_options.filepath = user_input;	
 		adv_options.user_path_flag = true;
+		adv_options.user_path = variable_clone(adv_options.filepath);
 		obj_out_success = false;
 		obj_duplicate = 0;
 		png_out_success = false;
